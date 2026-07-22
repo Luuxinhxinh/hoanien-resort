@@ -9,9 +9,9 @@
 /* ═══ CSS Custom Properties ══════════════════════════════════════ */
 :root {
     /* Colours */
-    --background:   #EDE8DF;
+    --background:   #FFFFFF;
     --foreground:   #2C2A1E;
-    --card:         #F5F0E8;
+    --card:         #EDE8DF;
     --primary:      #C9A96E;
     --dark-bg:      #1A1814;
     --text-muted:   #8B7355;

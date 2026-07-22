@@ -27,4 +27,9 @@ public class CancelOrderRequestDTO {
      * Lý do hủy đơn (tùy chọn)
      */
     private String reason;
+
+    /**
+     * Số điện thoại chủ tài khoản (dùng cho hoàn tiền)
+     */
+    private String phoneNumber;
 }

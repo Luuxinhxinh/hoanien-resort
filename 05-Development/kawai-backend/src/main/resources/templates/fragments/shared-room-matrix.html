@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<body>
+<div th:fragment="roomMatrix">
+
+    <!-- FontAwesome for room status icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<style>
+        /* Missing CSS variables and layout styles for Admin Dashboard */
+        :root {
+            --color-occupied-bg: #222938;
+            --color-occupied-text: #ffffff;
+            --color-housekeeping-border: #f6c042;
+            --color-housekeeping-text: #f6c042;
+            --color-available-border: #64d18a;
+            --color-available-text: #64d18a;
+            --color-ooo-border: #eb5757;
+            --color-ooo-text: #eb5757;
+            --border-color: #e5e5e5;
+            --text-muted: #8b8b8b;
+        }
+
+        .room-matrix-section {
+            background-color: #ffffff;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02);
+            font-family: 'Inter', sans-serif;
+            margin-top: 24px;
+        }
+
+        .room-matrix-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .matrix-title-area h2 { font-size: 18px; font-weight: 600; margin-bottom: 4px; color: #222938; }
+        .matrix-title-area p { font-size: 13px; color: var(--text-muted); margin: 0; }
+
+        .matrix-legend-area { display: flex; justify-content: space-between; align-items: center; padding-bottom: 16px; border-bottom: 1px solid var(--border-color); margin-bottom: 24px; flex-wrap: wrap; gap: 16px; }
+        .legend-items { display: flex; gap: 20px; flex-wrap: wrap; }
+        .legend-item { display: flex; align-items: center; gap: 8px; font-size: 13px; color: #555; }
+        .legend-dot { width: 12px; height: 12px; border-radius: 50%; border: 2px solid; background-color: white; display: inline-block; }
+
+        .dot-available { border-color: var(--color-available-border); }
+        .dot-occupied { border-color: var(--color-occupied-bg); background-color: var(--color-occupied-bg); }
+        .dot-housekeeping { border-color: var(--color-housekeeping-border); }
+        .dot-ooo { border-color: var(--color-ooo-border); }
+
+        .matrix-count { font-size: 13px; color: var(--text-muted); }
+
+        .floor-section { margin-bottom: 32px; }
+        :root {
+            --color-occupied-bg: #222938;
+            --color-occupied-text: #ffffff;
+            --color-housekeeping-border: #f6c042;
+            --color-housekeeping-text: #f6c042;
+            --color-available-border: #00bcd4;
+            --color-available-text: #00bcd4;
+            --color-ooo-border: #e85d75;
+            --color-ooo-text: #e85d75;
+        }
+
+        .floor-header { display: flex; align-items: center; gap: 16px; margin-bottom: 20px; }
+        .floor-badge { background-color: #222938; color: white; padding: 4px 12px; border-radius: 16px; font-size: 13px; font-weight: 600; white-space: nowrap; }
+        .floor-line { flex: 1; height: 1px; background-color: #e6ded4; }
+        .floor-count { font-size: 13px; color: #8b8b8b; white-space: nowrap; }
+
+        .room-card {
+            border-radius: 12px;
+            padding: 16px;
+            height: 140px;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            border: 2px solid transparent;
+            text-decoration: none;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.2s;
+        }
+
+        .room-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+        .room-card.card-housekeeping:hover { border-color: var(--color-housekeeping-border) !important; }
+        .room-card.card-available:hover { border-color: var(--color-available-border) !important; }
+        .room-card.card-ooo:hover { border-color: var(--color-ooo-border) !important; }
+        .room-card.card-occupied:hover { border-color: transparent !important; }
+
+        .room-card-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
+        .room-number { font-size: 20px; font-weight: 700; color: #222938; }
+        .room-indicator { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+        .room-type { font-size: 12px; margin-bottom: auto; }
+        .type-badge { background-color: rgba(0, 0, 0, 0.05); padding: 2px 6px; border-radius: 4px; display: inline-block; color: #555; }
+        .room-guest { font-size: 14px; font-weight: 500; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .room-footer, .room-status-text { font-size: 12px; opacity: 0.8; }
+
+        .card-occupied { background-color: var(--color-occupied-bg); color: var(--color-occupied-text); }
+        .card-occupied .room-indicator { background-color: #f6c042; }
+        .card-occupied .room-number { color: #ffffff; }
+        .card-occupied .type-badge { background-color: rgba(255, 255, 255, 0.15); color: #ffffff; }
+        
+        .card-housekeeping { background-color: white; border-color: var(--color-housekeeping-border); }
+        .card-housekeeping .room-status-text { color: var(--color-housekeeping-text); font-weight: 500; }
+        
+        .card-available { background-color: white; border-color: var(--color-available-border); }
+        .card-available .room-indicator { background-color: var(--color-available-border); }
+        .card-available .text-green { color: var(--color-available-text) !important; font-weight: 500; }
+        
+        .card-ooo { background-color: white; border-color: var(--color-ooo-border); }
+        .card-ooo .room-status-text { color: var(--color-ooo-text); font-weight: 500; }
+
+        .room-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 16px;
+            /* Admin dash needs to show all rows, not just 142px max-height */
+            transition: opacity 0.3s ease-in-out;
+            overflow: visible;
+            padding: 4px;
+            margin: -4px;
+        }
+
+        /* Removed .room-grid.expanded max-height hack */
+        .urgent-clean-btn.btn-occupied {
+            background: #ffffff;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .urgent-clean-btn.btn-occupied:hover {
+            background: #f3f4f6;
+        }
+
+        .urgent-clean-btn.btn-dirty {
+            background: rgba(220, 38, 38, 0.1);
+        }
+
+        .urgent-clean-btn.btn-dirty:hover {
+            background: rgba(220, 38, 38, 0.2);
+        }
+
+        /* Modal Style for Urgent Maintenance */
+        .maintenance-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            backdrop-filter: blur(4px);
+        }
+
+        .maintenance-modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .maintenance-modal-content {
+            background: #ffffff;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 450px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+            padding: 24px;
+            transform: translateY(20px);
+            transition: transform 0.3s ease;
+        }
+
+        .maintenance-modal-overlay.active .maintenance-modal-content {
+            transform: translateY(0);
+        }
+
+        .maintenance-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .maintenance-modal-header h3 {
+            margin: 0;
+            color: #2c2a29;
+            font-size: 16px;
+            font-weight: 700;
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .maintenance-modal-header .close-btn {
+            background: none;
+            border: none;
+            font-size: 18px;
+            cursor: pointer;
+            color: #9e9e9e;
+            transition: color 0.2s;
+        }
+
+        .maintenance-modal-header .close-btn:hover {
+            color: #2c2a29;
+        }
+
+        .maintenance-form-group {
+            margin-bottom: 20px;
+        }
+
+        .maintenance-form-group label {
+            display: block;
+            margin-bottom: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #5a554f;
+        }
+
+        .maintenance-form-group input,
+        .maintenance-form-group textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #e6ded4;
+            border-radius: 8px;
+            font-size: 13px;
+            outline: none;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .maintenance-form-group input:focus,
+        .maintenance-form-group textarea:focus {
+            border-color: #d35400;
+        }
+
+        .maintenance-modal-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .maintenance-modal-actions button {
+            flex: 1;
+            padding: 10px 16px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 13px;
+            font-family: 'Inter', sans-serif;
+            cursor: pointer;
+            border: none;
+            transition: opacity 0.2s;
+        }
+
+        .maintenance-modal-actions .btn-cancel {
+            background: #f8f9fa;
+            color: #5a554f;
+            border: 1px solid #e6ded4;
+        }
+
+        .maintenance-modal-actions .btn-submit {
+            background: #d35400;
+            color: white;
+        }
+
+        .maintenance-modal-actions button:hover {
+            opacity: 0.9;
+        }
+    </style>
+
+<div class="room-matrix-section">
+                    <div class="room-matrix-header">
+                        <div class="matrix-title-area">
+                            <h2>Room Grid Matrix</h2>
+                            <p>Sơ đồ phòng — Live status</p>
+                        </div>
+                    </div>
+
+                    <div class="matrix-legend-area">
+                        <div class="legend-items">
+                            <div class="legend-item" onclick="toggleFilter('card-available', this)"
+                                style="cursor: pointer; transition: opacity 0.3s;"><span
+                                    class="legend-dot dot-available"></span>Available</div>
+                            <div class="legend-item" onclick="toggleFilter('card-occupied', this)"
+                                style="cursor: pointer; transition: opacity 0.3s;"><span
+                                    class="legend-dot dot-occupied"></span>Occupied</div>
+                            <div class="legend-item" onclick="toggleFilter('card-housekeeping', this)"
+                                style="cursor: pointer; transition: opacity 0.3s;"><span
+                                    class="legend-dot dot-housekeeping"></span>Housekeeping</div>
+                            <div class="legend-item" onclick="toggleFilter('card-ooo', this)"
+                                style="cursor: pointer; transition: opacity 0.3s;"><span
+                                    class="legend-dot dot-ooo"></span>Maintenance</div>
+                        </div>
+                        <div class="matrix-count" th:text="${#maps.size(categorizedRooms)} + ' categories'">Showing
+                            rooms</div>
+                    </div>
+
+                    <!-- Room Grid - grouped by category -->
+                    <div th:each="entry : ${categorizedRooms}" class="floor-section">
+                        <div class="floor-header" onclick="toggleCategory(this)"
+                            style="cursor: pointer; display: flex; align-items: center;">
+                            <span class="floor-badge" th:text="${entry.key}">Category Name</span>
+                            <div class="floor-line" style="flex-grow: 1;"></div>
+                            <span class="floor-count" th:text="${#lists.size(entry.value)} + ' rooms'"></span>
+                            <i class="fa-solid fa-chevron-down toggle-icon"
+                                style="transition: transform 0.3s; margin-left: 12px; color: #8b8b8b;"></i>
+                        </div>
+
+                        <div class="room-grid">
+                            <div th:each="room : ${entry.value}" class="room-card" style="position: relative; cursor: pointer;"
+                                th:classappend="${#strings.equalsIgnoreCase(room.status, 'Occupied')} ? 'card-occupied' : (${#strings.equalsIgnoreCase(room.status, 'Vacant_Dirty')} ? 'card-housekeeping' : (${#strings.equalsIgnoreCase(room.status, 'Maintenance')} ? 'card-ooo' : 'card-available'))"
+                                th:attr="data-room=${room.roomNumber}, data-status=${room.status}, data-guest=${room.guestName}, data-pax=${room.pax}, data-in=${room.checkInDate}, data-out=${room.checkOutDate}"
+                                th:onclick="|showRoomDetail(this)|" >
+                                <div class="room-card-top">
+                                    <span class="room-number" th:text="${room.roomNumber}"></span>
+                                    <div style="display: flex; align-items: center; gap: 6px;">
+                                        <span class="room-indicator"
+                                            th:if="${#strings.equalsIgnoreCase(room.status, 'Occupied') and !room.hasUrgentMaintenance and !room.hasUrgentClean}"></span>
+                                        <i class="fa-solid fa-screwdriver-wrench" th:if="${room.hasUrgentMaintenance}"
+                                            style="color:#d35400;font-size:12px;" title="Cần sửa chữa khẩn cấp"></i>
+                                        <i class="fa-solid fa-broom" th:if="${room.hasUrgentClean}"
+                                            style="color:#00bcd4;font-size:14px;" title="Yêu cầu dọn dẹp khẩn cấp"></i>
+                                        <i class="fa-solid fa-wand-magic-sparkles"
+                                            th:if="${#strings.equalsIgnoreCase(room.status, 'Vacant_Dirty') and !room.hasUrgentMaintenance and !room.hasUrgentClean}"
+                                            style="color:#c9a96e;font-size:14px;"></i>
+                                        <i class="fa-solid fa-wrench"
+                                            th:if="${#strings.equalsIgnoreCase(room.status, 'Maintenance') and !room.hasUrgentMaintenance and !room.hasUrgentClean}"
+                                            style="color:#7a7a9a;font-size:14px;"></i>
+                                        <span class="room-indicator"
+                                            th:if="${#strings.equalsIgnoreCase(room.status, 'Vacant_Clean') and !room.hasUrgentMaintenance and !room.hasUrgentClean}"></span>
+                                    </div>
+                                </div>
+                                <div class="room-type">
+                                    <span class="type-badge" th:text="${room.category}"></span>
+                                </div>
+                                <div class="room-status-text"
+                                    th:text="${(#strings.equalsIgnoreCase(room.status, 'Occupied') ? 'Occupied' : (#strings.equalsIgnoreCase(room.status, 'Vacant_Clean') ? 'Ready' : (#strings.equalsIgnoreCase(room.status, 'Vacant_Dirty') ? 'Needs cleaning' : (#strings.equalsIgnoreCase(room.status, 'Maintenance') ? 'Maintenance' : room.status)))) + (room.hasUrgentMaintenance and room.hasUrgentClean ? ' (Sửa & Dọn)' : (room.hasUrgentMaintenance ? ' (Cần sửa)' : (room.hasUrgentClean ? ' (Dọn khẩn)' : '')))}">
+                                </div>
+                                <!-- Báo sửa chữa khẩn cấp -->
+                                <button title="Yêu cầu sửa chữa khẩn"
+                                    th:if="${#strings.equalsIgnoreCase(room.status, 'Occupied') or #strings.equalsIgnoreCase(room.status, 'Vacant_Dirty')}"
+                                    th:attr="onclick=|requestUrgentMaintenance('${room.roomNumber}', event)|"
+                                    class="urgent-maintenance-btn"
+                                    style="position: absolute; bottom: 8px; right: 42px; border: 1px solid #e6ded4; background: white; cursor: pointer; padding: 0; width: 28px; height: 28px; border-radius: 6px; display: flex; align-items: center; justify-content: center; transition: all 0.2s; box-shadow: 0 2px 5px rgba(0,0,0,0.05);"
+                                    onmouseover="this.style.transform='scale(1.05)'"
+                                    onmouseout="this.style.transform='scale(1)'">
+                                    <i class="fa-solid fa-wrench" style="color: #d35400; font-size: 13px;"></i>
+                                </button>
+                                <!-- Báo dọn khẩn cấp -->
+                                <button title="Yêu cầu dọn khẩn"
+                                    th:if="${#strings.equalsIgnoreCase(room.status, 'Occupied') or #strings.equalsIgnoreCase(room.status, 'Vacant_Dirty')}"
+                                    th:attr="onclick=|requestUrgentClean('${room.roomNumber}', event)|"
+                                    class="urgent-clean-btn"
+                                    style="position: absolute; bottom: 8px; right: 8px; border: 1px solid #e6ded4; background: white; cursor: pointer; padding: 0; width: 28px; height: 28px; border-radius: 6px; display: flex; align-items: center; justify-content: center; transition: all 0.2s; box-shadow: 0 2px 5px rgba(0,0,0,0.05);"
+                                    onmouseover="this.style.transform='scale(1.05)'"
+                                    onmouseout="this.style.transform='scale(1)'">
+                                    <i class="fa-solid fa-broom" style="color: #00bcd4; font-size: 13px;"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Fallback when no data -->
+                    <div th:if="${categorizedRooms.size() == 0}" style="padding:40px;text-align:center;color:#999;">
+                        <i class="fa-solid fa-bed" style="font-size:48px;margin-bottom:16px;display:block;"></i>
+                        <p>Chưa có dữ liệu phòng từ database.</p>
+                    </div>
+                <!-- Shared Room Matrix Scripts and Modals -->
+    <!-- CDNs for Modals and Toasts -->
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+
+    <!-- Urgent Maintenance Modal -->
+    <div class="maintenance-modal-overlay" id="maintenanceModal">
+        <div class="maintenance-modal-content">
+            <div class="maintenance-modal-header">
+                <h3><i class="fa-solid fa-screwdriver-wrench" style="color: #d35400;"></i> Báo sửa chữa khẩn cấp</h3>
+                <button class="close-btn" onclick="closeUrgentMaintenanceModal()"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="maintenance-form-group">
+                <label>Phòng xảy ra sự cố</label>
+                <input type="text" id="maintRoomNumber" readonly
+                    style="background: #f8f9fa; color: #7f8c8d; font-weight: 600;">
+            </div>
+            <div class="maintenance-form-group">
+                <label>Mô tả sự cố chi tiết</label>
+                <textarea id="maintNotes" rows="4"
+                    placeholder="Nhập mô tả sự cố (Ví dụ: Rò rỉ nước nhà vệ sinh, Hỏng chốt cửa ra vào...)"
+                    required></textarea>
+            </div>
+            <div class="maintenance-modal-actions">
+                <button class="btn-cancel" onclick="closeUrgentMaintenanceModal()">Hủy bỏ</button>
+                <button class="btn-submit" onclick="submitUrgentMaintenance()">Gửi yêu cầu</button>
+            </div>
+        </div>
+    </div>
+
+<script>
+        function requestUrgentClean(roomNumber, event) {
+            event.stopPropagation();
+            if (confirm('Yêu cầu dọn khẩn cấp phòng ' + roomNumber + '?')) {
+                fetch('/api/housekeeping/reception/escalate-task', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ roomNumber: roomNumber })
+                })
+                    .then(r => r.json())
+                    .then(data => {
+                        Toastify({
+                            text: data.message || "Đã gửi yêu cầu dọn dẹp thành công!",
+                            duration: 3000,
+                            close: true,
+                            gravity: "top",
+                            position: "right",
+                            backgroundColor: data.success ? "linear-gradient(to right, #00b09b, #96c93d)" : "linear-gradient(to right, #ff5f6d, #ffc371)",
+                        }).showToast();
+                        if (data.success) {
+                            setTimeout(() => window.location.reload(), 3000);
+                        }
+                    })
+                    .catch(err => alert("Lỗi kết nối!"));
+            }
+        }
+
+        let currentMaintRoomNumber = null;
+
+        function requestUrgentMaintenance(roomNumber, event) {
+            event.stopPropagation();
+            currentMaintRoomNumber = roomNumber;
+            document.getElementById('maintRoomNumber').value = 'Phòng ' + roomNumber;
+            document.getElementById('maintNotes').value = '';
+            document.getElementById('maintenanceModal').classList.add('active');
+        }
+
+        function closeUrgentMaintenanceModal() {
+            document.getElementById('maintenanceModal').classList.remove('active');
+        }
+
+        function submitUrgentMaintenance() {
+            const notes = document.getElementById('maintNotes').value.trim();
+            if (!notes) {
+                alert('Vui lòng nhập mô tả sự cố!');
+                return;
+            }
+
+            fetch('/api/housekeeping/reception/create-urgent-maintenance', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ roomNumber: currentMaintRoomNumber, notes: notes })
+            })
+                .then(r => r.json())
+                .then(data => {
+                    closeUrgentMaintenanceModal();
+                    Toastify({
+                        text: data.message,
+                        duration: 3000,
+                        close: true,
+                        gravity: "top",
+                        position: "right",
+                        backgroundColor: data.success ? "linear-gradient(to right, #00b09b, #96c93d)" : "linear-gradient(to right, #ff5f6d, #ffc371)",
+                    }).showToast();
+                    if (data.success) {
+                        setTimeout(() => window.location.reload(), 3000);
+                    }
+                })
+                .catch(err => {
+                    closeUrgentMaintenanceModal();
+                    alert("Lỗi kết nối!");
+                });
+        }
+    </script>
+
+<script>
+        function showRoomDetail(element) {
+            const status = element.getAttribute('data-status') || '';
+            if (!status.toLowerCase().includes('occupied')) return;
+
+            const roomNumber = element.getAttribute('data-room') || 'N/A';
+            const guestName  = element.getAttribute('data-guest') || 'Chưa cập nhật';
+            const pax        = element.getAttribute('data-pax') || 'N/A';
+            const checkIn    = element.getAttribute('data-in') || 'N/A';
+            const checkOut   = element.getAttribute('data-out') || 'N/A';
+
+            Swal.fire({
+                title: `<div style="font-family:'Playfair Display',serif;font-size:20px;color:#1a1a1a;letter-spacing:0.5px;">Phòng ${roomNumber}</div>`,
+                html: `
+                    <div style="text-align:left;padding:4px 8px;font-size:14px;color:#4a4a4a;">
+                        <table style="width:100%;border-collapse:collapse;">
+                            <tr style="border-bottom:1px solid #f0e8de;"><td style="padding:10px 0;color:#c9a96e;font-weight:600;width:120px;">Khách hàng</td><td style="padding:10px 0;font-weight:600;color:#1a1a1a;">${guestName}</td></tr>
+                            <tr style="border-bottom:1px solid #f0e8de;"><td style="padding:10px 0;color:#c9a96e;font-weight:600;">Số khách</td><td style="padding:10px 0;">${pax}</td></tr>
+                            <tr style="border-bottom:1px solid #f0e8de;"><td style="padding:10px 0;color:#c9a96e;font-weight:600;">Check-in</td><td style="padding:10px 0;">${checkIn}</td></tr>
+                            <tr><td style="padding:10px 0;color:#c9a96e;font-weight:600;">Check-out</td><td style="padding:10px 0;color:#d35400;font-weight:700;">${checkOut}</td></tr>
+                        </table>
+                    </div>`,
+                showConfirmButton: true,
+                confirmButtonText: 'Đóng',
+                confirmButtonColor: '#1a1a1a',
+                icon: undefined,
+                customClass: {
+                    popup: 'swal-room-popup'
+                }
+            });
+        }
+    </script>
+
+</div>
+</body>
+</html>

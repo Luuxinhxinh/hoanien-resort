@@ -26,7 +26,7 @@ public class TourGuideController {
     private com.kawai.repositories.EmployeeRepository employeeRepository;
 
     @org.springframework.beans.factory.annotation.Autowired
-    private com.kawai.services.ShiftService shiftService;
+    private com.kawai.services.interfaces.ShiftService shiftService;
 
     @org.springframework.beans.factory.annotation.Autowired
     private com.kawai.repositories.AccountRepository accountRepository;
@@ -245,7 +245,13 @@ public class TourGuideController {
                 }
                 String loggedInName = (emp != null) ? emp.getFullName() : "NguynNgoc";
                 String guideName = getGuideForSchedule(targetSchedule);
-                if (!guideName.equalsIgnoreCase(loggedInName)) {
+
+                org.springframework.security.core.Authentication auth = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+                boolean isAdminOrManager = auth != null && auth.getAuthorities().stream().anyMatch(a ->
+                        a.getAuthority().equals("ROLE_ADMIN") || a.getAuthority().equals("ROLE_MANAGER")
+                );
+
+                if (!isAdminOrManager && !guideName.equalsIgnoreCase(loggedInName)) {
                     return "redirect:/tourguide/tour?error=unauthorized";
                 }
             }

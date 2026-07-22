@@ -112,7 +112,7 @@ public class CheckinServiceImpl implements CheckinService {
 
                 assignRoomToGuest(detail, room, allocatedCreditLimit);
 
-                return detail;
+                return roomBookingDetailRepo.save(detail);
         }
 
         private void assignRoomToGuest(RoomBookingDetail detail, Room room, java.math.BigDecimal allocatedCreditLimit) {
@@ -435,16 +435,21 @@ public class CheckinServiceImpl implements CheckinService {
                 form.getAssignedRoomNumbers().removeIf(String::isEmpty);
 
                 java.math.BigDecimal totalRequested = java.math.BigDecimal.ZERO;
-                if (form.getAllocatedCreditLimits() != null) {
-                        for (java.math.BigDecimal limit : form.getAllocatedCreditLimits()) {
-                                if (limit != null) {
-                                        if (limit.compareTo(java.math.BigDecimal.ZERO) < 0) {
-                                                throw new com.kawai.exceptions.BusinessException("CHECKIN-008",
-                                                                "Hạn mức không được là số âm!");
-                                        }
-                                        totalRequested = totalRequested.add(limit);
-                                }
+                if (form.getAllocatedCreditLimits() == null
+                                || form.getAllocatedCreditLimits().size() < form.getAssignedRoomNumbers().size()) {
+                        throw new com.kawai.exceptions.BusinessException("CHECKIN-009",
+                                        "Vui lòng nhập hạn mức cho phòng nhé");
+                }
+                for (java.math.BigDecimal limit : form.getAllocatedCreditLimits()) {
+                        if (limit == null) {
+                                throw new com.kawai.exceptions.BusinessException("CHECKIN-009",
+                                                "Vui lòng nhập hạn mức cho phòng nhé");
                         }
+                        if (limit.compareTo(java.math.BigDecimal.ZERO) < 0) {
+                                throw new com.kawai.exceptions.BusinessException("CHECKIN-008",
+                                                "Hạn mức không được là số âm!");
+                        }
+                        totalRequested = totalRequested.add(limit);
                 }
                 java.math.BigDecimal existingUsed = java.math.BigDecimal.ZERO;
                 for (com.kawai.models.RoomBookingDetail d : details) {

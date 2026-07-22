@@ -1,4 +1,4 @@
-package com.kawai.services.jobs;
+package com.kawai.services.impl;
 
 import com.kawai.models.RoomBooking;
 import com.kawai.models.RoomBookingDetail;
@@ -22,12 +22,15 @@ public class RoomBookingCleanupTask {
     private static final Logger log = LoggerFactory.getLogger(RoomBookingCleanupTask.class);
     private final RoomBookingRepository roomBookingRepository;
     private final RoomBookingDetailRepository roomBookingDetailRepository;
+    private final com.kawai.services.interfaces.EmailService emailService;
 
     public RoomBookingCleanupTask(
             RoomBookingRepository roomBookingRepository,
-            RoomBookingDetailRepository roomBookingDetailRepository) {
+            RoomBookingDetailRepository roomBookingDetailRepository,
+            com.kawai.services.interfaces.EmailService emailService) {
         this.roomBookingRepository = roomBookingRepository;
         this.roomBookingDetailRepository = roomBookingDetailRepository;
+        this.emailService = emailService;
     }
 
     // Quản lý qua DynamicJobManager và tự động chạy khi khởi động app
@@ -49,6 +52,12 @@ public class RoomBookingCleanupTask {
                 for (RoomBookingDetail d : details) {
                     d.setDetailStatus("No_Show");
                     roomBookingDetailRepository.save(d);
+                }
+                
+                try {
+                    emailService.sendRoomNoShowEmail(rb, rb.getCustomer());
+                } catch (Exception e) {
+                    log.error("Lỗi gửi email No_Show cho đặt phòng ID {}: ", rb.getId(), e);
                 }
             }
         }

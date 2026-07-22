@@ -78,7 +78,12 @@ public interface EmailService {
     /**
      * Gửi email thông báo hủy bàn.
      */
-    void sendCancelTableBooking(com.kawai.models.TableReservation reservation, com.kawai.models.Customer customer);
+    void sendCancelTableBooking(com.kawai.models.TableReservation reservation, com.kawai.models.Customer customer, String cancelledBy, String reason);
+
+    /**
+     * Gửi email thông báo hủy đơn hàng dịch vụ ẩm thực (F&B).
+     */
+    void sendCancelFoodOrderEmail(com.kawai.models.FoodOrder order, com.kawai.models.Customer customer, String cancelledBy, String reason, java.math.BigDecimal refundAmount, String bankName, String accountName, String accountLast3);
 
     /**
      * Gửi email thông báo hủy bàn tự động do khách trả phòng (Check-out).
@@ -121,6 +126,11 @@ public interface EmailService {
     void sendRoomCancellationEmail(com.kawai.models.RoomBooking booking, com.kawai.models.Customer customer, boolean isRefundable);
 
     /**
+     * Gửi email thông báo đơn đặt phòng bị hủy tự động do khách không tới (No_Show).
+     */
+    void sendRoomNoShowEmail(com.kawai.models.RoomBooking booking, com.kawai.models.Customer customer);
+
+    /**
      * Gửi email xác nhận Walk-in check-in.
      */
     void sendWalkInCheckInEmail(com.kawai.models.RoomBooking booking, com.kawai.models.RoomBookingDetail detail, com.kawai.models.Customer customer, boolean isNewAccount, String username, String password);
@@ -131,4 +141,9 @@ public interface EmailService {
      * Gửi email thông báo lịch làm việc hàng tuần cho nhân viên.
      */
     void sendWeeklyScheduleEmail(String toEmail, String employeeName, java.util.List<com.kawai.models.StaffSchedule> schedules);
+
+    /**
+     * Gửi email xác nhận đặt phòng thành công (sau khi thanh toán thành công).
+     */
+    void sendRoomBookingConfirmation(com.kawai.models.RoomBooking booking, com.kawai.models.Customer customer);
 }

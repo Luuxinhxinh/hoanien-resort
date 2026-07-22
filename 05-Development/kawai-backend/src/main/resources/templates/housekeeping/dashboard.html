@@ -740,18 +740,24 @@
                     <option value="/receptionist/dashboard">Receptionist (Lễ tân)</option>
                     <option value="/housekeeping/dashboard">Housekeeping (Buồng phòng)</option>
                     <option value="/maintenance/dashboard">Maintenance (Bảo trì)</option>
+                    <option value="/tourguide/tour">Tour Guide (Điểm danh Tour)</option>
                 </select>
             </div>
 
-            <div class="user-info">
+            <div class="user-info" style="cursor: pointer;" 
+                 th:data-name="${currentStaff != null ? currentStaff.fullName : (#authentication != null ? #authentication.name : 'Nhân viên')}"
+                 th:data-email="${currentStaff != null ? currentStaff.email : 'Chưa cập nhật'}"
+                 th:data-phone="${currentStaff != null ? currentStaff.phone : 'Chưa cập nhật'}"
+                 th:data-role="'Buồng phòng'"
+                 onclick="showUserInfo(this.getAttribute('data-name'), this.getAttribute('data-email'), this.getAttribute('data-phone'), this.getAttribute('data-role'))">
                 <div class="user-avatar"
                     th:text="${#authentication != null ? #strings.substring(#authentication.name, 0, 2).toUpperCase() : 'HK'}">
                     HK</div>
                 <div class="user-details">
-                    <h4 th:text="${#authentication != null ? #authentication.name : 'Nhân viên'}">Nhân viên</h4>
+                    <h4 th:text="${currentStaff != null ? currentStaff.fullName : (#authentication != null ? #authentication.name : 'Nhân viên')}">Nhân viên</h4>
                     <p>Bộ phận Buồng phòng</p>
                 </div>
-                <a href="/logout" class="logout-btn">Đăng xuất</a>
+                <a href="/logout" class="logout-btn" onclick="event.stopPropagation();">Đăng xuất</a>
             </div>
         </div>
     </header>
@@ -1600,8 +1606,33 @@
                     // Reload page to see new tasks
                     setTimeout(() => window.location.reload(), 1500);
                 });
+                
+                stompClient.subscribe('/topic/operations/housekeeping', function (message) {
+                    var payload = JSON.parse(message.body);
+                    alert("THÔNG BÁO BUỒNG PHÒNG: " + payload.message);
+                    setTimeout(() => window.location.reload(), 1500);
+                });
             });
         });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        function showUserInfo(name, email, phone, role) {
+            Swal.fire({
+                title: 'Thông tin nhân viên',
+                html: `
+                    <div style="text-align: left; margin-top: 15px; font-size: 14px;">
+                        <p style="margin-bottom: 8px;"><strong><i class="fa-solid fa-user"></i> Họ và tên:</strong> ${name}</p>
+                        <p style="margin-bottom: 8px;"><strong><i class="fa-solid fa-id-badge"></i> Bộ phận:</strong> ${role}</p>
+                        <p style="margin-bottom: 8px;"><strong><i class="fa-solid fa-envelope"></i> Email:</strong> ${email}</p>
+                        <p style="margin-bottom: 8px;"><strong><i class="fa-solid fa-phone"></i> Số điện thoại:</strong> ${phone}</p>
+                    </div>
+                `,
+                icon: 'info',
+                confirmButtonText: 'Đóng',
+                confirmButtonColor: '#8C6A41'
+            });
+        }
     </script>
 </body>
 

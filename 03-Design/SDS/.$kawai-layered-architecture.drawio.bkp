@@ -1,0 +1,496 @@
+<mxfile host="Electron" agent="draw.io">
+  <diagram id="kawai-layered-arch-v4" name="Kawai Architecture v4">
+    <mxGraphModel dx="1873" dy="1138" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1900" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="title_main" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=18;fontStyle=1;fontColor=#1E293B;fontFamily=Helvetica;" value="Kawai Retreat Resort &amp;amp; Hub&amp;nbsp;" vertex="1">
+          <mxGeometry height="34" width="1380" x="210" y="14" as="geometry" />
+        </mxCell>
+        <mxCell id="title_sub" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=9;fontColor=#94A3B8;fontFamily=Helvetica;" value="Spring Boot 3.2  ·  Java 17  ·  Layered N-Tier Architecture  ·  ADR-01  |  Group 2 — SWP391 SE2023" vertex="1">
+          <mxGeometry height="18" width="1380" x="210" y="48" as="geometry" />
+        </mxCell>
+        <mxCell id="pClient" parent="1" style="swimlane;startSize=26;fillColor=#DBEAFE;strokeColor=#93C5FD;fontColor=#1E3A5F;fontSize=11;fontStyle=1;rounded=1;arcSize=2;fontFamily=Helvetica;" value="Client Layer" vertex="1">
+          <mxGeometry height="175" width="190" x="10" y="72" as="geometry" />
+        </mxCell>
+        <mxCell id="cBrowser" parent="pClient" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontColor=#334155;fontSize=9;arcSize=8;fontFamily=Helvetica;" value="Web Browser" vertex="1">
+          <mxGeometry height="32" width="170" x="10" y="34" as="geometry" />
+        </mxCell>
+        <mxCell id="cThymeleaf" parent="pClient" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontColor=#334155;fontSize=9;arcSize=8;fontFamily=Helvetica;" value="Thymeleaf HTML Templates (SSR)" vertex="1">
+          <mxGeometry height="36" width="170" x="10" y="76" as="geometry" />
+        </mxCell>
+        <mxCell id="cStatic" parent="pClient" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontColor=#334155;fontSize=9;arcSize=8;fontFamily=Helvetica;" value="Static Assets&#xa;CSS / JS / Images" vertex="1">
+          <mxGeometry height="34" width="80" x="10" y="122" as="geometry" />
+        </mxCell>
+        <mxCell id="cPortals" parent="pClient" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontColor=#334155;fontSize=9;arcSize=8;fontFamily=Helvetica;" value="Role Portals&#xa;Admin / Manager&#xa;Receptionist&#xa;Tour Guide" vertex="1">
+          <mxGeometry height="34" width="80" x="100" y="122" as="geometry" />
+        </mxCell>
+        <mxCell id="pCC" parent="1" style="swimlane;startSize=26;fillColor=#DBEAFE;strokeColor=#93C5FD;fontColor=#1E3A5F;fontSize=11;fontStyle=1;rounded=1;arcSize=2;fontFamily=Helvetica;" value="Cross-Cutting Concerns" vertex="1">
+          <mxGeometry height="390" width="190" x="10" y="260" as="geometry" />
+        </mxCell>
+        <mxCell id="ccSched" parent="pCC" style="swimlane;startSize=22;fillColor=#EFF6FF;strokeColor=#93C5FD;fontColor=#1E3A5F;fontSize=10;fontStyle=1;rounded=1;arcSize=2;fontFamily=Helvetica;" value="Schedulers" vertex="1">
+          <mxGeometry height="80" width="170" x="10" y="34" as="geometry" />
+        </mxCell>
+        <mxCell id="ccsb" parent="ccSched" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontColor=#334155;fontSize=9;arcSize=8;fontFamily=Helvetica;" value="BookingScheduler&#xa;(auto-cancel expired)" vertex="1">
+          <mxGeometry height="40" width="75" x="5" y="28" as="geometry" />
+        </mxCell>
+        <mxCell id="ccna" parent="ccSched" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontColor=#334155;fontSize=9;arcSize=8;fontFamily=Helvetica;" value="NightAuditScheduler&#xa;(daily midnight)" vertex="1">
+          <mxGeometry height="40" width="79" x="85" y="28" as="geometry" />
+        </mxCell>
+        <mxCell id="ccEvt" parent="pCC" style="swimlane;startSize=22;fillColor=#EFF6FF;strokeColor=#93C5FD;fontColor=#1E3A5F;fontSize=10;fontStyle=1;rounded=1;arcSize=2;fontFamily=Helvetica;" value="Spring Events" vertex="1">
+          <mxGeometry height="100" width="170" x="10" y="126" as="geometry" />
+        </mxCell>
+        <mxCell id="ev1" parent="ccEvt" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontColor=#334155;fontSize=9;arcSize=8;fontFamily=Helvetica;" value="ReviewSubmittedEvent" vertex="1">
+          <mxGeometry height="20" width="155" x="5" y="26" as="geometry" />
+        </mxCell>
+        <mxCell id="ev2" parent="ccEvt" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontColor=#334155;fontSize=9;arcSize=8;fontFamily=Helvetica;" value="TourBookedEvent" vertex="1">
+          <mxGeometry height="20" width="75" x="5" y="50" as="geometry" />
+        </mxCell>
+        <mxCell id="ev3" parent="ccEvt" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontColor=#334155;fontSize=9;arcSize=8;fontFamily=Helvetica;" value="TourBookingApproved" vertex="1">
+          <mxGeometry height="20" width="73" x="85" y="50" as="geometry" />
+        </mxCell>
+        <mxCell id="evl" parent="ccEvt" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontColor=#334155;fontSize=9;arcSize=8;fontFamily=Helvetica;" value="NotificationListener" vertex="1">
+          <mxGeometry height="20" width="155" x="5" y="74" as="geometry" />
+        </mxCell>
+        <mxCell id="ccAop" parent="pCC" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontColor=#334155;fontSize=9;arcSize=8;fontFamily=Helvetica;" value="Spring AOP&#xa;@LogActivity → AuditLog INSERT&#xa;AuditLogAspect.java" vertex="1">
+          <mxGeometry height="44" width="170" x="10" y="238" as="geometry" />
+        </mxCell>
+        <mxCell id="ccSec2" parent="pCC" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontColor=#334155;fontSize=9;arcSize=8;fontFamily=Helvetica;" value="Method Security&#xa;@PreAuthorize / @PostAuthorize" vertex="1">
+          <mxGeometry height="36" width="170" x="10" y="292" as="geometry" />
+        </mxCell>
+        <mxCell id="ccGeh" parent="pCC" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontColor=#334155;fontSize=9;arcSize=8;fontFamily=Helvetica;" value="GlobalExceptionHandler&#xa;(403 / 500 fallback)" vertex="1">
+          <mxGeometry height="34" width="170" x="10" y="338" as="geometry" />
+        </mxCell>
+        <mxCell id="pDTO" parent="1" style="swimlane;startSize=26;fillColor=#DBEAFE;strokeColor=#93C5FD;fontColor=#1E3A5F;fontSize=11;fontStyle=1;rounded=1;arcSize=2;fontFamily=Helvetica;" value="DTOs (Data Transfer Objects)" vertex="1">
+          <mxGeometry height="140" width="190" x="10" y="662" as="geometry" />
+        </mxCell>
+        <mxCell id="dto1" parent="pDTO" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontColor=#334155;fontSize=9;arcSize=8;fontFamily=Helvetica;" value="BookingRequestDTO" vertex="1">
+          <mxGeometry height="20" width="170" x="5" y="28" as="geometry" />
+        </mxCell>
+        <mxCell id="dto2" parent="pDTO" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontColor=#334155;fontSize=9;arcSize=8;fontFamily=Helvetica;" value="RoomBookingDTO" vertex="1">
+          <mxGeometry height="20" width="170" x="5" y="52" as="geometry" />
+        </mxCell>
+        <mxCell id="dto3" parent="pDTO" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontColor=#334155;fontSize=9;arcSize=8;fontFamily=Helvetica;" value="CheckInForm" vertex="1">
+          <mxGeometry height="20" width="80" x="5" y="76" as="geometry" />
+        </mxCell>
+        <mxCell id="dto4" parent="pDTO" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontColor=#334155;fontSize=9;arcSize=8;fontFamily=Helvetica;" value="ReservationDetailDTO" vertex="1">
+          <mxGeometry height="20" width="80" x="90" y="76" as="geometry" />
+        </mxCell>
+        <mxCell id="dtom" parent="pDTO" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F8FAFC;strokeColor=#CBD5E1;fontColor=#94A3B8;fontSize=8;arcSize=8;fontFamily=Helvetica;" value="+ 20 more DTOs in /dto package" vertex="1">
+          <mxGeometry height="18" width="170" x="5" y="100" as="geometry" />
+        </mxCell>
+        <mxCell id="pLeg" parent="1" style="swimlane;startSize=26;fillColor=#DBEAFE;strokeColor=#93C5FD;fontColor=#1E3A5F;fontSize=11;fontStyle=1;rounded=1;arcSize=2;fontFamily=Helvetica;" value="Legend" vertex="1">
+          <mxGeometry height="162" width="190" x="10" y="814" as="geometry" />
+        </mxCell>
+        <mxCell id="lg_note" parent="pLeg" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;fontSize=9;fontFamily=Helvetica;fontColor=#334155;" value="Color convention (2 tones):&#xa;&#xa;Header cells = Light Blue&#xa;  fillColor: #DBEAFE&#xa;  strokeColor: #93C5FD&#xa;&#xa;Content cells = White / Gray&#xa;  fillColor: #FFFFFF or #F8FAFC&#xa;  strokeColor: #CBD5E1" vertex="1">
+          <mxGeometry height="130" width="175" x="5" y="28" as="geometry" />
+        </mxCell>
+        <mxCell id="mainApp" parent="1" style="swimlane;startSize=50;fillColor=#DBEAFE;strokeColor=#93C5FD;fontColor=#1E3A5F;fontSize=13;fontStyle=1;swimlaneLine=1;rounded=1;arcSize=2;perimeterSpacing=4;fontFamily=Helvetica;" value="Software Architecture" vertex="1">
+          <mxGeometry height="986" width="990" x="210" y="70" as="geometry" />
+        </mxCell>
+        <mxCell id="secL" parent="mainApp" style="swimlane;startSize=26;fillColor=#DBEAFE;strokeColor=#93C5FD;fontColor=#1E3A5F;fontSize=11;fontStyle=1;swimlaneLine=1;rounded=1;arcSize=2;fontFamily=Helvetica;" value="Security Layer  |  config/SecurityConfig.java" vertex="1">
+          <mxGeometry height="80" width="970" x="10" y="105" as="geometry" />
+        </mxCell>
+        <mxCell id="ssc" parent="secL" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontColor=#334155;fontSize=9;arcSize=8;fontFamily=Helvetica;" value="SecurityFilterChain" vertex="1">
+          <mxGeometry height="36" width="170" x="10" y="30" as="geometry" />
+        </mxCell>
+        <mxCell id="sdap" parent="secL" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontColor=#334155;fontSize=9;arcSize=8;fontFamily=Helvetica;" value="DaoAuthenticationProvider (BCrypt)" vertex="1">
+          <mxGeometry height="36" width="185" x="195" y="30" as="geometry" />
+        </mxCell>
+        <mxCell id="suds" parent="secL" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontColor=#334155;fontSize=9;arcSize=8;fontFamily=Helvetica;" value="CustomUserDetailsService&#xa;+ CustomUserDetails" vertex="1">
+          <mxGeometry height="36" width="195" x="395" y="30" as="geometry" />
+        </mxCell>
+        <mxCell id="soah" parent="secL" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontColor=#334155;fontSize=9;arcSize=8;fontFamily=Helvetica;" value="CustomAuthSuccessHandler&#xa;(Role-based Redirect)" vertex="1">
+          <mxGeometry height="36" width="195" x="605" y="30" as="geometry" />
+        </mxCell>
+        <mxCell id="sms" parent="secL" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontColor=#334155;fontSize=9;arcSize=8;fontFamily=Helvetica;" value="@EnableMethodSecurity&#xa;@PreAuthorize" vertex="1">
+          <mxGeometry height="36" width="145" x="815" y="30" as="geometry" />
+        </mxCell>
+        <mxCell id="ctrlL" parent="mainApp" style="swimlane;startSize=26;fillColor=#DBEAFE;strokeColor=#93C5FD;fontColor=#1E3A5F;fontSize=11;fontStyle=1;swimlaneLine=1;rounded=1;arcSize=2;fontFamily=Helvetica;" value="Controller Layer (MVC + REST API)  |  controllers/web/  +  controllers/api/" vertex="1">
+          <mxGeometry height="195" width="970" x="10" y="200" as="geometry" />
+        </mxCell>
+        <mxCell id="cgAdmin" parent="ctrlL" style="swimlane;startSize=22;fillColor=#EFF6FF;strokeColor=#93C5FD;fontColor=#1E3A5F;fontSize=10;fontStyle=1;rounded=1;arcSize=3;fontFamily=Helvetica;" value="Admin Controllers" vertex="1">
+          <mxGeometry height="150" width="225" x="8" y="28" as="geometry" />
+        </mxCell>
+        <mxCell id="cadm" parent="cgAdmin" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontColor=#334155;fontSize=9;arcSize=8;fontFamily=Helvetica;" value="AdminController" vertex="1">
+          <mxGeometry height="22" width="208" x="8" y="28" as="geometry" />
+        </mxCell>
+        <mxCell id="crc" parent="cgAdmin" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontColor=#334155;fontSize=9;arcSize=8;fontFamily=Helvetica;" value="RoomCategoryController" vertex="1">
+          <mxGeometry height="22" width="208" x="8" y="54" as="geometry" />
+        </mxCell>
+        <mxCell id="cstf" parent="cgAdmin" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontColor=#334155;fontSize=9;arcSize=8;fontFamily=Helvetica;" value="StaffManagementController" vertex="1">
+          <mxGeometry height="22" width="208" x="8" y="80" as="geometry" />
+        </mxCell>
+        <mxCell id="cmm" parent="cgAdmin" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontColor=#334155;fontSize=9;arcSize=8;fontFamily=Helvetica;" value="MenuManagementController" vertex="1">
+          <mxGeometry height="22" width="208" x="8" y="106" as="geometry" />
+        </mxCell>
+        <mxCell id="cgCust" parent="ctrlL" style="swimlane;startSize=22;fillColor=#EFF6FF;strokeColor=#93C5FD;fontColor=#1E3A5F;fontSize=10;fontStyle=1;rounded=1;arcSize=3;fontFamily=Helvetica;" value="Customer Controllers" vertex="1">
+          <mxGeometry height="150" width="225" x="243" y="28" as="geometry" />
+        </mxCell>
+        <mxCell id="cbkc" parent="cgCust" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontColor=#334155;fontSize=9;arcSize=8;fontFamily=Helvetica;" value="BookingController" vertex="1">
+          <mxGeometry height="22" width="208" x="8" y="28" as="geometry" />
+        </mxCell>
+        <mxCell id="ccus" parent="cgCust" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontColor=#334155;fontSize=9;arcSize=8;fontFamily=Helvetica;" value="CustomerController" vertex="1">
+          <mxGeometry height="22" width="208" x="8" y="54" as="geometry" />
+        </mxCell>
+        <mxCell id="cpro" parent="cgCust" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontColor=#334155;fontSize=9;arcSize=8;fontFamily=Helvetica;" value="CustomerProfileController" vertex="1">
+          <mxGeometry height="22" width="208" x="8" y="80" as="geometry" />
+        </mxCell>
+        <mxCell id="cfod" parent="cgCust" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontColor=#334155;fontSize=9;arcSize=8;fontFamily=Helvetica;" value="FoodOrderController" vertex="1">
+          <mxGeometry height="22" width="208" x="8" y="106" as="geometry" />
+        </mxCell>
+        <mxCell id="cgRec" parent="ctrlL" style="swimlane;startSize=22;fillColor=#EFF6FF;strokeColor=#93C5FD;fontColor=#1E3A5F;fontSize=10;fontStyle=1;rounded=1;arcSize=3;fontFamily=Helvetica;" value="Receptionist &amp; Manager" vertex="1">
+          <mxGeometry height="150" width="225" x="478" y="28" as="geometry" />
+        </mxCell>
+        <mxCell id="crec" parent="cgRec" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontColor=#334155;fontSize=9;arcSize=8;fontFamily=Helvetica;" value="ReceptionistController" vertex="1">
+          <mxGeometry height="22" width="208" x="8" y="28" as="geometry" />
+        </mxCell>
+        <mxCell id="crmc" parent="cgRec" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontColor=#334155;fontSize=9;arcSize=8;fontFamily=Helvetica;" value="RoomController" vertex="1">
+          <mxGeometry height="22" width="208" x="8" y="54" as="geometry" />
+        </mxCell>
+        <mxCell id="cinv" parent="cgRec" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontColor=#334155;fontSize=9;arcSize=8;fontFamily=Helvetica;" value="InvoiceController" vertex="1">
+          <mxGeometry height="22" width="208" x="8" y="80" as="geometry" />
+        </mxCell>
+        <mxCell id="cman" parent="cgRec" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontColor=#334155;fontSize=9;arcSize=8;fontFamily=Helvetica;" value="ManagerController" vertex="1">
+          <mxGeometry height="22" width="208" x="8" y="106" as="geometry" />
+        </mxCell>
+        <mxCell id="cgApi" parent="ctrlL" style="swimlane;startSize=22;fillColor=#EFF6FF;strokeColor=#93C5FD;fontColor=#1E3A5F;fontSize=10;fontStyle=1;rounded=1;arcSize=3;fontFamily=Helvetica;" value="Tour + Review + REST API" vertex="1">
+          <mxGeometry height="150" width="248" x="713" y="28" as="geometry" />
+        </mxCell>
+        <mxCell id="ctorc" parent="cgApi" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontColor=#334155;fontSize=9;arcSize=8;fontFamily=Helvetica;" value="TourController" vertex="1">
+          <mxGeometry height="22" width="110" x="8" y="28" as="geometry" />
+        </mxCell>
+        <mxCell id="ctmfc" parent="cgApi" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontColor=#334155;fontSize=9;arcSize=8;fontFamily=Helvetica;" value="TourManifestController" vertex="1">
+          <mxGeometry height="22" width="110" x="126" y="28" as="geometry" />
+        </mxCell>
+        <mxCell id="crevc" parent="cgApi" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontColor=#334155;fontSize=9;arcSize=8;fontFamily=Helvetica;" value="ReviewController" vertex="1">
+          <mxGeometry height="22" width="110" x="8" y="54" as="geometry" />
+        </mxCell>
+        <mxCell id="crvm" parent="cgApi" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontColor=#334155;fontSize=9;arcSize=8;fontFamily=Helvetica;" value="ReviewModerationCtrl" vertex="1">
+          <mxGeometry height="22" width="110" x="126" y="54" as="geometry" />
+        </mxCell>
+        <mxCell id="cbkapi" parent="cgApi" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontColor=#334155;fontSize=9;arcSize=8;fontFamily=Helvetica;" value="BookingApiController" vertex="1">
+          <mxGeometry height="22" width="110" x="8" y="80" as="geometry" />
+        </mxCell>
+        <mxCell id="cpayapi" parent="cgApi" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontColor=#334155;fontSize=9;arcSize=8;fontFamily=Helvetica;" value="PaymentApiController" vertex="1">
+          <mxGeometry height="22" width="110" x="126" y="80" as="geometry" />
+        </mxCell>
+        <mxCell id="croomapi" parent="cgApi" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontColor=#334155;fontSize=9;arcSize=8;fontFamily=Helvetica;" value="RoomApiController" vertex="1">
+          <mxGeometry height="22" width="110" x="8" y="106" as="geometry" />
+        </mxCell>
+        <mxCell id="caudit" parent="cgApi" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontColor=#334155;fontSize=9;arcSize=8;fontFamily=Helvetica;" value="AuditController" vertex="1">
+          <mxGeometry height="22" width="110" x="126" y="106" as="geometry" />
+        </mxCell>
+        <mxCell id="svcL" parent="mainApp" style="swimlane;startSize=26;fillColor=#DBEAFE;strokeColor=#93C5FD;fontColor=#1E3A5F;fontSize=11;fontStyle=1;swimlaneLine=1;rounded=1;arcSize=2;fontFamily=Helvetica;" value="Service Layer (Business Logic)  |  services/interfaces/ + services/impl/" vertex="1">
+          <mxGeometry height="230" width="970" x="10" y="410" as="geometry" />
+        </mxCell>
+        <mxCell id="sgCore" parent="svcL" style="swimlane;startSize=22;fillColor=#EFF6FF;strokeColor=#93C5FD;fontColor=#1E3A5F;fontSize=10;fontStyle=1;rounded=1;arcSize=3;fontFamily=Helvetica;" value="Core Hotel Services" vertex="1">
+          <mxGeometry height="185" width="185" x="8" y="28" as="geometry" />
+        </mxCell>
+        <mxCell id="ssb" parent="sgCore" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontColor=#334155;fontSize=9;arcSize=8;fontFamily=Helvetica;" value="BookingService" vertex="1">
+          <mxGeometry height="22" width="172" x="5" y="28" as="geometry" />
+        </mxCell>
+        <mxCell id="ssr" parent="sgCore" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontColor=#334155;fontSize=9;arcSize=8;fontFamily=Helvetica;" value="RoomService" vertex="1">
+          <mxGeometry height="22" width="172" x="5" y="54" as="geometry" />
+        </mxCell>
+        <mxCell id="ssrec" parent="sgCore" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontColor=#334155;fontSize=9;arcSize=8;fontFamily=Helvetica;" value="WalkInCheckInService" vertex="1">
+          <mxGeometry height="22" width="172" x="5" y="80" as="geometry" />
+        </mxCell>
+        <mxCell id="ssf" parent="sgCore" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontColor=#334155;fontSize=9;arcSize=8;fontFamily=Helvetica;" value="FolioService" vertex="1">
+          <mxGeometry height="22" width="172" x="5" y="106" as="geometry" />
+        </mxCell>
+        <mxCell id="ssinv" parent="sgCore" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontColor=#334155;fontSize=9;arcSize=8;fontFamily=Helvetica;" value="InvoiceService" vertex="1">
+          <mxGeometry height="22" width="172" x="5" y="132" as="geometry" />
+        </mxCell>
+        <mxCell id="ssna" parent="sgCore" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontColor=#334155;fontSize=9;arcSize=8;fontFamily=Helvetica;" value="NightAuditService" vertex="1">
+          <mxGeometry height="22" width="80" x="5" y="158" as="geometry" />
+        </mxCell>
+        <mxCell id="ssrc" parent="sgCore" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontColor=#334155;fontSize=9;arcSize=8;fontFamily=Helvetica;" value="RoomCategoryInvSvc" vertex="1">
+          <mxGeometry height="22" width="83" x="90" y="158" as="geometry" />
+        </mxCell>
+        <mxCell id="sgFnb" parent="svcL" style="swimlane;startSize=22;fillColor=#EFF6FF;strokeColor=#93C5FD;fontColor=#1E3A5F;fontSize=10;fontStyle=1;rounded=1;arcSize=3;fontFamily=Helvetica;" value="FnB Services" vertex="1">
+          <mxGeometry height="100" width="185" x="203" y="28" as="geometry" />
+        </mxCell>
+        <mxCell id="sfod" parent="sgFnb" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontColor=#334155;fontSize=9;arcSize=8;fontFamily=Helvetica;" value="FoodOrderService / PosService" vertex="1">
+          <mxGeometry height="22" width="172" x="5" y="28" as="geometry" />
+        </mxCell>
+        <mxCell id="sfm" parent="sgFnb" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontColor=#334155;fontSize=9;arcSize=8;fontFamily=Helvetica;" value="MenuService" vertex="1">
+          <mxGeometry height="22" width="80" x="5" y="54" as="geometry" />
+        </mxCell>
+        <mxCell id="skds" parent="sgFnb" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontColor=#334155;fontSize=9;arcSize=8;fontFamily=Helvetica;" value="KdsService" vertex="1">
+          <mxGeometry height="22" width="82" x="90" y="54" as="geometry" />
+        </mxCell>
+        <mxCell id="sgTour" parent="svcL" style="swimlane;startSize=22;fillColor=#EFF6FF;strokeColor=#93C5FD;fontColor=#1E3A5F;fontSize=10;fontStyle=1;rounded=1;arcSize=3;fontFamily=Helvetica;" value="Tour Services" vertex="1">
+          <mxGeometry height="100" width="185" x="203" y="128" as="geometry" />
+        </mxCell>
+        <mxCell id="stours" parent="sgTour" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontColor=#334155;fontSize=9;arcSize=8;fontFamily=Helvetica;" value="TourService" vertex="1">
+          <mxGeometry height="22" width="80" x="5" y="28" as="geometry" />
+        </mxCell>
+        <mxCell id="stbks" parent="sgTour" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontColor=#334155;fontSize=9;arcSize=8;fontFamily=Helvetica;" value="TourBookingService" vertex="1">
+          <mxGeometry height="22" width="86" x="90" y="28" as="geometry" />
+        </mxCell>
+        <mxCell id="stfnb" parent="sgTour" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontColor=#334155;fontSize=9;arcSize=8;fontFamily=Helvetica;" value="TableReservationService" vertex="1">
+          <mxGeometry height="22" width="172" x="5" y="54" as="geometry" />
+        </mxCell>
+        <mxCell id="sgSupp" parent="svcL" style="swimlane;startSize=22;fillColor=#EFF6FF;strokeColor=#93C5FD;fontColor=#1E3A5F;fontSize=10;fontStyle=1;rounded=1;arcSize=3;fontFamily=Helvetica;" value="Support Services" vertex="1">
+          <mxGeometry height="185" width="185" x="398" y="28" as="geometry" />
+        </mxCell>
+        <mxCell id="sema" parent="sgSupp" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontColor=#334155;fontSize=9;arcSize=8;fontFamily=Helvetica;" value="EmailService" vertex="1">
+          <mxGeometry height="22" width="172" x="5" y="28" as="geometry" />
+        </mxCell>
+        <mxCell id="sauth" parent="sgSupp" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontColor=#334155;fontSize=9;arcSize=8;fontFamily=Helvetica;" value="AuthService" vertex="1">
+          <mxGeometry height="22" width="172" x="5" y="54" as="geometry" />
+        </mxCell>
+        <mxCell id="scus" parent="sgSupp" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontColor=#334155;fontSize=9;arcSize=8;fontFamily=Helvetica;" value="CustomerService" vertex="1">
+          <mxGeometry height="22" width="172" x="5" y="80" as="geometry" />
+        </mxCell>
+        <mxCell id="sstf2" parent="sgSupp" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontColor=#334155;fontSize=9;arcSize=8;fontFamily=Helvetica;" value="StaffService" vertex="1">
+          <mxGeometry height="22" width="172" x="5" y="106" as="geometry" />
+        </mxCell>
+        <mxCell id="srev" parent="sgSupp" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontColor=#334155;fontSize=9;arcSize=8;fontFamily=Helvetica;" value="ReviewService + ModerationService" vertex="1">
+          <mxGeometry height="22" width="172" x="5" y="132" as="geometry" />
+        </mxCell>
+        <mxCell id="sdash" parent="sgSupp" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontColor=#334155;fontSize=9;arcSize=8;fontFamily=Helvetica;" value="DashboardService" vertex="1">
+          <mxGeometry height="22" width="172" x="5" y="158" as="geometry" />
+        </mxCell>
+        <mxCell id="sgInt" parent="svcL" style="swimlane;startSize=22;fillColor=#EFF6FF;strokeColor=#93C5FD;fontColor=#1E3A5F;fontSize=10;fontStyle=1;rounded=1;arcSize=3;fontFamily=Helvetica;" value="Integration Services (External adapters)" vertex="1">
+          <mxGeometry height="185" width="370" x="593" y="28" as="geometry" />
+        </mxCell>
+        <mxCell id="sgem" parent="sgInt" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontColor=#334155;fontSize=9;arcSize=8;fontFamily=Helvetica;" value="GeminiAIServiceImpl&#xa;→ Google Gemini LLM" vertex="1">
+          <mxGeometry height="36" width="175" x="5" y="28" as="geometry" />
+        </mxCell>
+        <mxCell id="scld" parent="sgInt" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontColor=#334155;fontSize=9;arcSize=8;fontFamily=Helvetica;" value="CloudinaryServiceImpl&#xa;→ Cloudinary CDN" vertex="1">
+          <mxGeometry height="36" width="175" x="185" y="28" as="geometry" />
+        </mxCell>
+        <mxCell id="spay" parent="sgInt" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontColor=#334155;fontSize=9;arcSize=8;fontFamily=Helvetica;" value="VnPayServiceImpl&#xa;→ VNPay Gateway" vertex="1">
+          <mxGeometry height="36" width="175" x="5" y="70" as="geometry" />
+        </mxCell>
+        <mxCell id="swth" parent="sgInt" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontColor=#334155;fontSize=9;arcSize=8;fontFamily=Helvetica;" value="WeatherApiClientImpl&#xa;→ OpenWeather REST" vertex="1">
+          <mxGeometry height="36" width="175" x="185" y="70" as="geometry" />
+        </mxCell>
+        <mxCell id="semail" parent="sgInt" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontColor=#334155;fontSize=9;arcSize=8;fontFamily=Helvetica;" value="EmailServiceImpl&#xa;→ Gmail SMTP (587)" vertex="1">
+          <mxGeometry height="36" width="175" x="5" y="112" as="geometry" />
+        </mxCell>
+        <mxCell id="soauth" parent="sgInt" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontColor=#334155;fontSize=9;arcSize=8;fontFamily=Helvetica;" value="CustomOAuth2UserService&#xa;→ Google OAuth2" vertex="1">
+          <mxGeometry height="36" width="175" x="185" y="112" as="geometry" />
+        </mxCell>
+        <mxCell id="simpl_note" parent="sgInt" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F8FAFC;strokeColor=#CBD5E1;fontColor=#94A3B8;fontSize=8;arcSize=8;fontFamily=Helvetica;" value="Key Impl sizes: BookingServiceImpl 57KB · WalkInCheckInServiceImpl 47KB&#xa;VnPayServiceImpl 31KB · AdminViewServiceImpl 43KB · EmailServiceImpl 64KB" vertex="1">
+          <mxGeometry height="32" width="355" x="5" y="150" as="geometry" />
+        </mxCell>
+        <mxCell id="repoL" parent="mainApp" style="swimlane;startSize=26;fillColor=#DBEAFE;strokeColor=#93C5FD;fontColor=#1E3A5F;fontSize=11;fontStyle=1;swimlaneLine=1;rounded=1;arcSize=2;fontFamily=Helvetica;" value="Repository Layer (Spring Data JPA)  |  repositories/ — 44 interfaces" vertex="1">
+          <mxGeometry height="185" width="970" x="10" y="655" as="geometry" />
+        </mxCell>
+        <mxCell id="rgUA" parent="repoL" style="swimlane;startSize=22;fillColor=#EFF6FF;strokeColor=#93C5FD;fontColor=#1E3A5F;fontSize=10;fontStyle=1;rounded=1;arcSize=3;fontFamily=Helvetica;" value="User and Auth" vertex="1">
+          <mxGeometry height="140" width="180" x="8" y="28" as="geometry" />
+        </mxCell>
+        <mxCell id="rua1" parent="rgUA" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontColor=#334155;fontSize=9;arcSize=8;fontFamily=Helvetica;" value="AccountRepository" vertex="1">
+          <mxGeometry height="22" width="165" x="5" y="28" as="geometry" />
+        </mxCell>
+        <mxCell id="rua2" parent="rgUA" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontColor=#334155;fontSize=9;arcSize=8;fontFamily=Helvetica;" value="RoleRepository" vertex="1">
+          <mxGeometry height="22" width="165" x="5" y="54" as="geometry" />
+        </mxCell>
+        <mxCell id="rua3" parent="rgUA" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontColor=#334155;fontSize=9;arcSize=8;fontFamily=Helvetica;" value="VerificationTokenRepo" vertex="1">
+          <mxGeometry height="22" width="165" x="5" y="80" as="geometry" />
+        </mxCell>
+        <mxCell id="rua4" parent="rgUA" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontColor=#334155;fontSize=9;arcSize=8;fontFamily=Helvetica;" value="CustomerRepository" vertex="1">
+          <mxGeometry height="22" width="75" x="5" y="106" as="geometry" />
+        </mxCell>
+        <mxCell id="rua5" parent="rgUA" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontColor=#334155;fontSize=9;arcSize=8;fontFamily=Helvetica;" value="StaffRepository" vertex="1">
+          <mxGeometry height="22" width="75" x="88" y="106" as="geometry" />
+        </mxCell>
+        <mxCell id="rgRB" parent="repoL" style="swimlane;startSize=22;fillColor=#EFF6FF;strokeColor=#93C5FD;fontColor=#1E3A5F;fontSize=10;fontStyle=1;rounded=1;arcSize=3;fontFamily=Helvetica;" value="Room and Booking" vertex="1">
+          <mxGeometry height="140" width="190" x="198" y="28" as="geometry" />
+        </mxCell>
+        <mxCell id="rrb1" parent="rgRB" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontColor=#334155;fontSize=9;arcSize=8;fontFamily=Helvetica;" value="RoomRepository" vertex="1">
+          <mxGeometry height="22" width="175" x="5" y="28" as="geometry" />
+        </mxCell>
+        <mxCell id="rrb2" parent="rgRB" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontColor=#334155;fontSize=9;arcSize=8;fontFamily=Helvetica;" value="RoomCategoryRepository" vertex="1">
+          <mxGeometry height="22" width="175" x="5" y="54" as="geometry" />
+        </mxCell>
+        <mxCell id="rrb3" parent="rgRB" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontColor=#334155;fontSize=9;arcSize=8;fontFamily=Helvetica;" value="RoomBookingRepository" vertex="1">
+          <mxGeometry height="22" width="175" x="5" y="80" as="geometry" />
+        </mxCell>
+        <mxCell id="rrb4" parent="rgRB" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontColor=#334155;fontSize=9;arcSize=8;fontFamily=Helvetica;" value="RoomBookingDetailRepo" vertex="1">
+          <mxGeometry height="22" width="80" x="5" y="106" as="geometry" />
+        </mxCell>
+        <mxCell id="rrb5" parent="rgRB" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontColor=#334155;fontSize=9;arcSize=8;fontFamily=Helvetica;" value="BookingGuestRepository" vertex="1">
+          <mxGeometry height="22" width="85" x="90" y="106" as="geometry" />
+        </mxCell>
+        <mxCell id="rgFin" parent="repoL" style="swimlane;startSize=22;fillColor=#EFF6FF;strokeColor=#93C5FD;fontColor=#1E3A5F;fontSize=10;fontStyle=1;rounded=1;arcSize=3;fontFamily=Helvetica;" value="Finance" vertex="1">
+          <mxGeometry height="140" width="185" x="398" y="28" as="geometry" />
+        </mxCell>
+        <mxCell id="rf1" parent="rgFin" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontColor=#334155;fontSize=9;arcSize=8;fontFamily=Helvetica;" value="FolioItemRepository" vertex="1">
+          <mxGeometry height="22" width="170" x="5" y="28" as="geometry" />
+        </mxCell>
+        <mxCell id="rf2" parent="rgFin" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontColor=#334155;fontSize=9;arcSize=8;fontFamily=Helvetica;" value="FolioTransactionRepository" vertex="1">
+          <mxGeometry height="22" width="170" x="5" y="54" as="geometry" />
+        </mxCell>
+        <mxCell id="rf3" parent="rgFin" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontColor=#334155;fontSize=9;arcSize=8;fontFamily=Helvetica;" value="InvoiceRepository" vertex="1">
+          <mxGeometry height="22" width="170" x="5" y="80" as="geometry" />
+        </mxCell>
+        <mxCell id="rf4" parent="rgFin" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontColor=#334155;fontSize=9;arcSize=8;fontFamily=Helvetica;" value="PaymentRepository" vertex="1">
+          <mxGeometry height="22" width="80" x="5" y="106" as="geometry" />
+        </mxCell>
+        <mxCell id="rf5" parent="rgFin" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontColor=#334155;fontSize=9;arcSize=8;fontFamily=Helvetica;" value="SystemConfigRepository" vertex="1">
+          <mxGeometry height="22" width="80" x="90" y="106" as="geometry" />
+        </mxCell>
+        <mxCell id="rgFnb" parent="repoL" style="swimlane;startSize=22;fillColor=#EFF6FF;strokeColor=#93C5FD;fontColor=#1E3A5F;fontSize=10;fontStyle=1;rounded=1;arcSize=3;fontFamily=Helvetica;" value="FnB" vertex="1">
+          <mxGeometry height="140" width="180" x="593" y="28" as="geometry" />
+        </mxCell>
+        <mxCell id="rfnb1" parent="rgFnb" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontColor=#334155;fontSize=9;arcSize=8;fontFamily=Helvetica;" value="MenuCategoryRepository" vertex="1">
+          <mxGeometry height="22" width="165" x="5" y="28" as="geometry" />
+        </mxCell>
+        <mxCell id="rfnb2" parent="rgFnb" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontColor=#334155;fontSize=9;arcSize=8;fontFamily=Helvetica;" value="MenuItemRepository" vertex="1">
+          <mxGeometry height="22" width="165" x="5" y="54" as="geometry" />
+        </mxCell>
+        <mxCell id="rfnb3" parent="rgFnb" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontColor=#334155;fontSize=9;arcSize=8;fontFamily=Helvetica;" value="FoodOrderRepository" vertex="1">
+          <mxGeometry height="22" width="165" x="5" y="80" as="geometry" />
+        </mxCell>
+        <mxCell id="rfnb4" parent="rgFnb" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontColor=#334155;fontSize=9;arcSize=8;fontFamily=Helvetica;" value="FoodOrderDetailRepo" vertex="1">
+          <mxGeometry height="22" width="75" x="5" y="106" as="geometry" />
+        </mxCell>
+        <mxCell id="rfnb5" parent="rgFnb" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontColor=#334155;fontSize=9;arcSize=8;fontFamily=Helvetica;" value="RestaurantTableRepo" vertex="1">
+          <mxGeometry height="22" width="80" x="83" y="106" as="geometry" />
+        </mxCell>
+        <mxCell id="rgTour" parent="repoL" style="swimlane;startSize=22;fillColor=#EFF6FF;strokeColor=#93C5FD;fontColor=#1E3A5F;fontSize=10;fontStyle=1;rounded=1;arcSize=3;fontFamily=Helvetica;" value="Tour and Review" vertex="1">
+          <mxGeometry height="140" width="178" x="783" y="28" as="geometry" />
+        </mxCell>
+        <mxCell id="rt1" parent="rgTour" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontColor=#334155;fontSize=9;arcSize=8;fontFamily=Helvetica;" value="TourRepository" vertex="1">
+          <mxGeometry height="22" width="163" x="5" y="28" as="geometry" />
+        </mxCell>
+        <mxCell id="rt2" parent="rgTour" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontColor=#334155;fontSize=9;arcSize=8;fontFamily=Helvetica;" value="TourBookingRepository" vertex="1">
+          <mxGeometry height="22" width="163" x="5" y="54" as="geometry" />
+        </mxCell>
+        <mxCell id="rt3" parent="rgTour" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontColor=#334155;fontSize=9;arcSize=8;fontFamily=Helvetica;" value="TourScheduleRepository" vertex="1">
+          <mxGeometry height="22" width="163" x="5" y="80" as="geometry" />
+        </mxCell>
+        <mxCell id="rt4" parent="rgTour" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontColor=#334155;fontSize=9;arcSize=8;fontFamily=Helvetica;" value="ReviewRepository" vertex="1">
+          <mxGeometry height="22" width="163" x="5" y="106" as="geometry" />
+        </mxCell>
+        <mxCell id="jpaLabel" parent="mainApp" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=9;fontColor=#94A3B8;fontFamily=Helvetica;" value="JPA / Hibernate ORM  ·  MySQL JDBC Driver" vertex="1">
+          <mxGeometry height="18" width="400" x="10" y="852" as="geometry" />
+        </mxCell>
+        <mxCell id="dbL" parent="mainApp" style="swimlane;startSize=26;fillColor=#DBEAFE;strokeColor=#93C5FD;fontColor=#1E3A5F;fontSize=11;fontStyle=1;swimlaneLine=1;rounded=1;arcSize=2;fontFamily=Helvetica;" value="Data Storage Layer" vertex="1">
+          <mxGeometry height="100" width="970" x="10" y="872" as="geometry" />
+        </mxCell>
+        <mxCell id="dbMySQL" parent="dbL" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontColor=#334155;fontSize=9;arcSize=8;fontFamily=Helvetica;" value="MySQL 8.x (Production)&#xa;Primary Database" vertex="1">
+          <mxGeometry height="52" width="190" x="10" y="30" as="geometry" />
+        </mxCell>
+        <mxCell id="dbH2" parent="dbL" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontColor=#334155;fontSize=9;arcSize=8;fontFamily=Helvetica;" value="H2 In-Memory&#xa;Dev / Test Sandbox" vertex="1">
+          <mxGeometry height="52" width="155" x="215" y="30" as="geometry" />
+        </mxCell>
+        <mxCell id="dbEnvers" parent="dbL" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontColor=#334155;fontSize=9;arcSize=8;fontFamily=Helvetica;" value="Hibernate Envers&#xa;Accounts_AUD  ·  Revision Tracking" vertex="1">
+          <mxGeometry height="52" width="200" x="385" y="30" as="geometry" />
+        </mxCell>
+        <mxCell id="dbTables" parent="dbL" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F8FAFC;strokeColor=#CBD5E1;fontColor=#64748B;fontSize=8;arcSize=8;fontFamily=Helvetica;" value="Core Tables: Accounts · Bookings · RoomBookings · Room_Booking_Details&#xa;Customers · Employees · Food_Orders · Tours · TourSchedules · TourBookings&#xa;FolioItems · Invoices · PaymentTransactions · AuditLogs · Workflows · Roles" vertex="1">
+          <mxGeometry height="52" width="360" x="598" y="30" as="geometry" />
+        </mxCell>
+        <mxCell id="a_sec_ctrl" edge="1" parent="mainApp" source="secL" style="edgeStyle=orthogonalEdgeStyle;rounded=0;endArrow=block;endFill=1;strokeWidth=1.5;fontSize=9;strokeColor=#64748B;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="ctrlL" value="Authenticated">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="a_ctrl_svc" edge="1" parent="mainApp" source="ctrlL" style="edgeStyle=orthogonalEdgeStyle;rounded=0;endArrow=block;endFill=1;strokeWidth=1.5;fontSize=9;strokeColor=#64748B;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="svcL" value="DTO in / out">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="a_svc_repo" edge="1" parent="mainApp" source="svcL" style="edgeStyle=orthogonalEdgeStyle;rounded=0;endArrow=block;endFill=1;strokeWidth=1.5;fontSize=9;strokeColor=#64748B;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="repoL" value="@Transactional">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="a_repo_db" edge="1" parent="mainApp" source="repoL" style="edgeStyle=orthogonalEdgeStyle;rounded=0;endArrow=block;endFill=1;strokeWidth=1.5;fontSize=9;strokeColor=#64748B;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="dbL" value="JPA / JDBC">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="pExt" parent="1" style="swimlane;startSize=26;fillColor=#DBEAFE;strokeColor=#93C5FD;fontColor=#1E3A5F;fontSize=11;fontStyle=1;rounded=1;arcSize=2;fontFamily=Helvetica;" value="External Services" vertex="1">
+          <mxGeometry height="984" width="205" x="1215" y="72" as="geometry" />
+        </mxCell>
+        <mxCell id="extVnpay" parent="pExt" style="swimlane;startSize=20;fillColor=#EFF6FF;strokeColor=#93C5FD;fontColor=#1E3A5F;fontSize=9;fontStyle=1;rounded=1;arcSize=3;fontFamily=Helvetica;" value="VNPay" vertex="1">
+          <mxGeometry height="72" width="185" x="10" y="34" as="geometry" />
+        </mxCell>
+        <mxCell id="extVnpay1" parent="extVnpay" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontColor=#334155;fontSize=9;arcSize=8;fontFamily=Helvetica;" value="Payment Gateway" vertex="1">
+          <mxGeometry height="22" width="168" x="8" y="24" as="geometry" />
+        </mxCell>
+        <mxCell id="extVnpay2" parent="extVnpay" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F8FAFC;strokeColor=#CBD5E1;fontColor=#94A3B8;fontSize=8;arcSize=8;fontFamily=Helvetica;" value="HMAC-SHA512 / IPN Webhook" vertex="1">
+          <mxGeometry height="18" width="168" x="8" y="50" as="geometry" />
+        </mxCell>
+        <mxCell id="extSmtp" parent="pExt" style="swimlane;startSize=20;fillColor=#EFF6FF;strokeColor=#93C5FD;fontColor=#1E3A5F;fontSize=9;fontStyle=1;rounded=1;arcSize=3;fontFamily=Helvetica;" value="Gmail SMTP" vertex="1">
+          <mxGeometry height="72" width="185" x="10" y="118" as="geometry" />
+        </mxCell>
+        <mxCell id="extSmtp1" parent="extSmtp" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontColor=#334155;fontSize=9;arcSize=8;fontFamily=Helvetica;" value="Email Notifications" vertex="1">
+          <mxGeometry height="22" width="168" x="8" y="24" as="geometry" />
+        </mxCell>
+        <mxCell id="extSmtp2" parent="extSmtp" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F8FAFC;strokeColor=#CBD5E1;fontColor=#94A3B8;fontSize=8;arcSize=8;fontFamily=Helvetica;" value="Port 587 / STARTTLS" vertex="1">
+          <mxGeometry height="18" width="168" x="8" y="50" as="geometry" />
+        </mxCell>
+        <mxCell id="extOauth" parent="pExt" style="swimlane;startSize=20;fillColor=#EFF6FF;strokeColor=#93C5FD;fontColor=#1E3A5F;fontSize=9;fontStyle=1;rounded=1;arcSize=3;fontFamily=Helvetica;" value="Google OAuth2" vertex="1">
+          <mxGeometry height="72" width="185" x="10" y="202" as="geometry" />
+        </mxCell>
+        <mxCell id="extOauth1" parent="extOauth" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontColor=#334155;fontSize=9;arcSize=8;fontFamily=Helvetica;" value="CustomOAuth2UserService" vertex="1">
+          <mxGeometry height="22" width="168" x="8" y="24" as="geometry" />
+        </mxCell>
+        <mxCell id="extOauth2" parent="extOauth" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F8FAFC;strokeColor=#CBD5E1;fontColor=#94A3B8;fontSize=8;arcSize=8;fontFamily=Helvetica;" value="OAuthAccountService  ·  Social Login" vertex="1">
+          <mxGeometry height="18" width="168" x="8" y="50" as="geometry" />
+        </mxCell>
+        <mxCell id="extFace" parent="pExt" style="swimlane;startSize=20;fillColor=#EFF6FF;strokeColor=#93C5FD;fontColor=#1E3A5F;fontSize=9;fontStyle=1;rounded=1;arcSize=3;fontFamily=Helvetica;" value="Python AI Service" vertex="1">
+          <mxGeometry height="88" width="185" x="10" y="286" as="geometry" />
+        </mxCell>
+        <mxCell id="extFace1" parent="extFace" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontColor=#334155;fontSize=9;arcSize=8;fontFamily=Helvetica;" value="FastAPI Server" vertex="1">
+          <mxGeometry height="22" width="168" x="8" y="24" as="geometry" />
+        </mxCell>
+        <mxCell id="extFace2" parent="extFace" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F8FAFC;strokeColor=#CBD5E1;fontColor=#94A3B8;fontSize=8;arcSize=8;fontFamily=Helvetica;" value="FaceID Recognition&#xa;OCR CCCD  ·  HTTP REST calls" vertex="1">
+          <mxGeometry height="36" width="168" x="8" y="50" as="geometry" />
+        </mxCell>
+        <mxCell id="extWeather" parent="pExt" style="swimlane;startSize=20;fillColor=#EFF6FF;strokeColor=#93C5FD;fontColor=#1E3A5F;fontSize=9;fontStyle=1;rounded=1;arcSize=3;fontFamily=Helvetica;" value="OpenWeather API" vertex="1">
+          <mxGeometry height="72" width="185" x="10" y="386" as="geometry" />
+        </mxCell>
+        <mxCell id="extWeather1" parent="extWeather" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontColor=#334155;fontSize=9;arcSize=8;fontFamily=Helvetica;" value="Weather Data (REST)" vertex="1">
+          <mxGeometry height="22" width="168" x="8" y="24" as="geometry" />
+        </mxCell>
+        <mxCell id="extWeather2" parent="extWeather" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F8FAFC;strokeColor=#CBD5E1;fontColor=#94A3B8;fontSize=8;arcSize=8;fontFamily=Helvetica;" value="Tour scheduling context" vertex="1">
+          <mxGeometry height="18" width="168" x="8" y="50" as="geometry" />
+        </mxCell>
+        <mxCell id="extPoi" parent="pExt" style="swimlane;startSize=20;fillColor=#EFF6FF;strokeColor=#93C5FD;fontColor=#1E3A5F;fontSize=9;fontStyle=1;rounded=1;arcSize=3;fontFamily=Helvetica;" value="Apache POI 5.2.5" vertex="1">
+          <mxGeometry height="72" width="185" x="10" y="470" as="geometry" />
+        </mxCell>
+        <mxCell id="extPoi1" parent="extPoi" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontColor=#334155;fontSize=9;arcSize=8;fontFamily=Helvetica;" value="USALI Excel Export" vertex="1">
+          <mxGeometry height="22" width="168" x="8" y="24" as="geometry" />
+        </mxCell>
+        <mxCell id="extPoi2" parent="extPoi" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F8FAFC;strokeColor=#CBD5E1;fontColor=#94A3B8;fontSize=8;arcSize=8;fontFamily=Helvetica;" value="ExportApiController  ·  Manager Reports" vertex="1">
+          <mxGeometry height="18" width="168" x="8" y="50" as="geometry" />
+        </mxCell>
+        <mxCell id="extCloud" parent="pExt" style="swimlane;startSize=20;fillColor=#EFF6FF;strokeColor=#93C5FD;fontColor=#1E3A5F;fontSize=9;fontStyle=1;rounded=1;arcSize=3;fontFamily=Helvetica;" value="Cloudinary CDN" vertex="1">
+          <mxGeometry height="72" width="185" x="10" y="554" as="geometry" />
+        </mxCell>
+        <mxCell id="extCloud1" parent="extCloud" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontColor=#334155;fontSize=9;arcSize=8;fontFamily=Helvetica;" value="Image Upload / Storage" vertex="1">
+          <mxGeometry height="22" width="168" x="8" y="24" as="geometry" />
+        </mxCell>
+        <mxCell id="extCloud2" parent="extCloud" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F8FAFC;strokeColor=#CBD5E1;fontColor=#94A3B8;fontSize=8;arcSize=8;fontFamily=Helvetica;" value="Room photos / Avatar upload" vertex="1">
+          <mxGeometry height="18" width="168" x="8" y="50" as="geometry" />
+        </mxCell>
+        <mxCell id="extGemini" parent="pExt" style="swimlane;startSize=20;fillColor=#EFF6FF;strokeColor=#93C5FD;fontColor=#1E3A5F;fontSize=9;fontStyle=1;rounded=1;arcSize=3;fontFamily=Helvetica;" value="Google Gemini AI" vertex="1">
+          <mxGeometry height="72" width="185" x="10" y="638" as="geometry" />
+        </mxCell>
+        <mxCell id="extGemini1" parent="extGemini" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontColor=#334155;fontSize=9;arcSize=8;fontFamily=Helvetica;" value="LLM Chat API" vertex="1">
+          <mxGeometry height="22" width="168" x="8" y="24" as="geometry" />
+        </mxCell>
+        <mxCell id="extGemini2" parent="extGemini" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F8FAFC;strokeColor=#CBD5E1;fontColor=#94A3B8;fontSize=8;arcSize=8;fontFamily=Helvetica;" value="ManagerAIChatService" vertex="1">
+          <mxGeometry height="18" width="168" x="8" y="50" as="geometry" />
+        </mxCell>
+        <mxCell id="arr_vnpay" edge="1" parent="1" source="spay" style="edgeStyle=orthogonalEdgeStyle;rounded=0;endArrow=open;endFill=0;strokeWidth=1;strokeColor=#94A3B8;fontSize=8;dashed=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="extVnpay" value="HTTPS POST">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="arr_smtp" edge="1" parent="1" source="semail" style="edgeStyle=orthogonalEdgeStyle;rounded=0;endArrow=open;endFill=0;strokeWidth=1;strokeColor=#94A3B8;fontSize=8;dashed=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="extSmtp" value="SMTP">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="arr_oauth" edge="1" parent="1" source="soauth" style="edgeStyle=orthogonalEdgeStyle;rounded=0;endArrow=open;endFill=0;strokeWidth=1;strokeColor=#94A3B8;fontSize=8;dashed=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="extOauth" value="OAuth2 Callback">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="arr_weather" edge="1" parent="1" source="swth" style="edgeStyle=orthogonalEdgeStyle;rounded=0;endArrow=open;endFill=0;strokeWidth=1;strokeColor=#94A3B8;fontSize=8;dashed=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="extWeather" value="HTTP GET">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="arr_cloud" edge="1" parent="1" source="scld" style="edgeStyle=orthogonalEdgeStyle;rounded=0;endArrow=open;endFill=0;strokeWidth=1;strokeColor=#94A3B8;fontSize=8;dashed=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="extCloud" value="HTTP POST">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="arr_gemini" edge="1" parent="1" source="sgem" style="edgeStyle=orthogonalEdgeStyle;rounded=0;endArrow=open;endFill=0;strokeWidth=1;strokeColor=#94A3B8;fontSize=8;dashed=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="extGemini" value="REST GET">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

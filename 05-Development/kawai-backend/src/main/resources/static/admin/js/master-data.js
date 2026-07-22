@@ -290,8 +290,8 @@ function buildDynamicFilters() {
     filterContainer.innerHTML = "";
     dynamicFiltersConfig = [];
 
-    // Bỏ qua lọc ở tab Phân quyền (Role Management) vì người dùng chỉ muốn dùng search
-    if (activeTab === "Role Management") return;
+    // Bỏ qua lọc ở tab Phân quyền (Role Management) và Menu Categories
+    if (activeTab === "Role Management" || activeTab === "Menu Categories") return;
 
     const table = document.querySelector(".adm-table");
     if (!table) return;
@@ -302,8 +302,9 @@ function buildDynamicFilters() {
 
     // Phân tích từng cột để xem có thể làm bộ lọc không
     headers.forEach((th, colIndex) => {
+        const thText = th.textContent.trim();
         // Bỏ qua cột check-all và cột thao tác
-        if (th.id === "check-all-btn" || th.textContent.trim() === "Thao tác" || th.textContent.trim() === "") return;
+        if (th.id === "check-all-btn" || thText === "Thao tác" || thText === "") return;
 
         const uniqueValues = new Set();
         let hasComplexHTML = false;
@@ -318,8 +319,10 @@ function buildDynamicFilters() {
             if (text) uniqueValues.add(text);
         });
 
+        const isForceFilterColumn = (thText === "Trạng thái" || thText === "Danh mục" || thText === "Loại phòng" || thText === "Loại giường");
+
         // Nếu cột có từ 2 đến 8 giá trị khác nhau -> Có thể làm bộ lọc Dropdown
-        if (!hasComplexHTML && uniqueValues.size > 1 && uniqueValues.size <= 8) {
+        if (!hasComplexHTML && ((uniqueValues.size > 1 && uniqueValues.size <= 8) || (uniqueValues.size > 0 && isForceFilterColumn))) {
             const select = document.createElement("select");
             select.className = "adm-search-input";
             select.style.width = "auto";
@@ -561,6 +564,23 @@ function openAddModal() {
         usernameInput.style.pointerEvents = 'auto';
     }
 
+    if (activeTab === "Pricing Management") {
+        const endDateGroup = document.getElementById("endDateGroup");
+        if (endDateGroup) endDateGroup.style.display = "block";
+        const applyDaysSelect = form ? form.querySelector('[name="applyDays"]') : null;
+        if (applyDaysSelect) {
+            applyDaysSelect.closest('.adm-form-group').style.display = "block";
+            applyDaysSelect.value = "ALL";
+        }
+        const dateInput = form ? form.querySelector('[name="date"]') : null;
+        if (dateInput && dateInput.closest('.adm-form-group')) {
+            const label = dateInput.closest('.adm-form-group').querySelector('.adm-form-label');
+            if (label) {
+                label.innerHTML = `Từ ngày (Ngày áp dụng) <span style="color:#B45309">*</span>`;
+            }
+        }
+    }
+
     initAccountFormToggles();
     openModal("entity-modal");
 }
@@ -769,6 +789,23 @@ function openEditModal(id) {
         }
         form.dataset.action = `/admin/api/v1/${apiPath}/${id}`;
         form.dataset.method = "PUT";
+    }
+
+    if (activeTab === "Pricing Management") {
+        const endDateGroup = document.getElementById("endDateGroup");
+        if (endDateGroup) endDateGroup.style.display = "none";
+        const applyDaysSelect = form ? form.querySelector('[name="applyDays"]') : null;
+        if (applyDaysSelect) {
+            applyDaysSelect.closest('.adm-form-group').style.display = "none";
+            applyDaysSelect.value = "ALL";
+        }
+        const dateInput = form ? form.querySelector('[name="date"]') : null;
+        if (dateInput && dateInput.closest('.adm-form-group')) {
+            const label = dateInput.closest('.adm-form-group').querySelector('.adm-form-label');
+            if (label) {
+                label.innerHTML = `Ngày áp dụng <span style="color:#B45309">*</span>`;
+            }
+        }
     }
 
     initAccountFormToggles();

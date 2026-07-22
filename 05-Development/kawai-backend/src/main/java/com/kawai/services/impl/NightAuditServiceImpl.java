@@ -34,6 +34,9 @@ public class NightAuditServiceImpl implements NightAuditService {
     private final StaffScheduleRepository staffScheduleRepository;
 
     @Autowired
+    private com.kawai.services.interfaces.PricingService pricingService;
+
+    @Autowired
     public NightAuditServiceImpl(FolioItemRepository folioItemRepository,
             RoomBookingDetailRepository roomBookingDetailRepository,
             StaffScheduleRepository staffScheduleRepository) {
@@ -129,7 +132,7 @@ public class NightAuditServiceImpl implements NightAuditService {
      * Trả về null nếu dữ liệu thiếu Booking hợp lệ (cần Manager xử lý thủ công).
      */
     private FolioItem createRoomChargeItem(RoomBookingDetail detail, LocalDate auditDate) {
-        BigDecimal roomCharge = detail.getRoomCharge();
+        BigDecimal roomCharge = pricingService.getPriceForDate(detail.getCategory(), auditDate);
         if (roomCharge == null) {
             roomCharge = BigDecimal.ZERO;
         }

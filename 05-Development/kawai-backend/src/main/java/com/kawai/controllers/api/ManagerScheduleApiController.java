@@ -12,7 +12,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.kawai.services.ScheduleGeneratorService;
+import com.kawai.services.impl.ScheduleGeneratorService;
 import java.util.Map;
 
 @RestController
@@ -64,53 +64,6 @@ public class ManagerScheduleApiController {
         return ResponseEntity.ok(dtoList);
     }
 
-    @GetMapping("/debug-dates")
-    public ResponseEntity<List<String>> debugDates() {
-        // Trả về tất cả distinct work_date trong DB để debug timezone
-        return ResponseEntity.ok(
-            staffScheduleRepository.findAll().stream()
-                .map(s -> s.getWorkDate().toString())
-                .distinct()
-                .sorted()
-                .collect(Collectors.toList())
-        );
-    }
-
-    @PostMapping("/mock-preference")
-    public ResponseEntity<Map<String, String>> addMockPreference(@RequestBody MockPreferenceRequest req) {
-        if (req.getEmployeeId() != null && req.getDate() != null) {
-            scheduleGeneratorService.addMockPreference(req.getEmployeeId(), LocalDate.parse(req.getDate()));
-            return ResponseEntity.ok(Map.of("status", "success", "message", "Preference added and schedule regenerated."));
-        }
-        return ResponseEntity.badRequest().body(Map.of("status", "error", "message", "Missing parameters."));
-    }
-
-    @PostMapping("/force-generate")
-    public ResponseEntity<?> forceGenerate() {
-        try {
-            scheduleGeneratorService.generateWeeklySchedule(LocalDate.now(), LocalDate.now().plusDays(14));
-            
-            // Ép gửi mail ngay sau khi tạo xong lịch
-            com.kawai.services.jobs.ScheduleNotificationJob notificationJob = 
-                org.springframework.web.context.support.WebApplicationContextUtils
-                .getRequiredWebApplicationContext(org.springframework.web.context.request.RequestContextHolder.currentRequestAttributes() instanceof org.springframework.web.context.request.ServletRequestAttributes ? ((org.springframework.web.context.request.ServletRequestAttributes) org.springframework.web.context.request.RequestContextHolder.currentRequestAttributes()).getRequest().getServletContext() : null)
-                .getBean(com.kawai.services.jobs.ScheduleNotificationJob.class);
-            notificationJob.sendWeeklySchedules();
-
-            return ResponseEntity.ok(Map.of("status", "success", "message", "Generated schedules manually and sent emails."));
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.internalServerError().body(Map.of("status", "error", "message", e.getMessage()));
-        }
-    }
-
-
-
-    @Data
-    public static class MockPreferenceRequest {
-        private Long employeeId;
-        private String date;
-    }
 
     @Data
     public static class StaffScheduleDTO {

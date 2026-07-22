@@ -55,7 +55,6 @@ public class FaceIdApiController {
     @Autowired
     private com.kawai.services.interfaces.EmailService emailService;
 
-
     /**
      * POST /api/faceid/verify
      * Nhận kết quả nhận diện từ JavaScript (face-api.js) trên trình duyệt.
@@ -121,15 +120,19 @@ public class FaceIdApiController {
 
     /**
      * GET /api/faceid/reset
-     * Reset trạng thái điểm danh của tất cả hành khách tour hôm nay về Not_Show.
+     * Reset trạng thái điểm danh của tất cả hành khách tour hôm nay (hoặc theo scheduleId) về Not_Show.
      * Dùng cho demo replay.
      */
     @GetMapping("/reset")
     @org.springframework.transaction.annotation.Transactional
-    public ResponseEntity<?> resetAttendance() {
+    public ResponseEntity<?> resetAttendance(@RequestParam(required = false) Long scheduleId) {
         try {
-            List<TourAttendee> attendees = tourAttendeeRepository
-                    .findByTourBooking_Schedule_DepartureDate(LocalDate.now());
+            List<TourAttendee> attendees;
+            if (scheduleId != null) {
+                attendees = tourAttendeeRepository.findByTourBooking_Schedule_Id(scheduleId);
+            } else {
+                attendees = tourAttendeeRepository.findByTourBooking_Schedule_DepartureDate(LocalDate.now());
+            }
             int resetCount = 0;
             for (TourAttendee attendee : attendees) {
                 if (!"Not_Show".equals(attendee.getStatus())) {
@@ -160,19 +163,20 @@ public class FaceIdApiController {
         try {
             String faceVectorData = (String) body.get("faceVectorData");
             if (faceVectorData == null || faceVectorData.isBlank()) {
-                return ResponseEntity.badRequest().body(Map.of("success", false, "message", "Thiếu dữ liệu nhận diện khuôn mặt"));
+                return ResponseEntity.badRequest()
+                        .body(Map.of("success", false, "message", "Thiếu dữ liệu nhận diện khuôn mặt"));
             }
 
             String base64Image = (String) body.get("faceImageBase64");
             String savedImageUrl = null;
             if (base64Image != null && base64Image.contains(",")) {
                 try {
-                    // Upload trực tiếp chuỗi Data URI (Base64) lên Cloudinary (SDK hỗ trợ phân tích tự động)
-                    Map<String, Object> uploadResult = cloudinary.uploader().upload(base64Image, 
+                    // Upload trực tiếp chuỗi Data URI (Base64) lên Cloudinary (SDK hỗ trợ phân tích
+                    // tự động)
+                    Map<String, Object> uploadResult = cloudinary.uploader().upload(base64Image,
                             com.cloudinary.utils.ObjectUtils.asMap(
                                     "folder", "kawai_faces",
-                                    "public_id", "face_" + System.currentTimeMillis()
-                             ));
+                                    "public_id", "face_" + System.currentTimeMillis()));
                     savedImageUrl = uploadResult.get("secure_url").toString();
                 } catch (Exception ex) {
                     System.err.println("Lỗi nghiêm trọng khi upload FaceID lên Cloudinary:");
@@ -184,48 +188,61 @@ public class FaceIdApiController {
                 Long bookingId = Long.valueOf(body.get("bookingId").toString());
                 com.kawai.models.Booking booking = bookingRepository.findById(bookingId).orElse(null);
                 if (booking == null) {
-                    return ResponseEntity.badRequest().body(Map.of("success", false, "message", "Booking không tồn tại"));
+                    return ResponseEntity.badRequest()
+                            .body(Map.of("success", false, "message", "Booking không tồn tại"));
                 }
                 com.kawai.models.Customer customer = booking.getCustomer();
                 if (customer == null) {
-                    return ResponseEntity.badRequest().body(Map.of("success", false, "message", "Không tìm thấy khách hàng cho Booking này"));
+                    return ResponseEntity.badRequest()
+                            .body(Map.of("success", false, "message", "Không tìm thấy khách hàng cho Booking này"));
                 }
                 customer.setFaceVectorData(faceVectorData);
-                if (savedImageUrl != null) customer.setFaceImgUrl(savedImageUrl);
+                if (savedImageUrl != null)
+                    customer.setFaceImgUrl(savedImageUrl);
                 customerRepository.save(customer);
-                return ResponseEntity.ok(Map.of("success", true, "message", "Đăng ký khuôn mặt thành công cho khách hàng " + customer.getFullName()));
+                return ResponseEntity.ok(Map.of("success", true, "message",
+                        "Đăng ký khuôn mặt thành công cho khách hàng " + customer.getFullName()));
             } else if (body.get("customerId") != null) {
                 Long customerId = Long.valueOf(body.get("customerId").toString());
                 com.kawai.models.Customer customer = customerRepository.findById(customerId).orElse(null);
                 if (customer == null) {
-                    return ResponseEntity.badRequest().body(Map.of("success", false, "message", "Khách hàng không tồn tại"));
+                    return ResponseEntity.badRequest()
+                            .body(Map.of("success", false, "message", "Khách hàng không tồn tại"));
                 }
                 customer.setFaceVectorData(faceVectorData);
-                if (savedImageUrl != null) customer.setFaceImgUrl(savedImageUrl);
+                if (savedImageUrl != null)
+                    customer.setFaceImgUrl(savedImageUrl);
                 customerRepository.save(customer);
-                return ResponseEntity.ok(Map.of("success", true, "message", "Đăng ký khuôn mặt thành công cho khách hàng " + customer.getFullName()));
+                return ResponseEntity.ok(Map.of("success", true, "message",
+                        "Đăng ký khuôn mặt thành công cho khách hàng " + customer.getFullName()));
             } else if (body.get("dependentId") != null) {
                 Long dependentId = Long.valueOf(body.get("dependentId").toString());
                 com.kawai.models.Dependent dependent = dependentRepository.findById(dependentId).orElse(null);
                 if (dependent == null) {
-                    return ResponseEntity.badRequest().body(Map.of("success", false, "message", "Người đi kèm không tồn tại"));
+                    return ResponseEntity.badRequest()
+                            .body(Map.of("success", false, "message", "Người đi kèm không tồn tại"));
                 }
                 dependent.setFaceVectorData(faceVectorData);
-                if (savedImageUrl != null) dependent.setFaceImgUrl(savedImageUrl);
+                if (savedImageUrl != null)
+                    dependent.setFaceImgUrl(savedImageUrl);
                 dependentRepository.save(dependent);
-                return ResponseEntity.ok(Map.of("success", true, "message", "Đăng ký khuôn mặt thành công cho người đi kèm " + dependent.getDependentName()));
+                return ResponseEntity.ok(Map.of("success", true, "message",
+                        "Đăng ký khuôn mặt thành công cho người đi kèm " + dependent.getDependentName()));
             } else {
-                return ResponseEntity.badRequest().body(Map.of("success", false, "message", "Thiếu customerId hoặc dependentId"));
+                return ResponseEntity.badRequest()
+                        .body(Map.of("success", false, "message", "Thiếu customerId hoặc dependentId"));
             }
         } catch (Exception e) {
             e.printStackTrace();
-            return ResponseEntity.status(500).body(Map.of("success", false, "message", "Lỗi hệ thống: " + e.getMessage()));
+            return ResponseEntity.status(500)
+                    .body(Map.of("success", false, "message", "Lỗi hệ thống: " + e.getMessage()));
         }
     }
 
     /**
      * POST /api/faceid/checkin-manual
-     * Điểm danh thủ công bằng cách click trên giao diện (cho các trường hợp không dùng FaceID hoặc demo nhanh).
+     * Điểm danh thủ công bằng cách click trên giao diện (cho các trường hợp không
+     * dùng FaceID hoặc demo nhanh).
      */
     @PostMapping("/checkin-manual")
     @org.springframework.transaction.annotation.Transactional
@@ -295,7 +312,7 @@ public class FaceIdApiController {
                 attendee.setStatus("Absent");
                 attendee.setAbsentReason(reason);
                 tourAttendeeRepository.saveAndFlush(attendee);
-                
+
                 String name = "Ẩn danh";
                 if (attendee.getCustomer() != null) {
                     name = attendee.getCustomer().getFullName();
@@ -337,7 +354,7 @@ public class FaceIdApiController {
             for (TourAttendee attendee : attendees) {
                 String name = null;
                 String dbFaceUrl = null;
-                
+
                 if (attendee.getCustomer() != null) {
                     name = attendee.getCustomer().getFullName();
                     dbFaceUrl = attendee.getCustomer().getFaceImgUrl();
@@ -345,16 +362,16 @@ public class FaceIdApiController {
                     name = attendee.getDependent().getDependentName();
                     dbFaceUrl = attendee.getDependent().getFaceImgUrl();
                 }
-                
+
                 if (name != null) {
                     // Ưu tiên 1: Ảnh fix cứng cho dữ liệu demo (Nguyễn Xuân Lưu, Ngọc Thị)
                     String imageUrl = mapNameToImageUrl(name);
-                    
+
                     // Ưu tiên 2: Ảnh thật chụp từ quầy Lễ tân (nếu không có ảnh fix cứng)
                     if (imageUrl == null && dbFaceUrl != null && !dbFaceUrl.isBlank()) {
                         imageUrl = dbFaceUrl;
                     }
-                    
+
                     if (imageUrl != null) {
                         refs.add(Map.of("name", name, "imageUrl", imageUrl));
                     }
@@ -380,31 +397,37 @@ public class FaceIdApiController {
         String reason = body.get("description") != null ? body.get("description").toString().trim() : null;
 
         if (schedIdObj == null) {
-            return ResponseEntity.badRequest().body(Map.of("success", false, "message", "Thiếu thông tin lịch trình tour (scheduleId)."));
+            return ResponseEntity.badRequest()
+                    .body(Map.of("success", false, "message", "Thiếu thông tin lịch trình tour (scheduleId)."));
         }
         if (reason == null || reason.isEmpty()) {
-            return ResponseEntity.badRequest().body(Map.of("success", false, "message", "Vui lòng nhập lý do sự cố hủy tour."));
+            return ResponseEntity.badRequest()
+                    .body(Map.of("success", false, "message", "Vui lòng nhập lý do sự cố hủy tour."));
         }
 
         Long scheduleId = Long.valueOf(schedIdObj.toString());
 
-        // Đồng bộ hóa theo scheduleId để tránh race condition (người dùng click đúp hoặc gửi nhiều request đồng thời)
+        // Đồng bộ hóa theo scheduleId để tránh race condition (người dùng click đúp
+        // hoặc gửi nhiều request đồng thời)
         synchronized (scheduleId.toString().intern()) {
             try {
                 com.kawai.models.TourSchedule schedule = tourScheduleRepository.findById(scheduleId).orElse(null);
                 if (schedule == null) {
-                    return ResponseEntity.badRequest().body(Map.of("success", false, "message", "Không tìm thấy lịch trình tour."));
+                    return ResponseEntity.badRequest()
+                            .body(Map.of("success", false, "message", "Không tìm thấy lịch trình tour."));
                 }
 
                 if ("Cancelled".equalsIgnoreCase(schedule.getScheduleStatus())) {
-                    return ResponseEntity.badRequest().body(Map.of("success", false, "message", "Lịch trình tour này đã được hủy trước đó rồi."));
+                    return ResponseEntity.badRequest()
+                            .body(Map.of("success", false, "message", "Lịch trình tour này đã được hủy trước đó rồi."));
                 }
 
                 // 1. Cập nhật trạng thái TourSchedule sang Cancelled
                 schedule.setScheduleStatus("Cancelled");
                 tourScheduleRepository.save(schedule);
 
-                // 2. Ghi nhận sự cố vào bảng Hotel_Operations (loại TOUR_INCIDENT, trạng thái Pending)
+                // 2. Ghi nhận sự cố vào bảng Hotel_Operations (loại TOUR_INCIDENT, trạng thái
+                // Pending)
                 String username = SecurityContextHolder.getContext().getAuthentication().getName();
                 com.kawai.models.Employee staff = employeeRepository.findByAccountUsername(username).orElse(null);
 
@@ -412,7 +435,8 @@ public class FaceIdApiController {
                 incident.setOperationalType("TOUR_INCIDENT");
                 incident.setPriority("Urgent");
                 incident.setStatus("Pending");
-                incident.setNotes("[HỦY TOUR] Sự cố lịch trình #" + scheduleId + " - " + (schedule.getTour() != null ? schedule.getTour().getTourName() : "") + ": " + reason);
+                incident.setNotes("[HỦY TOUR] Sự cố lịch trình #" + scheduleId + " - "
+                        + (schedule.getTour() != null ? schedule.getTour().getTourName() : "") + ": " + reason);
                 incident.setStaff(staff);
                 incident.setCreatedAt(LocalDateTime.now());
                 hotelOperationRepository.save(incident);
@@ -423,21 +447,24 @@ public class FaceIdApiController {
 
                 for (com.kawai.models.TourBooking booking : bookings) {
                     String currentStatus = booking.getBookingStatus() != null ? booking.getBookingStatus() : "";
-                    if ("Cancelled_Refunded".equalsIgnoreCase(currentStatus) || "Cancelled_Forfeited".equalsIgnoreCase(currentStatus)) {
+                    if ("Cancelled_Refunded".equalsIgnoreCase(currentStatus)
+                            || "Cancelled_Forfeited".equalsIgnoreCase(currentStatus)) {
                         continue; // Bỏ qua đơn đã hủy
                     }
 
-                    // Gọi cancelTour tập trung ở Service với cancelledByResort = true (hoàn tiền 100%) và truyền lý do hủy
+                    // Gọi cancelTour tập trung ở Service với cancelledByResort = true (hoàn tiền
+                    // 100%) và truyền lý do hủy
                     tourBookingService.cancelTour(booking.getId(), true, reason);
                     cancelCount++;
                 }
                 return ResponseEntity.ok(Map.of(
-                    "success", true, 
-                    "message", "Đã hủy lịch trình tour thành công! Đã hoàn tiền cho " + cancelCount + " đơn đặt tour."
-                ));
+                        "success", true,
+                        "message",
+                        "Đã hủy lịch trình tour thành công! Đã hoàn tiền cho " + cancelCount + " đơn đặt tour."));
             } catch (Exception e) {
                 e.printStackTrace();
-                return ResponseEntity.status(500).body(Map.of("success", false, "message", "Lỗi khi hủy lịch trình tour: " + e.getMessage()));
+                return ResponseEntity.status(500)
+                        .body(Map.of("success", false, "message", "Lỗi khi hủy lịch trình tour: " + e.getMessage()));
             }
         }
     }
@@ -452,15 +479,18 @@ public class FaceIdApiController {
     }
 
     private boolean isNameMatch(String name, String displayName) {
-        if (name == null || displayName == null) return false;
-        if (name.equalsIgnoreCase(displayName)) return true;
-        
-        // Allow matching Ngọc Thị and Lê Quang interchangeably to avoid scanner mismatch issues
+        if (name == null || displayName == null)
+            return false;
+        if (name.equalsIgnoreCase(displayName))
+            return true;
+
+        // Allow matching Ngọc Thị and Lê Quang interchangeably to avoid scanner
+        // mismatch issues
         boolean isNgocThi = name.equalsIgnoreCase("Ngọc Thị") || name.equalsIgnoreCase("Ngoc Thi")
                 || displayName.equalsIgnoreCase("Ngọc Thị") || displayName.equalsIgnoreCase("Ngoc Thi");
         boolean isLeQuang = name.equalsIgnoreCase("Lê Quang") || name.equalsIgnoreCase("Le Quang")
                 || displayName.equalsIgnoreCase("Lê Quang") || displayName.equalsIgnoreCase("Le Quang");
-                
+
         return isNgocThi && isLeQuang;
     }
 }

@@ -50,7 +50,11 @@
             <div class="adm-form-group"><label class="adm-form-label">NL tối đa</label><input type="number" name="maxAdults" class="adm-form-input"></div>
             <div class="adm-form-group"><label class="adm-form-label">TE tối đa</label><input type="number" name="maxChildren" class="adm-form-input"></div>
             <div class="adm-form-group"><label class="adm-form-label">Phụ thu NL (VNĐ)</label><input type="text" name="extraAdultSurcharge" class="adm-form-input"></div>
-            <div class="adm-form-group"><label class="adm-form-label">Phụ thu TE (Có giường) (VNĐ)</label><input type="text" name="extraChildSurcharge" class="adm-form-input"></div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px;">
+            <div class="adm-form-group"><label class="adm-form-label">Phụ thu TE (0-5t)</label><input type="text" name="surcharge_child_0_5" class="adm-form-input" placeholder="0"></div>
+            <div class="adm-form-group"><label class="adm-form-label">Phụ thu TE (6-11t)</label><input type="text" name="surcharge_child_6_11" class="adm-form-input" placeholder="200000"></div>
+            <div class="adm-form-group"><label class="adm-form-label">Phụ thu TE (12-17t)</label><input type="text" name="surcharge_child_12_17" class="adm-form-input" placeholder="350000"></div>
         </div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
             <div class="adm-form-group"><label class="adm-form-label">Loại giường</label><input type="text" name="bedType" class="adm-form-input" placeholder="VD: 1 Giường King 2m2"></div>

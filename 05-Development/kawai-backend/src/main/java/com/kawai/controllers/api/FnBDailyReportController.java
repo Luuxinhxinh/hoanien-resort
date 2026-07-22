@@ -3,7 +3,7 @@ package com.kawai.controllers.api;
 import com.kawai.dto.fnb.FnBDailyReportPreviewResponse;
 import com.kawai.models.FnBDailyReport;
 import com.kawai.repositories.FnBDailyReportRepository;
-import com.kawai.services.FnBDailyReportService;
+import com.kawai.services.interfaces.FnBDailyReportService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;

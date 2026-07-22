@@ -82,7 +82,9 @@ public class WorkflowEngineServiceImpl implements WorkflowEngineService {
                     Number thresholdVal = (Number) conditions.get("threshold_pct_gt");
                     Number inputVal = (Number) payload.get("input_discount_pct");
                     if (thresholdVal != null && inputVal != null) {
-                        return inputVal.doubleValue() > thresholdVal.doubleValue();
+                        if (inputVal.doubleValue() <= thresholdVal.doubleValue()) {
+                            return false;
+                        }
                     }
                 }
             }
@@ -242,9 +244,9 @@ public class WorkflowEngineServiceImpl implements WorkflowEngineService {
                     } else {
                         wsMessage = String.format("Nhiệm vụ chung: %s%s", friendlyTaskName, noteSuffix);
                         // Phân luồng nhóm trách nhiệm để tránh rác kênh chung của Lễ tân
-                        if (taskType != null && taskType.contains("CLEAN")) {
+                        if (taskType != null && taskType.toUpperCase().contains("CLEAN")) {
                             wsTopic = "/topic/operations/housekeeping";
-                        } else if (taskType != null && taskType.contains("MAINTENANCE")) {
+                        } else if (taskType != null && taskType.toUpperCase().contains("MAINTENANCE")) {
                             wsTopic = "/topic/operations/maintenance";
                         } else {
                             wsTopic = "/topic/operations"; // Các task khác (F&B...) vẫn gửi chung
@@ -283,11 +285,24 @@ public class WorkflowEngineServiceImpl implements WorkflowEngineService {
                                 bodyHtml = bodyHtml.replace(placeholder, val);
                             }
                         }
-                        Map<String, Object> ctx = new java.util.HashMap<>();
-                        ctx.put("fromEmail", sender);
-                        ctx.put("htmlContent", bodyHtml);
-                        eventPublisher.publishEvent(new com.kawai.events.SystemEmailEvent(this, target, subject, "custom-workflow", ctx));
-                        System.out.println("Dynamic Action: Triggered SystemEmailEvent to " + target);
+                        
+                        String templateName = "custom-workflow";
+                        Map<String, Object> ctx = new java.util.HashMap<>(payload);
+                        
+                        if ("otp-email".equals(bodyHtml)) {
+                            templateName = "registration-otp";
+                        } else if ("reset-password".equals(bodyHtml)) {
+                            templateName = "password-reset";
+                            ctx.put("resetLink", payload.get("otpCode")); // mapping for listener
+                        } else if ("sla-warning".equals(bodyHtml)) {
+                            templateName = "sla-warning";
+                        } else {
+                            ctx.put("fromEmail", sender);
+                            ctx.put("htmlContent", bodyHtml);
+                        }
+                        
+                        eventPublisher.publishEvent(new com.kawai.events.SystemEmailEvent(this, target, subject, templateName, ctx));
+                        System.out.println("Dynamic Action: Triggered SystemEmailEvent (" + templateName + ") to " + target);
                     }
                 }
                 else if ("REQUIRE_MANAGER_APPROVAL".equals(type)) {

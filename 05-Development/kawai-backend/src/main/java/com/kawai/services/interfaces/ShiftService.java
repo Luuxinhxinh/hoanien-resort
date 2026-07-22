@@ -1,4 +1,4 @@
-package com.kawai.services;
+package com.kawai.services.interfaces;
 
 import com.kawai.models.Employee;
 import java.time.LocalDate;
@@ -26,4 +26,9 @@ public interface ShiftService {
      * Gán Hướng dẫn viên cho một lịch trình Tour (chống trùng lịch).
      */
     Employee assignGuideToTour(com.kawai.models.TourSchedule schedule);
+
+    /**
+     * Kiểm tra xem nhân viên hiện tại có đang trong ca trực hay không.
+     */
+    boolean checkIsOnShift(org.springframework.security.core.Authentication auth, jakarta.servlet.http.HttpSession session);
 }

@@ -294,8 +294,7 @@
                                                 onchange="if(this.value) { const opt = this.options[this.selectedIndex]; upgradeDependent(this.value, opt.getAttribute('data-detail-id'), this); this.selectedIndex=0; }">
                                                 <option value="">Nâng cấp TK </option>
                                                 <option th:each="dep : ${arr.dependents}"
-                                                    th:if="${dep.isPrimaryContact}" 
-                                                    th:value="${dep.dependentId}"
+                                                    th:if="${dep.isPrimaryContact}" th:value="${dep.dependentId}"
                                                     th:attr="data-detail-id=${dep.roomBookingDetailId}"
                                                     th:text="${dep.dependentId == null ? '(Đã có TK) ' + dep.fullName : dep.fullName}"
                                                     th:disabled="${dep.dependentId == null}"></option>
@@ -467,7 +466,7 @@
                 if (typeof Toastify === 'undefined') return;
                 Toastify({
                     text: notif.text,
-                    duration: -1,
+                    duration: notif.direct ? -1 : 4000,
                     close: true,
                     gravity: "top",
                     position: "right",
@@ -486,30 +485,34 @@
                         borderRadius: "8px"
                     },
                     callback: function () {
-                        var saved = JSON.parse(localStorage.getItem('kawai_notifs') || '[]');
-                        saved = saved.filter(function (n) { return n.id !== notif.id; });
-                        localStorage.setItem('kawai_notifs', JSON.stringify(saved));
+                        if (notif.direct) {
+                            var saved = JSON.parse(localStorage.getItem('kawai_notifs') || '[]');
+                            saved = saved.filter(function (n) { return n.id !== notif.id; });
+                            localStorage.setItem('kawai_notifs', JSON.stringify(saved));
+                        }
                     }
                 }).showToast();
             }
 
             try {
                 var pending = JSON.parse(localStorage.getItem('kawai_notifs') || '[]');
-                pending = pending.filter(function(n) {
+                pending = pending.filter(function (n) {
                     var t = n.text || '';
                     return !t.includes('khẩn cấp') && !t.includes('Yêu cầu dọn') && !t.includes('Yêu cầu sửa');
                 });
                 localStorage.setItem('kawai_notifs', JSON.stringify(pending));
-                pending.forEach(function(n) { showPersistentToast(n); });
-            } catch(e) {}
+                pending.forEach(function (n) { showPersistentToast(n); });
+            } catch (e) { }
 
             function saveAndShow(text, direct) {
                 var notif = { id: Date.now() + '_' + Math.random(), text: text, direct: direct };
-                try {
-                    var saved = JSON.parse(localStorage.getItem('kawai_notifs') || '[]');
-                    saved.push(notif);
-                    localStorage.setItem('kawai_notifs', JSON.stringify(saved));
-                } catch (e) { }
+                if (direct) {
+                    try {
+                        var saved = JSON.parse(localStorage.getItem('kawai_notifs') || '[]');
+                        saved.push(notif);
+                        localStorage.setItem('kawai_notifs', JSON.stringify(saved));
+                    } catch (e) { }
+                }
                 showPersistentToast(notif);
             }
 

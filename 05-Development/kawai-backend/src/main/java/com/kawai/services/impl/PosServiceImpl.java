@@ -75,10 +75,12 @@ public class PosServiceImpl implements PosService {
                         Long orderId = Long.parseLong(idStr);
                         FoodOrder order = foodOrderRepository.findById(orderId).orElse(null);
                         if (order != null && "Cancelled".equalsIgnoreCase(order.getOrderStatus())) {
-                            System.out.println("Deleting orphaned FolioItem ID " + folio.getId() + " for cancelled order " + orderId);
+                            System.out.println("Deleting orphaned FolioItem ID " + folio.getId()
+                                    + " for cancelled order " + orderId);
                             folioItemRepository.delete(folio);
                         }
-                    } catch (Exception e) {}
+                    } catch (Exception e) {
+                    }
                 }
             }
         } catch (Exception e) {
@@ -314,12 +316,9 @@ public class PosServiceImpl implements PosService {
 
             if (detailToCharge != null) {
                 BigDecimal subLimit = detailToCharge.getSubCreditLimit();
-                BigDecimal limit = (subLimit != null && subLimit.compareTo(BigDecimal.ZERO) > 0)
-                        ? subLimit
-                        : (((RoomBooking) activeBooking).getCreditLimit() != null
-                                ? ((RoomBooking) activeBooking).getCreditLimit()
-                                : BigDecimal.ZERO);
-                java.util.List<com.kawai.models.FolioItem> folioItems = folioItemRepository.findByRoomBookingDetailId(detailToCharge.getId());
+                BigDecimal limit = subLimit != null ? subLimit : BigDecimal.ZERO;
+                java.util.List<com.kawai.models.FolioItem> folioItems = folioItemRepository
+                        .findByRoomBookingDetailId(detailToCharge.getId());
                 BigDecimal charged = folioItems.stream()
                         .filter(f -> !Boolean.TRUE.equals(f.getIsSettledSeparately()))
                         .map(FolioItem::getAmount)
@@ -327,7 +326,8 @@ public class PosServiceImpl implements PosService {
                         .reduce(BigDecimal.ZERO, BigDecimal::add);
                 BigDecimal creditTopUp = folioItems.stream()
                         .filter(f -> !Boolean.TRUE.equals(f.getIsSettledSeparately()))
-                        .filter(f -> f.getDescription() != null && f.getDescription().startsWith("Nạp tiền nâng hạn mức"))
+                        .filter(f -> f.getDescription() != null
+                                && f.getDescription().startsWith("Nạp tiền nâng hạn mức"))
                         .map(FolioItem::getAmount)
                         .filter(a -> a != null && a.compareTo(BigDecimal.ZERO) < 0)
                         .map(BigDecimal::abs)
@@ -355,10 +355,13 @@ public class PosServiceImpl implements PosService {
                         BigDecimal beverageAmount = BigDecimal.ZERO;
                         if (savedOrder.getDetails() != null) {
                             for (FoodOrderDetail detail : savedOrder.getDetails()) {
-                                if (detail.getMenuItem() != null && "Đồ uống".equalsIgnoreCase(detail.getMenuItem().getCategory())) {
-                                    BigDecimal price = detail.getPriceAtOrder() != null ? detail.getPriceAtOrder() : detail.getMenuItem().getPrice();
+                                if (detail.getMenuItem() != null
+                                        && "Đồ uống".equalsIgnoreCase(detail.getMenuItem().getCategory())) {
+                                    BigDecimal price = detail.getPriceAtOrder() != null ? detail.getPriceAtOrder()
+                                            : detail.getMenuItem().getPrice();
                                     if (price != null) {
-                                        BigDecimal qty = BigDecimal.valueOf(detail.getQuantity() != null ? detail.getQuantity() : 0);
+                                        BigDecimal qty = BigDecimal
+                                                .valueOf(detail.getQuantity() != null ? detail.getQuantity() : 0);
                                         beverageAmount = beverageAmount.add(price.multiply(qty));
                                     }
                                 }
@@ -393,7 +396,8 @@ public class PosServiceImpl implements PosService {
                         }
                     }
                 } else {
-                    throw new BusinessException("POS-005", "Hạn mức tín dụng của phòng không đủ để thanh toán!");
+                    throw new BusinessException("POS-005",
+                            "hạn mức ghi nợ của phòng bị quá hạn vui lòng tới quầy lễ tân để làm thủ tục nâng lên hạn mức");
                 }
             } else {
                 throw new BusinessException("POS-009", "Không tìm thấy phòng để ký bill!");
@@ -594,7 +598,7 @@ public class PosServiceImpl implements PosService {
         foodOrderRepository.save(order);
     }
 
-    public void cancelOrder(Long orderId, com.kawai.dtos.CancelOrderRequestDTO dto) {
+    public void cancelOrder(Long orderId, com.kawai.dto.CancelOrderRequestDTO dto, String cancelledBy, Customer explicitCustomer) {
         FoodOrder order = foodOrderRepository.findById(orderId)
                 .orElseThrow(() -> new BusinessException("POS-006", "Đơn hàng không tồn tại"));
 
@@ -641,22 +645,51 @@ public class PosServiceImpl implements PosService {
         }
 
         foodOrderRepository.save(order);
+
+        // Fetch customer for email
+        com.kawai.models.Customer customer = explicitCustomer;
+        if (customer == null) {
+            if (order.getRoomBookingDetail() != null && order.getRoomBookingDetail().getRoomBooking() != null) {
+                customer = order.getRoomBookingDetail().getRoomBooking().getCustomer();
+            } else if (order.getBooking() != null) {
+                customer = order.getBooking().getCustomer();
+            }
+        }
+        
+        if (customer != null) {
+            java.math.BigDecimal refundAmount = java.math.BigDecimal.ZERO;
+            if (pType != null && (pType.toUpperCase().contains("VNPAY") || pType.toUpperCase().contains("ONLINE"))) {
+                refundAmount = order.getTotalAmount();
+            }
+            
+            String bankName = dto != null ? dto.getBankName() : null;
+            String accountName = dto != null ? dto.getAccountName() : null;
+            String accountNumber = dto != null ? dto.getAccountNumber() : null;
+            String accountLast3 = (accountNumber != null && accountNumber.length() >= 3) 
+                                  ? accountNumber.substring(accountNumber.length() - 3) : null;
+
+            emailService.sendCancelFoodOrderEmail(order, customer, cancelledBy, 
+                dto != null ? dto.getReason() : "", 
+                refundAmount, bankName, accountName, accountLast3);
+        }
     }
 
     @Override
-    public void cancelOrderByGuest(Long orderId, com.kawai.dtos.CancelOrderRequestDTO dto, String username) {
-        // [AUTHORIZATION CHECK] Bước 1: Lấy thông tin Khách hàng (Customer) từ username hiện tại
+    public void cancelOrderByGuest(Long orderId, com.kawai.dto.CancelOrderRequestDTO dto, String username) {
+        // [AUTHORIZATION CHECK] Bước 1: Lấy thông tin Khách hàng (Customer) từ username
+        // hiện tại
         Customer customer = customerRepository.findByAccount_Username(username)
                 .orElseGet(() -> customerRepository.findByEmail(username).orElse(null));
         if (customer == null) {
             throw new BusinessException("CUSTOMER_NOT_FOUND", "Không tìm thấy thông tin khách hàng");
         }
-        
+
         FoodOrder order = foodOrderRepository.findById(orderId)
                 .orElseThrow(() -> new BusinessException("POS-006", "Đơn hàng không tồn tại"));
 
         // [AUTHORIZATION CHECK] Bước 2: Xác thực quyền sở hữu (IDOR Protection)
-        // Chỉ cho phép hủy nếu đơn hàng này được đặt bởi đúng tài khoản Customer đang gửi request
+        // Chỉ cho phép hủy nếu đơn hàng này được đặt bởi đúng tài khoản Customer đang
+        // gửi request
         boolean isOwner = false;
         if (order.getBooking() != null && order.getBooking().getCustomer() != null
                 && order.getBooking().getCustomer().getId().equals(customer.getId())) {
@@ -665,7 +698,8 @@ public class PosServiceImpl implements PosService {
         } else if (order.getRoomBookingDetail() != null && order.getRoomBookingDetail().getRoomBooking() != null
                 && order.getRoomBookingDetail().getRoomBooking().getCustomer() != null
                 && order.getRoomBookingDetail().getRoomBooking().getCustomer().getId().equals(customer.getId())) {
-            // Đơn hàng gắn với 1 RoomBookingDetail của phòng thuộc Booking của chính khách này
+            // Đơn hàng gắn với 1 RoomBookingDetail của phòng thuộc Booking của chính khách
+            // này
             isOwner = true;
         }
 
@@ -676,6 +710,6 @@ public class PosServiceImpl implements PosService {
 
         // [DELEGATION] Bước 3: Đã an toàn -> Chuyển tiếp (delegate) cho Core Logic xử lý.
         // Tuyệt đối không lặp lại code hủy đơn (xử lý KOT, refund, v.v...) ở đây để đảm bảo DRY.
-        cancelOrder(orderId, dto);
+        cancelOrder(orderId, dto, "Khách hàng", customer);
     }
 }

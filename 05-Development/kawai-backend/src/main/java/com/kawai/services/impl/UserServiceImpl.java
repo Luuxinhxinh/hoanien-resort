@@ -206,6 +206,30 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
+    public void anonymizeCustomer(Long customerId) {
+        Customer customer = customerRepository.findById(customerId)
+                .orElseThrow(() -> new IllegalArgumentException("Customer not found"));
+
+        customer.setFullName("Anonymous Customer");
+        customer.setEmail("deleted_" + java.util.UUID.randomUUID().toString() + "@kawai.com");
+        customer.setPhone("0000000000");
+        customer.setCccdPassportEncrypted(null);
+        customer.setFaceVectorData(null);
+        customer.setFaceImgUrl(null);
+        customer.setBirthDate(null);
+        customer.setAvatarUrl(null);
+
+        if (customer.getAccount() != null) {
+            Account account = customer.getAccount();
+            customer.setAccount(null);
+            accountRepository.delete(account);
+        }
+
+        customerRepository.save(customer);
+    }
+
+    @Override
+    @Transactional
     public void updateCustomPermissions(Long accountId, java.util.List<String> permissions) {
         Account account = accountRepository.findById(accountId)
                 .orElseThrow(() -> new IllegalArgumentException("Account not found"));

@@ -40,7 +40,6 @@ public class RoomServiceImpl implements RoomService {
     }
 
     /**
-     * Tìm phòng trống trong khoảng [checkInDate, checkOutDate).
      * Trả về danh sách rỗng (không null) nếu không có phòng khả dụng.
      */
     @Override
@@ -146,23 +145,12 @@ public class RoomServiceImpl implements RoomService {
                 for (int i = 0; i < calculatedAvailable; i++) {
                     String dummyRoomNumber = cat.getCategoryName().replaceAll("\\s+", "") + "-" + (i + 1);
                     RoomSearchResponseDTO dto = toSearchResult(cat, checkIn, checkOut, dummyRoomNumber);
-                    dto.setRoomId(cat.getId()); // Use category ID for frontend compatibility
+                    dto.setRoomId(cat.getId());
                     dto.setAvailableCount((int) calculatedAvailable);
                     available.add(dto);
                 }
             }
         }
-
-        // ── Pagination ─────────────────────────────────────────────────────
-        if (request.getPage() != null && request.getSize() != null) {
-            int page = request.getPage();
-            int size = request.getSize();
-            return available.stream()
-                    .skip((long) page * size)
-                    .limit(size)
-                    .toList();
-        }
-
         return available;
     }
 

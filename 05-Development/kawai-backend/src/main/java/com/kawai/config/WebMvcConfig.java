@@ -22,4 +22,12 @@ public class WebMvcConfig implements WebMvcConfigurer {
         registry.addResourceHandler("/uploads/**")
                 .addResourceLocations("file:" + uploadPath);
     }
+    
+    @org.springframework.beans.factory.annotation.Autowired
+    private com.kawai.interceptors.ShiftInterceptor shiftInterceptor;
+
+    @Override
+    public void addInterceptors(org.springframework.web.servlet.config.annotation.InterceptorRegistry registry) {
+        registry.addInterceptor(shiftInterceptor);
+    }
 }

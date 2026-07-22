@@ -474,6 +474,11 @@ public class FolioRestController {
         Map<String, Object> response = new java.util.HashMap<>();
         response.put("success", true);
         response.put("roomBookingDetailId", roomBookingDetailId);
+        
+        if (detail.getRoomBooking() != null && detail.getRoomBooking().getCustomer() != null) {
+            response.put("customerId", detail.getRoomBooking().getCustomer().getId());
+        }
+        
         response.put("guestName", guestName);
         response.put("companions", companions);
         response.put("bookerName", bookerName);
@@ -1412,6 +1417,9 @@ public class FolioRestController {
                 map.put("folioNo", "BKG-" + String.format("%04d", bookingId));
                 map.put("roomNumber", String.join(", ", roomNumbers));
                 map.put("bookerName", bookerName);
+                if (!details.isEmpty() && details.get(0).getRoomBooking().getCustomer() != null) {
+                    map.put("customerId", details.get(0).getRoomBooking().getCustomer().getId());
+                }
                 map.put("totalCharges", groupTotalCharges);
                 map.put("totalPayments", groupTotalPayments);
                 map.put("balance", groupBalance);

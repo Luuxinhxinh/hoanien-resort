@@ -63,7 +63,7 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/ops-login", "/admin-backdoor").permitAll()
+                        .requestMatchers("/ops-login").permitAll()
                         // .access(new
                         // org.springframework.security.web.access.expression.WebExpressionAuthorizationManager(
                         // "hasIpAddress('192.168.1.0/24')"))
@@ -77,7 +77,7 @@ public class SecurityConfig {
                                 "/f&bStaff/css/**", "/f&bStaff/js/**", "/f&bStaff/images/**",
                                 "/fbStaff/css/**", "/fbStaff/js/**", "/fbStaff/images/**",
                                 "/living", "/wellbeing", "/dining",
-                                "/experiences", "/tours", "/tours/**", "/order-food", "/AnhTour/**",
+                                "/tours", "/tours/**", "/order-food", "/AnhTour/**",
                                 "/api/faceid/**", "/error",
                                 "/api/v1/payments/vnpay-return", "/api/v1/payments/vnpay-ipn",
                                 "/api/v1/payments/food-order/**", "/book-table", "/receptionist/remote-scan", "/api/v1/remote-scan/**",

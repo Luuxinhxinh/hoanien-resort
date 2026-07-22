@@ -601,6 +601,8 @@
                                                     th:data-email="${attendee.customer?.email ?: '--'}"
                                                     th:data-membership="${attendee.customer != null && attendee.customer.membershipTier != null ? attendee.customer.membershipTier.tierName : (attendee.dependent != null ? (attendee.dependent.cccdPassportEncrypted != null && #strings.startsWith(attendee.dependent.cccdPassportEncrypted, 'AUTO_CHILD_') ? 'Trẻ em (' + #strings.substringAfter(attendee.dependent.cccdPassportEncrypted, 'AUTO_CHILD_').replace('_', ' ') + ')' : 'Khách đi cùng') : 'Chưa xác định')}"
                                                     th:data-room="${attendee.tourBooking?.roomBookingDetail != null ? ('Phòng ' + attendee.tourBooking.roomBookingDetail.id) : '--'}"
+                                                    th:data-cccd="${attendee.customer != null ? (attendee.customer.cccdPassportEncrypted != null ? attendee.customer.cccdPassportEncrypted : '--') : (attendee.dependent != null && attendee.dependent.cccdPassportEncrypted != null && !#strings.startsWith(attendee.dependent.cccdPassportEncrypted, 'PHONE_') && !#strings.startsWith(attendee.dependent.cccdPassportEncrypted, 'AUTO_CHILD_') ? attendee.dependent.cccdPassportEncrypted : '--')}"
+                                                    th:data-dob="${attendee.customer != null ? (attendee.customer.birthDate != null ? #temporals.format(attendee.customer.birthDate, 'dd/MM/yyyy') : '--') : (attendee.dependent != null && attendee.dependent.birthDate != null ? #temporals.format(attendee.dependent.birthDate, 'dd/MM/yyyy') : '--')}"
                                                     onclick="showCustomerContactModal(this)">
                                                     NM
                                                 </div>
@@ -613,6 +615,8 @@
                                                         th:data-email="${attendee.customer?.email ?: '--'}"
                                                         th:data-membership="${attendee.customer != null && attendee.customer.membershipTier != null ? attendee.customer.membershipTier.tierName : (attendee.dependent != null ? (attendee.dependent.cccdPassportEncrypted != null && #strings.startsWith(attendee.dependent.cccdPassportEncrypted, 'AUTO_CHILD_') ? 'Trẻ em (' + #strings.substringAfter(attendee.dependent.cccdPassportEncrypted, 'AUTO_CHILD_').replace('_', ' ') + ')' : 'Khách đi cùng') : 'Chưa xác định')}"
                                                         th:data-room="${attendee.tourBooking?.roomBookingDetail != null ? ('Phòng ' + attendee.tourBooking.roomBookingDetail.id) : '--'}"
+                                                        th:data-cccd="${attendee.customer != null ? attendee.customer.cccdPassportDecrypted : (attendee.dependent != null ? attendee.dependent.cccdPassportDecrypted : '--')}"
+                                                        th:data-dob="${attendee.customer != null ? (attendee.customer.birthDate != null ? #temporals.format(attendee.customer.birthDate, 'dd/MM/yyyy') : '--') : (attendee.dependent != null && attendee.dependent.birthDate != null ? #temporals.format(attendee.dependent.birthDate, 'dd/MM/yyyy') : '--')}"
                                                         onclick="showCustomerContactModal(this)">
                                                         Nguyễn Minh Anh
                                                     </p>
@@ -849,18 +853,42 @@
         </main>
 
         <!-- BEGIN: Footer -->
-        <footer class="bg-[#2D2926] text-white py-20 px-20">
-            <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-end">
-                <div class="space-y-4">
-                    <h3 class="text-3xl font-serif text-white">HoaNien</h3>
-                    <p class="text-[10px] tracking-widest opacity-50 uppercase text-white">© 2026 HOANIEN RETREAT. A
-                        QUIET LUXURY TRAVEL GROUP.</p>
+        <footer class="bg-[#3c3530] text-[#e5dfd8] py-20 px-6 font-sans site-footer relative z-20">
+            <div class="max-w-[1440px] mx-auto grid grid-cols-1 md:grid-cols-2 gap-12 items-end">
+                <div class="space-y-6">
+                    <div class="font-serif text-3xl font-medium tracking-wide text-white">
+                        HOANIEN
+                        <span class="block text-xs font-sans tracking-[0.3em] uppercase mt-2 opacity-70">River
+                            Retreat</span>
+                    </div>
+                    <div class="text-sm opacity-80 leading-relaxed max-w-sm">
+                        232 Tran Nhan Tong Street,<br>
+                        Hoi An Dong Ward,<br>
+                        Danang City, Viet Nam
+                    </div>
+                    <div class="text-sm opacity-80">
+                        <a href="mailto:contact@hoanienretreat.com"
+                            class="hover:text-white transition-colors">contact@hoanienretreat.com</a><br>
+                        <a href="tel:+84123456789" class="hover:text-white transition-colors">+84 123 456 789</a>
+                    </div>
                 </div>
-                <div class="flex space-x-12 text-[10px] font-bold tracking-widest uppercase opacity-80">
-                    <a class="hover:text-[#C5A059] no-underline text-white" href="#">Quyền riêng tư</a>
-                    <a class="hover:text-[#C5A059] no-underline text-white" href="#">Sự bền vững</a>
-                    <a class="hover:text-[#C5A059] no-underline text-white" href="#">Truyền thông</a>
-                    <a class="hover:text-[#C5A059] no-underline text-white" href="#">Liên hệ</a>
+
+                <div
+                    class="h-48 md:h-64 rounded-xl overflow-hidden grayscale opacity-70 hover:grayscale-0 hover:opacity-100 transition-all duration-500 relative group cursor-pointer border border-[#e5dfd8]/20">
+                    <iframe
+                        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3834.1105353597627!2d108.23847531536098!3d16.059758088886364!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3142177f2ced6d8b%3A0xeac35f2960fa74a4!2sDanang%2C%20Vietnam!5e0!3m2!1sen!2s!4v1655112345678!5m2!1sen!2s"
+                        width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy"
+                        referrerpolicy="no-referrer-when-downgrade"></iframe>
+                </div>
+            </div>
+
+            <div
+                class="max-w-[1440px] mx-auto mt-16 pt-8 border-t border-[#e5dfd8]/10 text-center text-[10px] uppercase tracking-[0.15em] opacity-50 flex flex-col md:flex-row justify-between gap-4">
+                <p>© 2026 Hoanien River Retreat. All rights reserved.</p>
+                <div class="flex gap-6 justify-center md:justify-end">
+                    <a href="#" class="hover:text-white transition-colors">Privacy</a>
+                    <a href="#" class="hover:text-white transition-colors">Terms</a>
+                    <a href="#" class="hover:text-white transition-colors">Sitemap</a>
                 </div>
             </div>
         </footer>
@@ -919,67 +947,63 @@
     </div>
 
     <!-- Customer Contact Modal -->
-    <div class="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-300"
-        id="customer-contact-modal">
-        <div
-            class="max-w-md w-full mx-4 p-8 rounded-xl shadow-xl relative overflow-hidden bg-[#fdfbf7] border border-[#3a3230]/20 text-[#372618]">
-            <button
-                class="absolute top-4 right-4 text-on-surface-variant hover:text-primary transition-colors focus:outline-none"
-                onclick="closeCustomerContactModal()">
-                <span class="material-symbols-outlined text-2xl text-[#372618]">close</span>
-            </button>
-            <div class="flex flex-col items-center text-center space-y-6">
-                <div
-                    class="w-32 h-32 rounded-full overflow-hidden border-4 border-primary/20 ring-8 ring-primary/5 bg-[#eedeea] flex items-center justify-center text-primary font-bold">
-                    <span class="font-display-md text-primary text-[40px]" id="modal-avatar-placeholder"></span>
+    <div id="customer-contact-modal"
+        class="fixed inset-0 z-[600] flex items-center justify-center bg-black/60 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-300 p-4">
+        <div class="max-w-md w-full p-6 md:p-8 rounded-3xl shadow-2xl relative overflow-hidden bg-white border border-primary/20">
+            <button type="button" class="absolute top-4 right-4 text-on-surface-variant hover:text-primary transition-colors text-2xl font-bold"
+                onclick="closeCustomerContactModal()">✕</button>
+            <div class="flex flex-col items-center text-center space-y-4">
+                <div class="w-20 h-20 rounded-full overflow-hidden border-2 border-primary/20 bg-primary/10 flex items-center justify-center shadow-inner">
+                    <span class="font-display-md text-primary text-2xl font-bold" id="modal-avatar-placeholder">KH</span>
                 </div>
-                <div class="space-y-2">
-                    <h2 class="font-display-md text-[32px] text-primary font-bold" id="modal-customer-name"></h2>
-                    <p class="font-label-md text-primary uppercase tracking-widest font-semibold"
-                        id="modal-customer-id"></p>
-                </div>
-                <div class="w-full space-y-4 text-left">
-                    <div class="flex items-center gap-4 p-4 rounded-lg bg-primary/5">
-                        <span class="material-symbols-outlined text-primary">call</span>
-                        <div>
-                            <p class="text-[10px] text-on-surface-variant/60 uppercase font-bold">Điện thoại</p>
-                            <p class="font-body-md text-on-surface" id="modal-customer-phone">+84 900 000 000</p>
-                        </div>
-                    </div>
-                    <div class="flex items-center gap-4 p-4 rounded-lg bg-primary/5">
-                        <span class="material-symbols-outlined text-primary">mail</span>
-                        <div>
-                            <p class="text-[10px] text-on-surface-variant/60 uppercase font-bold">Email</p>
-                            <p class="font-body-md text-on-surface" id="modal-customer-email">customer@example.com</p>
-                        </div>
-                    </div>
-                    <div class="flex items-center gap-4 p-4 rounded-lg bg-primary/5">
-                        <span class="material-symbols-outlined text-primary">meeting_room</span>
-                        <div>
-                            <p class="text-[10px] text-on-surface-variant/60 uppercase font-bold">Số phòng</p>
-                            <p class="font-body-md text-on-surface" id="modal-customer-room">Phòng 302</p>
-                        </div>
-                    </div>
-                    <div class="flex items-center gap-4 p-4 rounded-lg bg-primary/5">
-                        <span class="material-symbols-outlined text-primary">location_on</span>
-                        <div>
-                            <p class="text-[10px] text-on-surface-variant/60 uppercase font-bold">Phân loại</p>
-                            <p class="font-body-md text-on-surface" id="modal-customer-detail">Regular</p>
-                        </div>
+                <div class="space-y-1">
+                    <h2 class="font-display-md text-xl md:text-2xl font-bold text-primary" id="modal-customer-name">--</h2>
+                    <div class="flex flex-wrap items-center justify-center gap-2">
+                        <span class="font-label-md text-xs font-bold text-primary/80 bg-primary/10 px-2.5 py-0.5 rounded-full" id="modal-customer-id">#EVN-0000</span>
+                        <span class="text-xs font-bold text-emerald-800 bg-emerald-500/10 px-2.5 py-0.5 rounded-full" id="modal-customer-detail">--</span>
                     </div>
                 </div>
-                <div class="grid grid-cols-2 gap-4 w-full">
-                    <button onclick="showToast('Đang kết nối cuộc gọi đến khách hàng...', 'info')"
-                        class="flex items-center justify-center gap-2 py-3 rounded-full bg-primary text-white font-label-md hover:opacity-90 transition-all font-semibold text-[13px]">
-                        <span class="material-symbols-outlined text-[18px]">call</span>
-                        Gọi điện
-                    </button>
-                    <button onclick="showToast('Đang mở hộp thoại chat với khách hàng...', 'info')"
-                        class="flex items-center justify-center gap-2 py-3 rounded-full border border-primary/20 text-primary font-label-md hover:bg-primary/5 transition-all font-semibold text-[13px]">
-                        <span class="material-symbols-outlined text-[18px]">chat</span>
-                        Gửi tin nhắn
-                    </button>
+                <div class="w-full space-y-3 text-left pt-2">
+                    <div class="flex items-center gap-3 p-3 rounded-xl bg-primary/5 border border-primary/10">
+                        <span class="material-symbols-outlined text-primary text-xl">call</span>
+                        <div>
+                            <p class="text-[10px] text-on-surface-variant/60 uppercase font-bold tracking-wider">Số điện thoại</p>
+                            <p class="font-semibold text-sm text-on-surface" id="modal-customer-phone">--</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-3 p-3 rounded-xl bg-primary/5 border border-primary/10">
+                        <span class="material-symbols-outlined text-primary text-xl">badge</span>
+                        <div>
+                            <p class="text-[10px] text-on-surface-variant/60 uppercase font-bold tracking-wider">Số CCCD / Passport</p>
+                            <p class="font-semibold text-sm text-on-surface" id="modal-customer-cccd">--</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-3 p-3 rounded-xl bg-primary/5 border border-primary/10">
+                        <span class="material-symbols-outlined text-primary text-xl">cake</span>
+                        <div>
+                            <p class="text-[10px] text-on-surface-variant/60 uppercase font-bold tracking-wider">Ngày sinh / Tuổi</p>
+                            <p class="font-semibold text-sm text-on-surface" id="modal-customer-dob">--</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-3 p-3 rounded-xl bg-primary/5 border border-primary/10">
+                        <span class="material-symbols-outlined text-primary text-xl">mail</span>
+                        <div>
+                            <p class="text-[10px] text-on-surface-variant/60 uppercase font-bold tracking-wider">Email</p>
+                            <p class="font-semibold text-sm text-on-surface truncate max-w-[280px]" id="modal-customer-email">--</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-3 p-3 rounded-xl bg-primary/5 border border-primary/10">
+                        <span class="material-symbols-outlined text-primary text-xl">meeting_room</span>
+                        <div>
+                            <p class="text-[10px] text-on-surface-variant/60 uppercase font-bold tracking-wider">Số phòng lưu trú</p>
+                            <p class="font-semibold text-sm text-on-surface" id="modal-customer-room">--</p>
+                        </div>
+                    </div>
                 </div>
+                <button type="button" onclick="closeCustomerContactModal()"
+                    class="w-full py-2.5 rounded-full text-sm font-bold bg-primary text-on-primary hover:bg-primary/90 transition-all shadow-md mt-2">
+                    Đóng
+                </button>
             </div>
         </div>
     </div>
@@ -1421,14 +1445,28 @@
         function manualResetAttendance() {
             showCustomConfirm({
                 title: 'Đặt Lại Điểm Danh',
-                message: 'Bạn có chắc chắn muốn đặt lại trạng thái điểm danh cho toàn bộ khách hàng trong ngày hôm nay?',
+                message: 'Bạn có chắc chắn muốn đặt lại trạng thái điểm danh cho toàn bộ khách hàng trong chuyến đi này không?',
                 icon: 'restart_alt',
                 onConfirm: async () => {
                     try {
-                        await fetch('/api/faceid/reset');
-                        window.location.href = '/tourguide/dashboard' + (activeScheduleId ? '?scheduleId=' + activeScheduleId : '');
+                        const url = '/api/faceid/reset' + (activeScheduleId ? '?scheduleId=' + activeScheduleId : '');
+                        const resp = await fetch(url);
+                        const data = await resp.json();
+                        if (data.success) {
+                            try {
+                                const key = getActiveTourKey();
+                                localStorage.removeItem(getCheckpointStorageKey(key));
+                            } catch (e) {}
+                            showToast('Đã đặt lại trạng thái điểm danh cho toàn bộ đoàn khách!', 'success');
+                            setTimeout(() => {
+                                window.location.href = '/tourguide/dashboard' + (activeScheduleId ? '?scheduleId=' + activeScheduleId : '');
+                            }, 600);
+                        } else {
+                            showToast('Không thể đặt lại điểm danh: ' + (data.message || 'Lỗi hệ thống'), 'error');
+                        }
                     } catch (e) {
                         console.error(e);
+                        showToast('Lỗi kết nối máy chủ khi đặt lại điểm danh.', 'error');
                     }
                 }
             });
@@ -1497,19 +1535,23 @@
         }
 
         function showCustomerContactModal(element) {
-            const name = element.getAttribute('data-name');
-            const id = element.getAttribute('data-id');
-            const phone = element.getAttribute('data-phone');
-            const email = element.getAttribute('data-email');
-            const detail = element.getAttribute('data-membership');
-            const room = element.getAttribute('data-room');
+            const name = element.getAttribute('data-name') || '--';
+            const id = element.getAttribute('data-id') || '--';
+            const phone = element.getAttribute('data-phone') || '--';
+            const email = element.getAttribute('data-email') || '--';
+            const detail = element.getAttribute('data-membership') || '--';
+            const room = element.getAttribute('data-room') || '--';
+            const cccd = element.getAttribute('data-cccd') || '--';
+            const dob = element.getAttribute('data-dob') || '--';
 
-            document.getElementById('modal-customer-name').textContent = name;
-            document.getElementById('modal-customer-id').textContent = id;
-            document.getElementById('modal-customer-phone').textContent = phone;
-            document.getElementById('modal-customer-email').textContent = email;
-            document.getElementById('modal-customer-room').textContent = room;
-            document.getElementById('modal-customer-detail').textContent = detail;
+            if (document.getElementById('modal-customer-name')) document.getElementById('modal-customer-name').textContent = name;
+            if (document.getElementById('modal-customer-id')) document.getElementById('modal-customer-id').textContent = id;
+            if (document.getElementById('modal-customer-phone')) document.getElementById('modal-customer-phone').textContent = phone;
+            if (document.getElementById('modal-customer-email')) document.getElementById('modal-customer-email').textContent = email;
+            if (document.getElementById('modal-customer-room')) document.getElementById('modal-customer-room').textContent = room;
+            if (document.getElementById('modal-customer-detail')) document.getElementById('modal-customer-detail').textContent = detail;
+            if (document.getElementById('modal-customer-cccd')) document.getElementById('modal-customer-cccd').textContent = cccd;
+            if (document.getElementById('modal-customer-dob')) document.getElementById('modal-customer-dob').textContent = dob;
 
             // Extract initials from name
             const nameParts = name.trim().split(/\s+/);
@@ -1519,15 +1561,15 @@
             } else if (nameParts.length === 1 && nameParts[0].length > 0) {
                 initials = nameParts[0].substring(0, Math.min(2, nameParts[0].length)).toUpperCase();
             }
-            document.getElementById('modal-avatar-placeholder').textContent = initials;
+            if (document.getElementById('modal-avatar-placeholder')) document.getElementById('modal-avatar-placeholder').textContent = initials;
 
             const modal = document.getElementById('customer-contact-modal');
-            modal.classList.remove('opacity-0', 'pointer-events-none');
+            if (modal) modal.classList.remove('opacity-0', 'pointer-events-none');
         }
 
         function closeCustomerContactModal() {
             const modal = document.getElementById('customer-contact-modal');
-            modal.classList.add('opacity-0', 'pointer-events-none');
+            if (modal) modal.classList.add('opacity-0', 'pointer-events-none');
         }
 
         function submitIncidentReport(cancelTour = false) {
@@ -2279,37 +2321,131 @@
             .replace(/\s+/g, ' ').trim();
     }
 
-    function showActivities(tourName) {
-        const norm = normalizeKey(tourName || '');
-        let key = null;
-        if (norm.includes('tinh tuy') || norm.includes('dong noi')) key = 'dongnoi';
-        else if (norm.includes('doan tu')) key = 'doantu';
-        else if (norm.includes('di san')) key = 'disan';
-        else if (norm.includes('tinh lang')) key = 'tinhlang';
-        else if (norm.includes('ha long') || norm.includes('song xanh')) key = 'halong';
-        else if (norm.includes('sapa') || norm.includes('suong phu')) key = 'sapa';
-        else if (norm.includes('cat tien') || norm.includes('rung gia')) key = 'cattien';
-        else if (norm.includes('mui ne') || norm.includes('con cat')) key = 'muine';
-        else if (norm.includes('phu quoc') || norm.includes('san ho')) key = 'phuquoc';
-        else if (norm.includes('can tho') || norm.includes('miet vuon')) key = 'cantho';
+    function getCheckpointStorageKey(key) {
+        const schedId = (typeof activeScheduleId !== 'undefined' && activeScheduleId) ? activeScheduleId : key;
+        return 'tour_checkpoints_' + schedId;
+    }
 
+    function getCheckpointStates(key, totalCount) {
+        try {
+            const stored = localStorage.getItem(getCheckpointStorageKey(key));
+            if (stored) {
+                const arr = JSON.parse(stored);
+                if (Array.isArray(arr) && arr.length === totalCount) {
+                    return arr;
+                }
+            }
+        } catch (e) {
+            console.error("Error reading checkpoints:", e);
+        }
+        return new Array(totalCount).fill(false);
+    }
+
+    function saveCheckpointStates(key, states) {
+        try {
+            localStorage.setItem(getCheckpointStorageKey(key), JSON.stringify(states));
+        } catch (e) {
+            console.error("Error saving checkpoints:", e);
+        }
+    }
+
+    function toggleCheckpoint(key, index, totalCount) {
+        const states = getCheckpointStates(key, totalCount);
+        states[index] = !states[index];
+        saveCheckpointStates(key, states);
+        const tourName = document.getElementById('tour-name-display')?.textContent?.trim() || '';
+        showActivities(tourName);
+    }
+
+    function toggleAllCheckpoints(key, totalCount, forceValue) {
+        const states = new Array(totalCount).fill(forceValue);
+        saveCheckpointStates(key, states);
+        const tourName = document.getElementById('tour-name-display')?.textContent?.trim() || '';
+        showActivities(tourName);
+    }
+
+    function isAllCheckpointsDone(key, totalCount) {
+        if (!key || !totalCount) return true;
+        const states = getCheckpointStates(key, totalCount);
+        return states.length > 0 && states.every(s => s === true);
+    }
+
+    function getActiveTourKey() {
+        const tourName = document.getElementById('tour-name-display')?.textContent?.trim() || '';
+        const norm = normalizeKey(tourName);
+        if (norm.includes('tinh tuy') || norm.includes('dong noi')) return 'dongnoi';
+        if (norm.includes('doan tu')) return 'doantu';
+        if (norm.includes('di san')) return 'disan';
+        if (norm.includes('tinh lang')) return 'tinhlang';
+        if (norm.includes('ha long') || norm.includes('song xanh')) return 'halong';
+        if (norm.includes('sapa') || norm.includes('suong phu')) return 'sapa';
+        if (norm.includes('cat tien') || norm.includes('rung gia')) return 'cattien';
+        if (norm.includes('mui ne') || norm.includes('con cat')) return 'muine';
+        if (norm.includes('phu quoc') || norm.includes('san ho')) return 'phuquoc';
+        if (norm.includes('can tho') || norm.includes('miet vuon')) return 'cantho';
+        return (typeof tourTypeDb !== 'undefined' && tourTypeDb) ? tourTypeDb : 'doantu';
+    }
+
+    function showActivities(tourName) {
+        const key = getActiveTourKey();
         if (!key || !TOUR_ITINERARIES[key]) return;
 
         const data = TOUR_ITINERARIES[key];
+        const totalCount = data.activities ? data.activities.length : 0;
+        const states = getCheckpointStates(key, totalCount);
+        const doneCount = states.filter(Boolean).length;
+        const percent = totalCount > 0 ? Math.round((doneCount / totalCount) * 100) : 0;
+        const allDone = doneCount === totalCount && totalCount > 0;
+
         const content = document.getElementById('activities-content');
 
-        content.innerHTML = [
-            '<p class="font-headline text-lg font-light text-on-surface-variant mb-4 italic">' + data.subtitle + '</p>',
-            ...data.activities.map(a =>
-                '<div class="flex gap-4 items-start">' +
-                '<span class="bg-primary/10 text-primary text-label-sm font-bold px-3 py-1 rounded-full shrink-0 min-w-[100px] text-center border border-primary/20">' + a.time + '</span>' +
-                '<div class="text-on-surface-variant">' +
-                '<p class="font-semibold text-on-surface">' + a.title + '</p>' +
-                '<p class="text-sm opacity-80">' + a.desc + '</p>' +
-                '</div>' +
-                '</div>'
-            )
-        ].join('');
+        let html = '';
+        html += '<div class="bg-primary/5 p-4 rounded-xl border border-primary/10 mb-4">';
+        html += '  <p class="font-headline text-base font-semibold text-primary mb-2 italic">' + data.subtitle + '</p>';
+        html += '  <div class="flex justify-between items-center text-xs font-bold text-on-surface mb-1.5">';
+        html += '    <span>Tiến độ hành trình (Checkpoints):</span>';
+        html += '    <span class="' + (allDone ? 'text-green-600' : 'text-primary') + '">' + doneCount + '/' + totalCount + ' mốc (' + percent + '%)</span>';
+        html += '  </div>';
+        html += '  <div class="w-full bg-primary/10 h-2 rounded-full overflow-hidden mb-3">';
+        html += '    <div class="h-full ' + (allDone ? 'bg-green-500' : 'bg-primary') + ' transition-all duration-500" style="width: ' + percent + '%;"></div>';
+        html += '  </div>';
+        html += '  <div class="flex justify-end gap-2">';
+        if (allDone) {
+            html += '    <button onclick="toggleAllCheckpoints(\'' + key + '\', ' + totalCount + ', false)" class="text-[11px] font-bold text-amber-700 bg-amber-500/10 hover:bg-amber-500/20 px-3 py-1 rounded-full transition-colors">Bỏ chọn tất cả</button>';
+        } else {
+            html += '    <button onclick="toggleAllCheckpoints(\'' + key + '\', ' + totalCount + ', true)" class="text-[11px] font-bold text-green-700 bg-green-500/10 hover:bg-green-500/20 px-3 py-1 rounded-full transition-colors">✓ Tích chọn tất cả</button>';
+        }
+        html += '  </div>';
+        html += '</div>';
+
+        html += '<div class="space-y-3">';
+        data.activities.forEach((a, idx) => {
+            const isDone = !!states[idx];
+            html += '<div onclick="toggleCheckpoint(\'' + key + '\', ' + idx + ', ' + totalCount + ')" class="flex gap-3 items-start p-3 rounded-xl border transition-all cursor-pointer select-none ' + (isDone ? 'bg-green-50/50 border-green-500/30 shadow-sm' : 'bg-surface border-primary/10 hover:border-primary/30') + '">';
+            html += '  <div class="pt-0.5 shrink-0">';
+            if (isDone) {
+                html += '    <span class="material-symbols-outlined text-green-600 text-2xl font-bold">check_box</span>';
+            } else {
+                html += '    <span class="material-symbols-outlined text-on-surface-variant/40 hover:text-primary text-2xl">check_box_outline_blank</span>';
+            }
+            html += '  </div>';
+            html += '  <div class="flex-1 min-w-0">';
+            html += '    <div class="flex flex-wrap items-center justify-between gap-2 mb-1">';
+            html += '      <span class="font-bold text-xs px-2.5 py-0.5 rounded-full ' + (isDone ? 'bg-green-600 text-white' : 'bg-primary/10 text-primary border border-primary/20') + '">' + a.time + '</span>';
+            if (isDone) {
+                html += '      <span class="text-[10px] uppercase font-bold text-green-700 bg-green-100 px-2 py-0.5 rounded-md flex items-center gap-1"><span class="material-symbols-outlined text-xs">done</span> Đã xong</span>';
+            } else {
+                html += '      <span class="text-[10px] uppercase font-bold text-on-surface-variant/50 bg-on-surface/5 px-2 py-0.5 rounded-md">Chưa tích</span>';
+            }
+            html += '    </div>';
+            html += '    <p class="font-semibold text-sm ' + (isDone ? 'text-green-900 line-through/70 opacity-90' : 'text-on-surface') + '">' + a.title + '</p>';
+            html += '    <p class="text-xs opacity-75 leading-relaxed mt-0.5">' + a.desc + '</p>';
+            html += '  </div>';
+            html += '</div>';
+        });
+        html += '</div>';
+
+        content.innerHTML = html;
 
         document.getElementById('activities-modal').classList.remove('hidden');
     }
@@ -2572,6 +2708,25 @@
 
     function confirmFinishTour(event) {
         if (event) event.preventDefault();
+
+        const key = getActiveTourKey();
+        const data = (key && TOUR_ITINERARIES[key]) ? TOUR_ITINERARIES[key] : null;
+        const totalCount = data && data.activities ? data.activities.length : 0;
+
+        if (totalCount > 0 && !isAllCheckpointsDone(key, totalCount)) {
+            const states = getCheckpointStates(key, totalCount);
+            const doneCount = states.filter(Boolean).length;
+            showCustomWarning({
+                title: 'Chưa Hoàn Thành Lịch Trình',
+                message: 'Bạn mới tích ' + doneCount + '/' + totalCount + ' mốc hoạt động. Vui lòng kiểm tra và tích hoàn thành tất cả các mốc lịch trình trước khi kết thúc tour!',
+                icon: 'checklist',
+                onConfirm: () => {
+                    showActivities(document.getElementById('tour-name-display')?.textContent?.trim() || '');
+                }
+            });
+            return;
+        }
+
         showCustomConfirm({
             title: 'Hoàn Thành Tour',
             message: 'Xác nhận hoàn thành tour? Email phản hồi sẽ được gửi tới khách hàng.',
@@ -2895,3 +3050,4 @@
         </div>
     </div>
 </div>
+

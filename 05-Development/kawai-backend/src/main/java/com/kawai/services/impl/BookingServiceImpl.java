@@ -78,6 +78,9 @@ public class BookingServiceImpl implements BookingService {
     private WorkflowEngineService workflowEngineService;
 
     @Autowired
+    private com.kawai.services.interfaces.PricingService pricingService;
+
+    @Autowired
     private com.kawai.repositories.BookingRepository bookingRepository;
 
     @Autowired
@@ -150,8 +153,6 @@ public class BookingServiceImpl implements BookingService {
             throw new BusinessException("ROOM_NOT_FOUND", "No rooms provided for booking");
         }
 
-        // Đảm bảo mỗi selection có CategoryName bằng cách truy vấn từ room nếu chưa có
-        // (TDD fix)
         for (com.kawai.dto.RoomSelectionDTO selection : roomSelections) {
             if (selection.getCategoryName() == null || selection.getCategoryName().trim().isEmpty()) {
                 if (selection.getRoomNumber() != null) {
@@ -179,12 +180,6 @@ public class BookingServiceImpl implements BookingService {
         java.util.List<Integer> adultsList = new java.util.ArrayList<>();
         java.util.List<Integer> childrenList = new java.util.ArrayList<>();
         java.util.List<java.util.List<Integer>> childrenAgesList = new java.util.ArrayList<>();
-
-        // ══════════════════════════════════════════════════════════════════
-        // STEP 1: Tạo RoomBooking(status="Pending") — chưa trừ phòng
-        // Phòng chỉ bị trừ khi user ấn "THANH TOÁN ĐẶT CỌC" → confirmBooking()
-        // → HOLD + holdExpiresAt = now+1 phút (đúng timeout VNPay)
-        // ══════════════════════════════════════════════════════════════════
 
         RoomBooking holdBooking = new RoomBooking();
         holdBooking.setCustomer(customer);
@@ -257,8 +252,10 @@ public class BookingServiceImpl implements BookingService {
                 throw new RoomNotAvailableException(
                         "Hạng phòng " + catName + " chỉ còn trống " + available + " phòng.");
             }
-            BigDecimal pricePerNight = category.getBasePrice() != null ? category.getBasePrice() : BASE_ROOM_PRICE;
-            BigDecimal baseTotal = pricePerNight.multiply(BigDecimal.valueOf(nights));
+            BigDecimal baseTotal = pricingService.calculateTotalRoomCharge(category, checkIn, checkOut);
+            BigDecimal pricePerNight = nights > 0
+                    ? baseTotal.divide(BigDecimal.valueOf(nights), 2, RoundingMode.HALF_UP)
+                    : BigDecimal.ZERO;
 
             for (com.kawai.dto.RoomSelectionDTO selection : selections) {
                 // Tính phụ thu
@@ -322,6 +319,10 @@ public class BookingServiceImpl implements BookingService {
         String promoCode = request.getPromotionCode();
         if (promoCode != null && !promoCode.isBlank()) {
             discountedPrice = applyPromotion(promoCode, totalBaseTotal, request.getCustomerId());
+            Promotion promo = promotionRepository.findByPromoCode(promoCode.trim().toUpperCase()).orElse(null);
+            if (promo != null) {
+                savedHold.setAppliedPromotion(promo);
+            }
         }
 
         // Tính toán tiền đặt cọc ở backend (30% cọc mặc định)
@@ -353,10 +354,8 @@ public class BookingServiceImpl implements BookingService {
             detail.setDetailStatus("Pending");
             detail.setCustomer(customer);
 
-            // Distribute the booking's total credit limit equally among all rooms
-            BigDecimal subLimit = savedBooking.getCreditLimit()
-                    .divide(new BigDecimal(categoriesToBook.size()), 2, java.math.RoundingMode.HALF_UP);
-            detail.setSubCreditLimit(subLimit);
+            // Bỏ tự động phân bổ hạn mức, set về 0 để lễ tân tự nhập lúc Check-in
+            detail.setSubCreditLimit(BigDecimal.ZERO);
 
             roomBookingDetailRepository.save(detail);
 
@@ -468,16 +467,16 @@ public class BookingServiceImpl implements BookingService {
     private BigDecimal applyPromotion(String promoCode, BigDecimal baseTotal, Long customerId) {
         Promotion promo = promotionRepository.findByPromoCode(promoCode)
                 .orElseThrow(() -> new IllegalArgumentException(
-                        "Promotion code '" + promoCode + "' does not exist "));
+                        "[ERR_PROMO_NOT_FOUND] Promotion code '" + promoCode + "' does not exist "));
 
         if (!Boolean.TRUE.equals(promo.getIsActive())) {
             throw new IllegalArgumentException(
-                    "Promotion code '" + promoCode + "' is invalid or expired ");
+                    "[ERR_PROMO_INACTIVE] Promotion code '" + promoCode + "' is invalid or expired ");
         }
 
         if (promo.getValidTo().isBefore(LocalDate.now())) {
             throw new IllegalArgumentException(
-                    "Promotion code '" + promoCode + "' has expired ");
+                    "[ERR_PROMO_EXPIRED] Promotion code '" + promoCode + "' has expired ");
         }
 
         BigDecimal discountValue = promo.getDiscountValue();
@@ -509,16 +508,12 @@ public class BookingServiceImpl implements BookingService {
                         }
                     }
 
-                    // 2. max_uses_per_customer (Default to 1 use if not defined)
+                    // 2. max_uses_per_customer (Mặc định 1 lần duy nhất cho mỗi khách hàng)
                     if (customerId != null) {
-                        int maxUses = 1;
-                        if (conds.containsKey("max_uses_per_customer")) {
-                            maxUses = Integer.parseInt(conds.get("max_uses_per_customer").toString());
-                        }
-                        long uses = bookingRepository.countByCustomerIdAndPromoCode(customerId, promoCode);
+                        int maxUses = conds.containsKey("max_uses_per_customer") ? Integer.parseInt(conds.get("max_uses_per_customer").toString()) : 1;
+                        long uses = bookingRepository.countByCustomerIdAndPromoCode(customerId, promoCode.trim().toUpperCase());
                         if (uses >= maxUses) {
-                            throw new IllegalArgumentException("Khách hàng đã vượt quá số lần sử dụng mã giảm giá này ("
-                                    + maxUses + " lần)");
+                            throw new IllegalArgumentException("Mã giảm giá \"" + promoCode.trim().toUpperCase() + "\" đã được sử dụng trước đó. Mỗi tài khoản chỉ được sử dụng 1 lần duy nhất.");
                         }
                     }
                     // 3. threshold_pct_gt (Chặn cứng đối với Khách hàng tự thao tác)
@@ -755,8 +750,6 @@ public class BookingServiceImpl implements BookingService {
             promotionDiscount = BigDecimal.ZERO;
         }
 
-        // Group category names by count to format as "CategoryName xCount" (or just
-        // CategoryName if count = 1)
         java.util.Map<String, Long> categoryCounts = details.stream()
                 .filter(d -> d.getCategory() != null)
                 .collect(java.util.stream.Collectors.groupingBy(
@@ -861,10 +854,6 @@ public class BookingServiceImpl implements BookingService {
         Customer customer = customerRepository.findById(customerId)
                 .orElseThrow(() -> new BusinessException("CUSTOMER_NOT_FOUND", "Không tìm thấy thông tin khách hàng!"));
 
-        // ══════════════════════════════════════════════════════════════════
-        // SOFT LOCK: User ấn "THANH TOÁN ĐẶT CỌC" → chuyển Pending/CANCELLED →
-        // Pending_Payment
-        // ══════════════════════════════════════════════════════════════════
         if ("Pending".equalsIgnoreCase(booking.getBookingStatus())
                 || "CANCELLED".equalsIgnoreCase(booking.getBookingStatus())) {
             java.util.List<RoomBookingDetail> details = roomBookingDetailRepository.findByRoomBookingId(bookingId);
@@ -875,7 +864,7 @@ public class BookingServiceImpl implements BookingService {
             for (java.util.Map.Entry<String, Long> entry : categoryCountMap.entrySet()) {
                 String catName = entry.getKey();
                 long requestedQty = entry.getValue();
-                // Pessimistic lock on RoomCategory
+                // Persimistic_Lock
                 roomCategoryRepository.findByCategoryNameWithLock(catName)
                         .orElseThrow(
                                 () -> new BusinessException("CATEGORY_NOT_FOUND", "Category not found: " + catName));
@@ -890,12 +879,12 @@ public class BookingServiceImpl implements BookingService {
             if ("VNPAY".equalsIgnoreCase(paymentMethod)) {
                 booking.setBookingStatus("Pending_Payment");
                 booking.setHoldExpiresAt(LocalDateTime.now().plusMinutes(2));
-                log.info(" Pending/CANCELLED→Pending_Payment: bookingId={}, holdExpiresAt={}",
+                log.info(" Pending→Pending_Payment: bookingId={}, holdExpiresAt={}",
                         bookingId, booking.getHoldExpiresAt());
             } else {
                 booking.setBookingStatus("Confirmed");
                 booking.setHoldExpiresAt(null);
-                log.info("Pending/CANCELLED->Confirmed: bookingId={}", bookingId);
+                log.info("Pending->Confirmed: bookingId={}", bookingId);
                 triggerBookingCreatedWorkflow(booking, customer);
             }
         } else if ("Pending_Payment".equalsIgnoreCase(booking.getBookingStatus())) {

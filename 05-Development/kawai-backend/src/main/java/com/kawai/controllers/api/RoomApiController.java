@@ -82,10 +82,7 @@ public class RoomApiController {
                 }
 
                 // Calculate dynamic credit limit remaining
-                BigDecimal limit = detail.getSubCreditLimit() != null ? detail.getSubCreditLimit()
-                        : (detail.getRoomBooking() != null && detail.getRoomBooking().getCreditLimit() != null
-                                ? detail.getRoomBooking().getCreditLimit()
-                                : BigDecimal.ZERO);
+                BigDecimal limit = detail.getSubCreditLimit() != null ? detail.getSubCreditLimit() : BigDecimal.ZERO;
                 BigDecimal used = folioItemRepository.findByRoomBookingDetailId(detail.getId()).stream()
                         .filter(f -> !Boolean.TRUE.equals(f.getIsSettledSeparately()))
                         .map(FolioItem::getAmount)

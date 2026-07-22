@@ -221,7 +221,8 @@ public class EmailServiceImpl implements EmailService {
             String insurancePolicyNumber = "Đang cập nhật (chờ cấp đơn)";
             boolean hasInsurance = false;
             if (booking.getSchedule() != null) {
-                if (booking.getSchedule().getTour() != null && Boolean.TRUE.equals(booking.getSchedule().getTour().getIsInsuranceRequired())) {
+                if (booking.getSchedule().getTour() != null
+                        && Boolean.TRUE.equals(booking.getSchedule().getTour().getIsInsuranceRequired())) {
                     hasInsurance = true;
                     if (booking.getSchedule().getInsurancePolicyNumber() != null) {
                         insurancePolicyNumber = booking.getSchedule().getInsurancePolicyNumber();
@@ -231,7 +232,8 @@ public class EmailServiceImpl implements EmailService {
             ctx.setVariable("hasInsurance", hasInsurance);
             ctx.setVariable("insurancePolicyNumber", insurancePolicyNumber);
 
-            java.util.List<com.kawai.models.TourAttendee> attendeesList = tourAttendeeRepository.findByTourBookingId(booking.getId());
+            java.util.List<com.kawai.models.TourAttendee> attendeesList = tourAttendeeRepository
+                    .findByTourBookingId(booking.getId());
             java.util.List<java.util.Map<String, String>> formattedAttendees = new java.util.ArrayList<>();
             if (attendeesList != null) {
                 for (com.kawai.models.TourAttendee att : attendeesList) {
@@ -323,7 +325,7 @@ public class EmailServiceImpl implements EmailService {
                         roomDetail = noteMap.get("roomDetail");
                 } catch (Exception parseEx) {
                     logger.warn("Lỗi phân tích notes metadata cho booking {}: {}", booking.getId(),
-                             parseEx.getMessage());
+                            parseEx.getMessage());
                 }
             }
 
@@ -374,7 +376,8 @@ public class EmailServiceImpl implements EmailService {
             ctx.setVariable("departureDate", departureDate);
             ctx.setVariable("departureTime", departureTime);
             ctx.setVariable("participantCount", booking.getParticipantCount());
-            ctx.setVariable("bookingDate", booking.getBookingDate() != null ? booking.getBookingDate().format(DATE_FMT) : java.time.LocalDate.now().format(DATE_FMT));
+            ctx.setVariable("bookingDate", booking.getBookingDate() != null ? booking.getBookingDate().format(DATE_FMT)
+                    : java.time.LocalDate.now().format(DATE_FMT));
             ctx.setVariable("resortPhone", resortPhone);
             ctx.setVariable("resortWebsite", resortWebsite);
 
@@ -404,7 +407,9 @@ public class EmailServiceImpl implements EmailService {
 
             String refundMethodDetail = "Số tiền hoàn trả sẽ được chuyển trả vào phương thức thanh toán gốc của Quý khách. Vui lòng chờ 3-7 ngày làm việc để ngân hàng xử lý giao dịch.";
             if ("post-room".equalsIgnoreCase(paymentMethod)) {
-                refundMethodDetail = "Số tiền hoàn đã được cộng (ghi âm) trực tiếp vào Folio phòng nghỉ số " + roomDetail + " của Quý khách. Số tiền này sẽ được trừ trực tiếp khi Quý khách làm thủ tục thanh toán checkout phòng nghỉ.";
+                refundMethodDetail = "Số tiền hoàn đã được cộng (ghi âm) trực tiếp vào Folio phòng nghỉ số "
+                        + roomDetail
+                        + " của Quý khách. Số tiền này sẽ được trừ trực tiếp khi Quý khách làm thủ tục thanh toán checkout phòng nghỉ.";
             } else if ("vnpay".equalsIgnoreCase(paymentMethod)) {
                 refundMethodDetail = "Số tiền hoàn trả sẽ được chuyển trả trực tiếp vào tài khoản ngân hàng / ví điện tử gốc Quý khách đã sử dụng thanh toán qua VNPay. Vui lòng chờ từ 3-7 ngày làm việc để ngân hàng xử lý.";
             } else if ("counter".equalsIgnoreCase(paymentMethod)) {
@@ -1111,7 +1116,7 @@ public class EmailServiceImpl implements EmailService {
     @Override
     @org.springframework.scheduling.annotation.Async
     public void sendCancelTableBooking(com.kawai.models.TableReservation reservation,
-            com.kawai.models.Customer customer) {
+            com.kawai.models.Customer customer, String cancelledBy, String reason) {
         if (customer == null || customer.getEmail() == null || customer.getEmail().isBlank())
             return;
         try {
@@ -1122,11 +1127,45 @@ public class EmailServiceImpl implements EmailService {
                     reservation.getReserveTime() != null ? reservation.getReserveTime().toString() : "");
             ctx.setVariable("reservationDate",
                     reservation.getReserveDate() != null ? reservation.getReserveDate().format(DATE_FMT) : "");
+            ctx.setVariable("tableNumber", reservation.getTable() != null ? reservation.getTable().getTableNumber() : "N/A");
+            ctx.setVariable("guestCount", reservation.getPartySize() != null ? reservation.getPartySize() : 0);
+            ctx.setVariable("cancelledBy", cancelledBy != null && !cancelledBy.isBlank() ? cancelledBy : "Khách hàng");
+            ctx.setVariable("reason", reason != null && !reason.isBlank() ? reason : "Không có");
 
-            String html = templateEngine.process("email/cancel-booking", ctx);
-            sendEmail(customer.getEmail(), "Thông báo hủy đặt bàn #" + reservation.getId(), html);
+            String html = templateEngine.process("email/cancel-table-booking", ctx);
+            sendEmail(customer.getEmail(), "Xác nhận Hủy Đặt Bàn #" + reservation.getId(), html);
         } catch (Exception e) {
             logger.error("Lỗi gửi email hủy đặt bàn #{}: {}", reservation.getId(), e.getMessage());
+        }
+    }
+
+    @Override
+    @org.springframework.scheduling.annotation.Async
+    public void sendCancelFoodOrderEmail(com.kawai.models.FoodOrder order, com.kawai.models.Customer customer, String cancelledBy, String reason, java.math.BigDecimal refundAmount, String bankName, String accountName, String accountLast3) {
+        if (customer == null || customer.getEmail() == null || customer.getEmail().isBlank())
+            return;
+        try {
+            org.thymeleaf.context.Context ctx = new org.thymeleaf.context.Context(new java.util.Locale("vi", "VN"));
+            java.time.format.DateTimeFormatter fmt = java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+            ctx.setVariable("customerName", customer.getFullName());
+            ctx.setVariable("orderId", order.getId());
+            ctx.setVariable("cancelTime", java.time.LocalDateTime.now().format(fmt));
+            ctx.setVariable("orderTime", order.getOrderTime() != null ? order.getOrderTime().format(fmt) : "");
+            ctx.setVariable("totalAmount", order.getTotalAmount());
+            ctx.setVariable("cancelledBy", cancelledBy != null && !cancelledBy.isBlank() ? cancelledBy : "Khách hàng");
+            ctx.setVariable("reason", reason != null && !reason.isBlank() ? reason : "Không có");
+            
+            ctx.setVariable("refundAmount", refundAmount);
+            if (refundAmount != null && refundAmount.compareTo(java.math.BigDecimal.ZERO) > 0) {
+                ctx.setVariable("bankName", bankName != null ? bankName : "N/A");
+                ctx.setVariable("accountName", accountName != null ? accountName : "N/A");
+                ctx.setVariable("accountLast3", accountLast3 != null ? accountLast3 : "N/A");
+            }
+
+            String html = templateEngine.process("email/cancel-food-order", ctx);
+            sendEmail(customer.getEmail(), "[HoaNien Resort] Xác nhận hủy đơn hàng Dịch vụ Ẩm thực #ORD-" + order.getId(), html);
+        } catch (Exception e) {
+            logger.error("Lỗi gửi email hủy đơn hàng #{}: {}", order.getId(), e.getMessage());
         }
     }
 
@@ -1231,7 +1270,8 @@ public class EmailServiceImpl implements EmailService {
             org.thymeleaf.context.Context ctx = new org.thymeleaf.context.Context(new java.util.Locale("vi", "VN"));
             String rawCustName = customer.getFullName() != null ? customer.getFullName() : "Quý khách";
             String rawTourName = booking.getSchedule() != null && booking.getSchedule().getTour() != null
-                    ? booking.getSchedule().getTour().getTourName() : "Hành trình trải nghiệm";
+                    ? booking.getSchedule().getTour().getTourName()
+                    : "Hành trình trải nghiệm";
             ctx.setVariable("customerName", java.text.Normalizer.normalize(rawCustName, java.text.Normalizer.Form.NFC));
             ctx.setVariable("tourName", java.text.Normalizer.normalize(rawTourName, java.text.Normalizer.Form.NFC));
             ctx.setVariable("bookingId", booking.getId());
@@ -1257,29 +1297,32 @@ public class EmailServiceImpl implements EmailService {
         try {
             org.thymeleaf.context.Context ctx = new org.thymeleaf.context.Context(new java.util.Locale("vi", "VN"));
             String rawCustName = customer.getFullName() != null ? customer.getFullName() : "Quý khách";
-            String rawTourName = review.getTourBooking() != null && review.getTourBooking().getSchedule() != null && review.getTourBooking().getSchedule().getTour() != null
-                    ? review.getTourBooking().getSchedule().getTour().getTourName() : "Hành trình trải nghiệm";
-            
+            String rawTourName = review.getTourBooking() != null && review.getTourBooking().getSchedule() != null
+                    && review.getTourBooking().getSchedule().getTour() != null
+                            ? review.getTourBooking().getSchedule().getTour().getTourName()
+                            : "Hành trình trải nghiệm";
+
             ctx.setVariable("customerName", java.text.Normalizer.normalize(rawCustName, java.text.Normalizer.Form.NFC));
             ctx.setVariable("tourName", java.text.Normalizer.normalize(rawTourName, java.text.Normalizer.Form.NFC));
-            
+
             String replierName = "Quản trị viên";
             if (review.getRepliedBy() != null) {
                 replierName = review.getRepliedBy().getFullName();
             } else if (review.getTourBooking() != null && review.getTourBooking().getSchedule() != null) {
                 Long scheduleId = review.getTourBooking().getSchedule().getId();
-                java.util.List<com.kawai.models.TourStaffAssignment> assigns = tourStaffAssignmentRepository.findByScheduleId(scheduleId);
+                java.util.List<com.kawai.models.TourStaffAssignment> assigns = tourStaffAssignmentRepository
+                        .findByScheduleId(scheduleId);
                 if (assigns != null && !assigns.isEmpty()) {
                     com.kawai.models.TourStaffAssignment lead = assigns.stream()
-                        .filter(a -> Boolean.TRUE.equals(a.getIsLeadGuide()))
-                        .findFirst()
-                        .orElse(assigns.get(0));
+                            .filter(a -> Boolean.TRUE.equals(a.getIsLeadGuide()))
+                            .findFirst()
+                            .orElse(assigns.get(0));
                     if (lead.getEmployee() != null) {
                         replierName = lead.getEmployee().getFullName();
                     }
                 }
             }
-            
+
             ctx.setVariable("replierName", replierName);
             ctx.setVariable("reviewText", review.getReviewText());
             ctx.setVariable("replyText", review.getReplyText());
@@ -1342,23 +1385,24 @@ public class EmailServiceImpl implements EmailService {
     }
 
     private String getGuideForSchedule(com.kawai.models.TourSchedule sched) {
-        if (sched == null) return "NguynNgoc";
-        
+        if (sched == null)
+            return "NguynNgoc";
+
         if (sched.getId() != null && sched.getId() < 100L) {
             return getPreferredGuide(sched);
         }
-        
+
         java.time.LocalDate depDate = sched.getDepartureDate();
         java.time.LocalTime depTime = sched.getDepartureTime();
-        
+
         if (depDate == null || depTime == null) {
             return "NguynNgoc";
         }
-        
+
         if (tourScheduleRepository == null) {
             return "NguynNgoc";
         }
-        
+
         java.util.List<com.kawai.models.TourSchedule> allSchedules = tourScheduleRepository.findAll();
         java.util.List<com.kawai.models.TourSchedule> conflictSchedules = new java.util.ArrayList<>();
         for (com.kawai.models.TourSchedule s : allSchedules) {
@@ -1371,14 +1415,14 @@ public class EmailServiceImpl implements EmailService {
             Long id2 = s2.getId() != null ? s2.getId() : 0L;
             return id1.compareTo(id2);
         });
-        
+
         java.util.Set<String> taken = new java.util.HashSet<>();
         for (com.kawai.models.TourSchedule s : conflictSchedules) {
             if (s.getId() != null && s.getId() < 100L) {
                 taken.add(getPreferredGuide(s));
             }
         }
-        
+
         String assigned = null;
         for (com.kawai.models.TourSchedule s : conflictSchedules) {
             if (s.getId() != null && s.getId() < 100L) {
@@ -1387,7 +1431,7 @@ public class EmailServiceImpl implements EmailService {
                 }
                 continue;
             }
-            
+
             String g;
             if (!taken.contains("NguynNgoc")) {
                 g = "NguynNgoc";
@@ -1397,18 +1441,19 @@ public class EmailServiceImpl implements EmailService {
                 g = "Hoàng Nam";
             }
             taken.add(g);
-            
+
             if (s.getId() != null && s.getId().equals(sched.getId())) {
                 assigned = g;
                 break;
             }
         }
-        
+
         return assigned != null ? assigned : "NguynNgoc";
     }
 
     private String getPreferredGuide(com.kawai.models.TourSchedule sched) {
-        if (sched == null) return "Ngọc Lan";
+        if (sched == null)
+            return "Ngọc Lan";
         if (sched.getId() != null && sched.getId() < 100L) {
             if (sched.getId() % 2 == 0) {
                 return "Ngọc Lan";
@@ -1509,6 +1554,32 @@ public class EmailServiceImpl implements EmailService {
 
     @Override
     @Async
+    public void sendRoomNoShowEmail(com.kawai.models.RoomBooking booking, com.kawai.models.Customer customer) {
+        if (customer == null || customer.getEmail() == null || customer.getEmail().trim().isEmpty()) {
+            return;
+        }
+
+        try {
+            org.thymeleaf.context.Context ctx = new org.thymeleaf.context.Context();
+            ctx.setVariable("customerName", customer.getFullName());
+
+            java.time.format.DateTimeFormatter formatter = java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy");
+            String checkInDateStr = booking.getCheckInDate() != null ? booking.getCheckInDate().format(formatter)
+                    : "N/A";
+            String cancelDateStr = java.time.LocalDate.now().format(formatter);
+
+            ctx.setVariable("checkInDate", checkInDateStr);
+            ctx.setVariable("cancelDate", cancelDateStr);
+
+            String htmlContent = templateEngine.process("email/no-show-room-booking", ctx);
+            sendEmail(customer.getEmail(), "[HOANIEN] Thông báo hủy đặt phòng - Khách không đến", htmlContent);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    @Async
     public void sendWalkInCheckInEmail(com.kawai.models.RoomBooking booking, com.kawai.models.RoomBookingDetail detail,
             com.kawai.models.Customer customer, boolean isNewAccount, String username, String password) {
         if (customer == null || customer.getEmail() == null || customer.getEmail().trim().isEmpty()) {
@@ -1540,11 +1611,13 @@ public class EmailServiceImpl implements EmailService {
             e.printStackTrace();
         }
     }
+
     @org.springframework.scheduling.annotation.Async
     @Override
     public void sendProfileUpdateEmail(com.kawai.models.Customer customer) {
         if (customer == null || customer.getEmail() == null || customer.getEmail().isBlank()) {
-            logger.warn("Bỏ qua gửi email cập nhật hồ sơ: customer {} không có email", customer != null ? customer.getId() : "null");
+            logger.warn("Bỏ qua gửi email cập nhật hồ sơ: customer {} không có email",
+                    customer != null ? customer.getId() : "null");
             return;
         }
         try {
@@ -1563,7 +1636,8 @@ public class EmailServiceImpl implements EmailService {
 
     @org.springframework.scheduling.annotation.Async
     @Override
-    public void sendWeeklyScheduleEmail(String toEmail, String employeeName, java.util.List<com.kawai.models.StaffSchedule> schedules) {
+    public void sendWeeklyScheduleEmail(String toEmail, String employeeName,
+            java.util.List<com.kawai.models.StaffSchedule> schedules) {
         try {
             org.thymeleaf.context.Context ctx = new org.thymeleaf.context.Context();
             ctx.setVariable("employeeName", employeeName);
@@ -1587,5 +1661,60 @@ public class EmailServiceImpl implements EmailService {
         boolean isParentFnb = false;
         boolean isParentMinibar = false;
         java.util.List<TempItem> children = new java.util.ArrayList<>();
+    }
+
+    @org.springframework.scheduling.annotation.Async
+    @Override
+    public void sendRoomBookingConfirmation(com.kawai.models.RoomBooking booking, com.kawai.models.Customer customer) {
+        if (customer == null || customer.getEmail() == null || customer.getEmail().isBlank()) {
+            logger.warn("Bỏ qua gửi email xác nhận đặt phòng: customer {} không có email",
+                    customer != null ? customer.getId() : "null");
+            return;
+        }
+
+        try {
+            long numberOfNights = 0;
+            if (booking.getCheckInDate() != null && booking.getCheckOutDate() != null) {
+                numberOfNights = java.time.temporal.ChronoUnit.DAYS.between(booking.getCheckInDate(),
+                        booking.getCheckOutDate());
+                if (numberOfNights < 1)
+                    numberOfNights = 1;
+            }
+
+            int numberOfGuests = 0;
+            java.util.List<com.kawai.models.RoomBookingDetail> details = roomBookingDetailRepository
+                    .findByRoomBookingId(booking.getId());
+            if (details != null && !details.isEmpty()) {
+                for (com.kawai.models.RoomBookingDetail detail : details) {
+                    if (detail.getNumberOfAdults() != null)
+                        numberOfGuests += detail.getNumberOfAdults();
+                    if (detail.getNumberOfChildren() != null)
+                        numberOfGuests += detail.getNumberOfChildren();
+                }
+            }
+            if (numberOfGuests == 0)
+                numberOfGuests = 1; // Default if not found
+
+            org.thymeleaf.context.Context ctx = new org.thymeleaf.context.Context(new java.util.Locale("vi", "VN"));
+            ctx.setVariable("customerName", customer.getFullName());
+            ctx.setVariable("bookingId", booking.getId());
+            ctx.setVariable("checkInDate",
+                    booking.getCheckInDate() != null ? booking.getCheckInDate().format(DATE_FMT) : "");
+            ctx.setVariable("checkOutDate",
+                    booking.getCheckOutDate() != null ? booking.getCheckOutDate().format(DATE_FMT) : "");
+            ctx.setVariable("numberOfNights", numberOfNights);
+            ctx.setVariable("numberOfGuests", numberOfGuests);
+            ctx.setVariable("depositAmount", formatVnd(booking.getDepositAmount()));
+            ctx.setVariable("resortPhone", resortPhone);
+            ctx.setVariable("resortWebsite", resortWebsite);
+
+            String html = templateEngine.process("email/room-booking-confirmation", ctx);
+            sendEmail(customer.getEmail(), "Xác nhận đặt phòng thành công | Hòa Niên Retreat & Resort", html);
+            logger.info("Gửi email xác nhận đặt phòng thành công → {} (booking #{})", customer.getEmail(),
+                    booking.getId());
+        } catch (Exception e) {
+            logger.error("Lỗi khi gửi email xác nhận đặt phòng cho booking #{}: {}", booking.getId(), e.getMessage(),
+                    e);
+        }
     }
 }
