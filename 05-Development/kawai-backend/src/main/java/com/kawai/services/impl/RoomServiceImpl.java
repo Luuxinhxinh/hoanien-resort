@@ -39,9 +39,6 @@ public class RoomServiceImpl implements RoomService {
         this.roomCategoryRepository = roomCategoryRepository;
     }
 
-    /**
-     * Trả về danh sách rỗng (không null) nếu không có phòng khả dụng.
-     */
     @Override
     public List<RoomSearchResponseDTO> searchAvailableRooms(RoomSearchRequestDTO request) {
         LocalDate checkIn = request.getCheckInDate();
@@ -154,13 +151,6 @@ public class RoomServiceImpl implements RoomService {
         return available;
     }
 
-    /**
-     * Lấy sơ đồ phòng (Room Matrix) thời gian thực cho Front Desk Dashboard.
-     * Cung cấp cái nhìn tổng quan về trạng thái phòng, giá trị và thông tin cơ bản
-     * (UC11).
-     * 
-     * @return Danh sách RoomDashboardDTO, rỗng nếu không có dữ liệu
-     */
     @Override
     public List<RoomDashboardDTO> getRoomDashboard() {
         List<Room> allRooms = roomRepository.findAll();
@@ -190,14 +180,6 @@ public class RoomServiceImpl implements RoomService {
         room.setCategory(category);
         room.setRoomStatus("Available");
         return roomRepository.save(room);
-    }
-
-    // ── Private helpers ────────────────────────────────────────────────────
-
-    private boolean isRoomAvailable(String roomNumber, LocalDate checkIn, LocalDate checkOut) {
-        long overlappingCount = roomBookingRepository.countOverlappingBookings(
-                roomNumber, checkIn, checkOut);
-        return overlappingCount == NO_OVERLAPPING;
     }
 
     private RoomDashboardDTO toDashboardDTO(Room room) {

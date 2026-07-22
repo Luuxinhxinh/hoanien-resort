@@ -894,6 +894,9 @@
                     stompClient.subscribe('/topic/operations', function (msg) {
                         try {
                             var payload = JSON.parse(msg.body);
+                            var isInternalTask = (payload.taskType && (payload.taskType.toUpperCase().includes('MAINTENANCE') || payload.taskType.toUpperCase().includes('CLEAN') || payload.taskType.toUpperCase().includes('DAMAGE')))
+                                || (payload.message && (payload.message.toUpperCase().includes('MAINTENANCE') || payload.message.includes('dọn khẩn') || payload.message.includes('sửa chữa') || payload.message.includes('bảo trì')));
+                            if (payload.type === 'NEW_TASK' && isInternalTask) return;
                             console.log('[WS] Nhận tin nhắn từ kênh Chung (/topic/operations):', payload);
                             if (payload.type === 'NEW_TASK') return;
                             saveAndShow('THÔNG BÁO HỆ THỐNG: \n' + payload.message, false);
@@ -911,6 +914,9 @@
                         stompClient.subscribe('/topic/operations/' + staffId, function (msg) {
                             try {
                                 var payload = JSON.parse(msg.body);
+                                var isInternalTask = (payload.taskType && (payload.taskType.toUpperCase().includes('MAINTENANCE') || payload.taskType.toUpperCase().includes('CLEAN') || payload.taskType.toUpperCase().includes('DAMAGE')))
+                                    || (payload.message && (payload.message.toUpperCase().includes('MAINTENANCE') || payload.message.includes('dọn khẩn') || payload.message.includes('sửa chữa') || payload.message.includes('bảo trì')));
+                                if (payload.type === 'NEW_TASK' && isInternalTask) return;
                                 console.log('[WS] Nhận tin nhắn từ kênh Đích danh (/topic/operations/' + staffId + '):', payload);
                                 saveAndShow('NHIỆM VỤ MỚI: \n ' + payload.message, true);
                             } catch (e) { console.error('[WS] parse error', e); }

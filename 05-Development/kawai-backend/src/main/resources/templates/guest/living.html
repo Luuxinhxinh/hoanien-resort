@@ -210,10 +210,11 @@
     </div>
 
     <header class="relative w-full h-screen flex items-end">
-        <div class="absolute inset-0 bg-hoanien-text overflow-hidden">
-            <img src="https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80"
-                alt="Luxury Haven" class="w-full h-full object-cover opacity-85" />
-            <div class="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent"></div>
+        <div class="absolute inset-0 overflow-hidden">
+            <img src="/guest/images/living-hero.jpg"
+                alt="Luxury Haven" class="w-full h-full object-cover" />
+            <!-- Bỏ màng đen để ảnh gốc hiện rõ nhất -->
+            <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
         </div>
 
         <div class="relative z-10 w-full max-w-[1440px] mx-auto px-6 pb-16 md:pb-24">
@@ -246,9 +247,14 @@
                 <div
                     class="sticky top-0 h-screen w-full overflow-hidden flex items-center justify-center pointer-events-none">
 
-                    <div class="tier-image-frame absolute w-full h-full overflow-hidden">
-                        <img src="https://images.unsplash.com/photo-1499793983690-e29da59ef1c2?ixlib=rb-4.0.3&auto=format&fit=crop&w=2100&q=90"
-                            alt="Superior Room" class="w-full h-full object-cover brightness-[0.7]" />
+                    <div class="tier-image-frame absolute w-full h-full overflow-hidden bg-[#1a1814]">
+                        <!-- Lớp nền làm mờ (Blurred Backdrop) -->
+                        <img src="/guest/images/superior-room.jpg" aria-hidden="true"
+                            class="absolute inset-0 w-full h-full object-cover blur-2xl opacity-40 scale-110 pointer-events-none" />
+                        
+                        <!-- Lớp ảnh gốc sắc nét (Crisp Foreground) -->
+                        <img src="/guest/images/superior-room.jpg" alt="Superior Room"
+                            class="relative z-10 w-full h-full object-contain brightness-[0.95] drop-shadow-2xl" />
                     </div>
 
                     <div
@@ -257,8 +263,8 @@
                         <div class="flex flex-col items-start max-w-xl text-white">
                             <h2
                                 class="font-serif text-4xl md:text-5xl lg:text-6xl font-normal leading-[0.85] tracking-tight flex flex-col items-start gap-1">
-                                <span class="meka-underline !after:bg-white">Riverside</span>
-                                <span class="meka-underline !after:bg-white">Pool Villa</span>
+                                <span class="meka-underline !after:bg-white">Superior</span>
+                                <span class="meka-underline !after:bg-white">Room</span>
                             </h2>
                             <p class="font-sans text-xs opacity-90 mt-6 leading-relaxed max-w-xs font-light">
                                 Không gian ấm áp, tinh tế cùng những tiện nghi được chăm chút tỉ mỉ, mang đến trải
@@ -291,9 +297,14 @@
                 <div
                     class="sticky top-0 h-screen w-full overflow-hidden flex items-center justify-center pointer-events-none">
 
-                    <div class="tier-image-frame absolute w-full h-full overflow-hidden">
-                        <img src="https://images.unsplash.com/photo-1564013799919-ab600027ffc6?ixlib=rb-4.0.3&auto=format&fit=crop&w=2100&q=90"
-                            alt="Garden Pool Villa" class="w-full h-full object-cover brightness-[0.7]" />
+                    <div class="tier-image-frame absolute w-full h-full overflow-hidden bg-[#1a1814]">
+                        <!-- Lớp nền làm mờ (Blurred Backdrop) -->
+                        <img src="/guest/images/garden-pool-villa.jpg" aria-hidden="true"
+                            class="absolute inset-0 w-full h-full object-cover blur-2xl opacity-40 scale-110 pointer-events-none" />
+                        
+                        <!-- Lớp ảnh gốc sắc nét (Crisp Foreground) -->
+                        <img src="/guest/images/garden-pool-villa.jpg" alt="Garden Pool Villa"
+                            class="relative z-10 w-full h-full object-contain brightness-[0.95] drop-shadow-2xl" />
                     </div>
 
                     <div
@@ -336,9 +347,14 @@
                 <div
                     class="sticky top-0 h-screen w-full overflow-hidden flex items-center justify-center pointer-events-none">
 
-                    <div class="tier-image-frame absolute w-full h-full overflow-hidden">
-                        <img src="https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?ixlib=rb-4.0.3&auto=format&fit=crop&w=2100&q=90"
-                            alt="Wellness Retreat" class="w-full h-full object-cover brightness-[0.7]" />
+                    <div class="tier-image-frame absolute w-full h-full overflow-hidden bg-[#1a1814]">
+                        <!-- Lớp nền làm mờ (Blurred Backdrop) -->
+                        <img src="/guest/images/wellness-retreat.jpg" aria-hidden="true"
+                            class="absolute inset-0 w-full h-full object-cover blur-2xl opacity-40 scale-110 pointer-events-none" />
+                        
+                        <!-- Lớp ảnh gốc sắc nét (Crisp Foreground) -->
+                        <img src="/guest/images/wellness-retreat.jpg" alt="Wellness Retreat"
+                            class="relative z-10 w-full h-full object-contain brightness-[0.95] drop-shadow-2xl" />
                     </div>
 
                     <div

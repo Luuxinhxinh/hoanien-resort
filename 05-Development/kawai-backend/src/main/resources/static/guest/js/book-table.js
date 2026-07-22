@@ -23,14 +23,16 @@ document.addEventListener("DOMContentLoaded", () => {
     // Initialize Flatpickr for dates
     flatpickrFilterDate = flatpickr("#filterDate", {
         dateFormat: "Y-m-d",
-        minDate: "today",
-        maxDate: new Date().fp_incr(7)
+        minDate: minDateVal,
+        maxDate: maxDateVal || new Date().fp_incr(7),
+        defaultDate: "today"
     });
 
     flatpickrReserveDate = flatpickr("#reserveDate", {
         dateFormat: "Y-m-d",
-        minDate: "today",
-        maxDate: new Date().fp_incr(7)
+        minDate: minDateVal,
+        maxDate: maxDateVal || new Date().fp_incr(7),
+        defaultDate: "today"
     });
 
     // Initialize Flatpickr for times (24-hour format)
@@ -41,8 +43,13 @@ document.addEventListener("DOMContentLoaded", () => {
         time_24hr: true
     };
 
-    flatpickrFilterStart = flatpickr("#filterStart", timeConfig);
-    flatpickrFilterEnd = flatpickr("#filterEnd", timeConfig);
+    const now = new Date();
+    const currentHour = String(now.getHours()).padStart(2, '0');
+    const currentMin = String(now.getMinutes()).padStart(2, '0');
+    const currentTimeStr = `${currentHour}:${currentMin}`;
+
+    flatpickrFilterStart = flatpickr("#filterStart", Object.assign({}, timeConfig, { defaultDate: currentTimeStr }));
+    flatpickrFilterEnd = flatpickr("#filterEnd", Object.assign({}, timeConfig, { defaultDate: "23:59" }));
     flatpickrStartTime = flatpickr("#startTime", timeConfig);
     flatpickrEndTime = flatpickr("#endTime", timeConfig);
 });

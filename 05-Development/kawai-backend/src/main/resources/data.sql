@@ -180,7 +180,8 @@ INSERT INTO Room_Categories (
 (8,  'Classic Room',   'https://i.pinimg.com/736x/5c/e6/b2/5ce6b284f68e75c930d84214882c1451.jpg,https://i.pinimg.com/1200x/25/df/c6/25dfc64dd98b33514f5f5597b6258f6a.jpg,https://i.pinimg.com/1200x/79/71/37/797137545c45e65d4e46dbc8090926fe.jpg', 1800000,  2, 'Không gian nghỉ dưỡng tối giản nhưng tinh tế, mang lại cảm giác thoải mái và thư thái với tiện nghi cơ bản, là lựa chọn hoàn hảo cho những ai yêu thích sự mộc mạc.',              2, 0, 2, 1, 350000,  150000, TRUE, '1 Giường 1m8', 40, 'Hướng không gian tĩnh lặng', FALSE, FALSE, '2 chai nước suối, Trà', TRUE),
 
 (9,  'Heritage Suite',         'https://i.pinimg.com/1200x/63/a2/59/63a259ff25028ebc7ee6738f99f8f2e0.jpg,https://i.pinimg.com/1200x/31/21/fe/3121fe2b26a4e17b9417f3f032c9e66b.jpg,https://i.pinimg.com/1200x/3d/2d/36/3d2d36b8ccf42d575802b00708304eaf.jpg', 12000000, 4, 'Tuyệt tác không gian mang đậm dấu ấn di sản, tôn vinh nghệ thuật kiến trúc Á Đông kết hợp hoàn hảo cùng tiện nghi xa xỉ bậc nhất, đem lại trải nghiệm nghỉ dưỡng thượng lưu độc bản.',  2, 0, 4, 2, 1500000, 750000, TRUE, '2 Giường King siêu lớn', 180, 'Hướng toàn cảnh khu nghỉ dưỡng', TRUE, TRUE, 'Rượu vang cao cấp, Trái cây nhập khẩu, Minibar', TRUE),
-(10, 'Cozy Studio Room',         'https://i.pinimg.com/1200x/5a/93/2a/5a932a215282cb5cbcd7c6c6bcbe0302.jpg,https://i.pinimg.com/736x/02/f7/c6/02f7c655b9c1afc45b77f2a6701a9e9b.jpg,https://i.pinimg.com/1200x/fe/52/09/fe5209e25f3a6bcc67e952e9321fc815.jpg', 1500000,  2, 'Không gian nhỏ gọn và ấm áp với thiết kế thông minh, trang bị đầy đủ tiện nghi thiết yếu, là điểm dừng chân lý tưởng để bạn tận hưởng những giây phút nghỉ ngơi.',          2, 0, 2, 1, 300000,  150000, TRUE, '1 Giường Queen 1m8', 35, 'Hướng khu phố yên bình', FALSE, FALSE, '2 chai nước suối, Cà phê hòa tan', FALSE);
+(10, 'Cozy Studio Room',         'https://i.pinimg.com/1200x/5a/93/2a/5a932a215282cb5cbcd7c6c6bcbe0302.jpg,https://i.pinimg.com/736x/02/f7/c6/02f7c655b9c1afc45b77f2a6701a9e9b.jpg,https://i.pinimg.com/1200x/fe/52/09/fe5209e25f3a6bcc67e952e9321fc815.jpg', 1500000,  2, 'Không gian nhỏ gọn và ấm áp với thiết kế thông minh, trang bị đầy đủ tiện nghi thiết yếu, là điểm dừng chân lý tưởng để bạn tận hưởng những giây phút nghỉ ngơi.',          2, 0, 2, 1, 300000,  150000, TRUE, '1 Giường Queen 1m8', 35, 'Hướng khu phố yên bình', FALSE, FALSE, '2 chai nước suối, Cà phê hòa tan', FALSE),
+(11, 'Traditional Room',         'https://i.pinimg.com/1200x/43/cd/86/43cd86b688531a000a4aee8be3befb61.jpg,https://i.pinimg.com/736x/0e/84/24/0e8424cfb4d5baffaba3c5d85d9036c9.jpg,https://i.pinimg.com/1200x/ea/c5/81/eac581a1d4dcbe2279e1170452dbcb0a.jpg', 2200000,  2, 'Không gian nghỉ dưỡng thấm đẫm nét đẹp truyền thống mộc mạc, mang hơi thở văn hóa Á Đông thanh bình, giúp bạn tìm lại sự thư thái tĩnh tại trong tâm hồn.', 2, 0, 2, 1, 400000, 200000, TRUE, '1 Giường Queen 1m8', 42, 'Hướng vườn thiền', FALSE, TRUE, '2 chai nước suối, Trà sen truyền thống', TRUE);
 
 -- ── 7. Room Surcharges (Dữ liệu đã được chuyển xuống cuối file dùng INSERT SELECT) ──
 
@@ -246,7 +247,13 @@ INSERT INTO Rooms (room_id, room_number, category_id, room_status, current_booki
 (47, '507', 9, 'Vacant_Clean', NULL),
 (48, '508', 9, 'Vacant_Clean', NULL),
 (49, '509', 9, 'Vacant_Clean', NULL),
-(50, '510', 9, 'Vacant_Clean', NULL);
+(50, '510', 9, 'Vacant_Clean', NULL),
+-- Category 11 - Traditional Room (rooms 601-605): tất cả Vacant
+(51, '601', 11, 'Vacant_Clean', NULL),
+(52, '602', 11, 'Vacant_Clean', NULL),
+(53, '603', 11, 'Vacant_Clean', NULL),
+(54, '604', 11, 'Vacant_Clean', NULL),
+(55, '605', 11, 'Vacant_Clean', NULL);
 
 -- ── 9. Dynamic Pricing (10 rows) ─────────────────────────────
 INSERT INTO Dynamic_Pricing (price_id, category_id, start_date, end_date, price_modifier, reason) VALUES 

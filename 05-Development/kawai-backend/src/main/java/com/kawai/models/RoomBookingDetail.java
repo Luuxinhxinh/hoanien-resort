@@ -131,6 +131,12 @@ public class RoomBookingDetail {
     }
 
     public BigDecimal getSubCreditLimit() {
+        if (subCreditLimit == null || subCreditLimit.compareTo(BigDecimal.ZERO) <= 0) {
+            if (roomBooking != null && roomBooking.getCreditLimit() != null && roomBooking.getCreditLimit().compareTo(BigDecimal.ZERO) > 0) {
+                return roomBooking.getCreditLimit();
+            }
+            return new BigDecimal("5000000.00");
+        }
         return subCreditLimit;
     }
 

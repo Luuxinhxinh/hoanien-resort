@@ -7,6 +7,7 @@ import com.kawai.repositories.StaffScheduleRepository;
 import com.kawai.services.interfaces.ShiftService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -28,7 +29,8 @@ public class ShiftServiceImpl implements ShiftService {
         // Lọc ra các nhân viên thuộc Role yêu cầu
         return schedules.stream()
                 .map(StaffSchedule::getEmployee)
-                .filter(employee -> employee.getAccount() != null && employee.getAccount().getRole() != null && roleName.equalsIgnoreCase(employee.getAccount().getRole().getRoleName()))
+                .filter(employee -> employee.getAccount() != null && employee.getAccount().getRole() != null
+                        && roleName.equalsIgnoreCase(employee.getAccount().getRole().getRoleName()))
                 .distinct()
                 .collect(Collectors.toList());
     }
@@ -36,15 +38,17 @@ public class ShiftServiceImpl implements ShiftService {
     @Override
     public Employee assignTaskToAvailableStaff(String roleName, LocalDate date) {
         List<Employee> availableStaff = getAvailableStaffByRoleAndDate(roleName, date);
-        
+
         if (!availableStaff.isEmpty()) {
-            // Logic đơn giản: chọn người đầu tiên (hoặc có thể cải tiến đếm số task để cân bằng tải)
+            // Logic đơn giản: chọn người đầu tiên (hoặc có thể cải tiến đếm số task để cân
+            // bằng tải)
             return availableStaff.get(0);
         }
 
         // Fallback: Nếu không ai trực, tìm 1 nhân viên bất kỳ có role đó
         return employeeRepository.findAll().stream()
-                .filter(e -> e.getAccount() != null && e.getAccount().getRole() != null && roleName.equalsIgnoreCase(e.getAccount().getRole().getRoleName()))
+                .filter(e -> e.getAccount() != null && e.getAccount().getRole() != null
+                        && roleName.equalsIgnoreCase(e.getAccount().getRole().getRoleName()))
                 .findFirst()
                 .orElse(null);
     }
@@ -56,15 +60,17 @@ public class ShiftServiceImpl implements ShiftService {
         }
 
         // 1. Kiểm tra xem tour này đã được gán chưa
-        java.util.Optional<com.kawai.models.TourStaffAssignment> existingAssignment = tourStaffAssignmentRepository.findFirstBySchedule(schedule);
+        java.util.Optional<com.kawai.models.TourStaffAssignment> existingAssignment = tourStaffAssignmentRepository
+                .findFirstBySchedule(schedule);
         if (existingAssignment.isPresent()) {
             return existingAssignment.get().getEmployee();
         }
 
         // Tính toán khoảng thời gian của tour mới
         java.time.LocalTime newStartTime = schedule.getDepartureTime();
-        double durationHours = schedule.getTour() != null && schedule.getTour().getDurationHours() != null 
-                ? schedule.getTour().getDurationHours() : 2.0;
+        double durationHours = schedule.getTour() != null && schedule.getTour().getDurationHours() != null
+                ? schedule.getTour().getDurationHours()
+                : 2.0;
         long durationMinutes = (long) (durationHours * 60);
         java.time.LocalTime newEndTime = newStartTime.plusMinutes(durationMinutes);
 
@@ -84,7 +90,8 @@ public class ShiftServiceImpl implements ShiftService {
         // 4. Fallback nếu tất cả đều bận (tìm người rảnh không nằm trong ca trực)
         if (selectedGuide == null) {
             List<Employee> allGuides = employeeRepository.findAll().stream()
-                    .filter(e -> e.getAccount() != null && e.getAccount().getRole() != null && "TOURGUIDE".equalsIgnoreCase(e.getAccount().getRole().getRoleName()))
+                    .filter(e -> e.getAccount() != null && e.getAccount().getRole() != null
+                            && "TOURGUIDE".equalsIgnoreCase(e.getAccount().getRole().getRoleName()))
                     .collect(Collectors.toList());
             for (Employee staff : allGuides) {
                 if (isGuideFree(staff.getId(), schedule.getDepartureDate(), newStartTime, newEndTime)) {
@@ -108,12 +115,14 @@ public class ShiftServiceImpl implements ShiftService {
     }
 
     @Override
-    @org.springframework.transaction.annotation.Transactional(readOnly = true)
-    public boolean checkIsOnShift(org.springframework.security.core.Authentication auth, jakarta.servlet.http.HttpSession session) {
+    @Transactional(readOnly = true)
+    public boolean checkIsOnShift(org.springframework.security.core.Authentication auth,
+            jakarta.servlet.http.HttpSession session) {
         if (session != null && session.getAttribute("demoBypassShift") != null) {
             return true;
         }
-        if (auth != null && auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_MANAGER") || a.getAuthority().equals("ROLE_ADMIN"))) {
+        if (auth != null && auth.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_MANAGER") || a.getAuthority().equals("ROLE_ADMIN"))) {
             return true;
         }
         if (auth != null) {
@@ -144,13 +153,17 @@ public class ShiftServiceImpl implements ShiftService {
         return false;
     }
 
-    private boolean isGuideFree(Long employeeId, LocalDate date, java.time.LocalTime newStart, java.time.LocalTime newEnd) {
-        List<com.kawai.models.TourStaffAssignment> todayTours = tourStaffAssignmentRepository.findByEmployeeIdAndSchedule_DepartureDate(employeeId, date);
+    private boolean isGuideFree(Long employeeId, LocalDate date, java.time.LocalTime newStart,
+            java.time.LocalTime newEnd) {
+        List<com.kawai.models.TourStaffAssignment> todayTours = tourStaffAssignmentRepository
+                .findByEmployeeIdAndSchedule_DepartureDate(employeeId, date);
         for (com.kawai.models.TourStaffAssignment task : todayTours) {
             if (task.getSchedule() != null && task.getSchedule().getDepartureTime() != null) {
                 java.time.LocalTime taskStart = task.getSchedule().getDepartureTime();
-                double taskDuration = task.getSchedule().getTour() != null && task.getSchedule().getTour().getDurationHours() != null 
-                        ? task.getSchedule().getTour().getDurationHours() : 2.0;
+                double taskDuration = task.getSchedule().getTour() != null
+                        && task.getSchedule().getTour().getDurationHours() != null
+                                ? task.getSchedule().getTour().getDurationHours()
+                                : 2.0;
                 java.time.LocalTime taskEnd = taskStart.plusMinutes((long) (taskDuration * 60));
 
                 // Kiểm tra xem có giao nhau không

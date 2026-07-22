@@ -117,8 +117,14 @@ public class CheckinServiceImpl implements CheckinService {
 
         private void assignRoomToGuest(RoomBookingDetail detail, Room room, java.math.BigDecimal allocatedCreditLimit) {
                 detail.setRoom(room);
-                detail.setSubCreditLimit(
-                                allocatedCreditLimit != null ? allocatedCreditLimit : java.math.BigDecimal.ZERO);
+                if (allocatedCreditLimit != null && allocatedCreditLimit.compareTo(java.math.BigDecimal.ZERO) > 0) {
+                        detail.setSubCreditLimit(allocatedCreditLimit);
+                } else if (detail.getSubCreditLimit() == null || detail.getSubCreditLimit().compareTo(java.math.BigDecimal.ZERO) == 0) {
+                        java.math.BigDecimal defaultLimit = (detail.getRoomBooking() != null && detail.getRoomBooking().getCreditLimit() != null)
+                                        ? detail.getRoomBooking().getCreditLimit()
+                                        : new java.math.BigDecimal("5000000.00");
+                        detail.setSubCreditLimit(defaultLimit);
+                }
                 detail.setDetailStatus(STATUS_CHECKED_IN);
 
                 room.setRoomStatus(STATUS_OCCUPIED);
@@ -431,21 +437,16 @@ public class CheckinServiceImpl implements CheckinService {
                 form.getAssignedRoomNumbers().removeIf(String::isEmpty);
 
                 java.math.BigDecimal totalRequested = java.math.BigDecimal.ZERO;
-                if (form.getAllocatedCreditLimits() == null
-                                || form.getAllocatedCreditLimits().size() < form.getAssignedRoomNumbers().size()) {
-                        throw new com.kawai.exceptions.BusinessException("CHECKIN-009",
-                                        "Vui lòng nhập hạn mức cho phòng nhé");
-                }
-                for (java.math.BigDecimal limit : form.getAllocatedCreditLimits()) {
-                        if (limit == null) {
-                                throw new com.kawai.exceptions.BusinessException("CHECKIN-009",
-                                                "Vui lòng nhập hạn mức cho phòng nhé");
+                if (form.getAllocatedCreditLimits() != null && !form.getAllocatedCreditLimits().isEmpty()) {
+                        for (java.math.BigDecimal limit : form.getAllocatedCreditLimits()) {
+                                if (limit != null && limit.compareTo(java.math.BigDecimal.ZERO) < 0) {
+                                        throw new com.kawai.exceptions.BusinessException("CHECKIN-008",
+                                                        "Hạn mức không được là số âm!");
+                                }
+                                if (limit != null) {
+                                        totalRequested = totalRequested.add(limit);
+                                }
                         }
-                        if (limit.compareTo(java.math.BigDecimal.ZERO) < 0) {
-                                throw new com.kawai.exceptions.BusinessException("CHECKIN-008",
-                                                "Hạn mức không được là số âm!");
-                        }
-                        totalRequested = totalRequested.add(limit);
                 }
                 java.math.BigDecimal existingUsed = java.math.BigDecimal.ZERO;
                 for (com.kawai.models.RoomBookingDetail d : details) {

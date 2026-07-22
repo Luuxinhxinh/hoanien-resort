@@ -17,6 +17,9 @@ public interface TourAttendeeRepository extends JpaRepository<TourAttendee, Long
     java.util.List<TourAttendee> findByTourBookingId(Long bookingId);
     boolean existsByCustomerIdAndTourBookingScheduleIdAndTourBookingBookingStatusNot(Long customerId, Long scheduleId, String status);
 
-    @Query("SELECT ta FROM TourAttendee ta WHERE ta.tourBooking.roomBookingDetail.id = :detailId AND ta.tourBooking.bookingStatus <> 'Cancelled'")
+    @Query("SELECT CASE WHEN COUNT(ta) > 0 THEN true ELSE false END FROM TourAttendee ta WHERE ta.customer.id = :customerId AND ta.tourBooking.schedule.id = :scheduleId AND LOWER(ta.tourBooking.bookingStatus) NOT LIKE '%cancel%'")
+    boolean existsActiveAttendeeByCustomerAndSchedule(@Param("customerId") Long customerId, @Param("scheduleId") Long scheduleId);
+
+    @Query("SELECT ta FROM TourAttendee ta WHERE ta.tourBooking.roomBookingDetail.id = :detailId AND LOWER(ta.tourBooking.bookingStatus) NOT LIKE '%cancel%'")
     java.util.List<TourAttendee> findActiveAttendeesByRoomBookingDetailId(@Param("detailId") Long detailId);
 }
