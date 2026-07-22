@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html class="light" lang="vi" xmlns:th="http://www.thymeleaf.org" style="scroll-behavior: smooth;">
 
 <head>
@@ -28,6 +28,24 @@
                     }
                 }
             }
+        }
+        function updateAdultSelectOptions() {
+            const selects = document.querySelectorAll('.adult-companion-select');
+            const selectedValues = Array.from(selects).map(s => s.value).filter(v => v !== '');
+            
+            selects.forEach(select => {
+                const options = select.querySelectorAll('option');
+                options.forEach(opt => {
+                    if (opt.value === '') return;
+                    if (selectedValues.includes(opt.value) && opt.value !== select.value) {
+                        opt.style.display = 'none';
+                        opt.disabled = true;
+                    } else {
+                        opt.style.display = '';
+                        opt.disabled = false;
+                    }
+                });
+            });
         }
     </script>
     <!-- Google Fonts for Serif Typography -->
@@ -617,13 +635,7 @@
                             oninput="updateTotalPrice(); validateCompanions(false, false)"
                             onchange="validateCompanions(true, false)">
                     </div>
-                    <!-- Checkbox: Tôi là người tham gia chuyến đi -->
-                    <div class="flex items-center gap-3 py-2 border-b border-brand-border/30">
-                        <input type="checkbox" id="isPayerParticipating" checked class="w-4 h-4 text-brand-gold border-brand-border focus:ring-brand-gold focus:ring-2 rounded cursor-pointer" onchange="onPayerParticipatingChange()">
-                        <label for="isPayerParticipating" class="text-xs font-bold uppercase tracking-widest text-black cursor-pointer select-none">
-                            Tôi là người tham gia chuyến đi (Chủ tài khoản đi tour)
-                        </label>
-                    </div>
+                    
                     <!-- Companion Section -->
                     <div data-purpose="accompanying-section">
                         <label class="text-[10px] font-bold uppercase tracking-widest mb-4 block text-black">Người cùng
@@ -1237,6 +1249,24 @@
         const dbTourActivities = dbTourActivitiesRaw ? JSON.parse(dbTourActivitiesRaw) : null;
         const rawDependentsJson = /*[[${userDependentsJson}]]*/ '[]';
         /*]]>*/
+        function updateAdultSelectOptions() {
+            const selects = document.querySelectorAll('.adult-companion-select');
+            const selectedValues = Array.from(selects).map(s => s.value).filter(v => v !== '');
+            
+            selects.forEach(select => {
+                const options = select.querySelectorAll('option');
+                options.forEach(opt => {
+                    if (opt.value === '') return;
+                    if (selectedValues.includes(opt.value) && opt.value !== select.value) {
+                        opt.style.display = 'none';
+                        opt.disabled = true;
+                    } else {
+                        opt.style.display = '';
+                        opt.disabled = false;
+                    }
+                });
+            });
+        }
     </script>
 
     <script data-purpose="ui-interactions">
@@ -2342,7 +2372,9 @@
                 if (ageInput) ageInput.value = '';
                 if (idInput) idInput.value = '';
                 if (phoneInput) phoneInput.value = '';
-                return;
+
+             updateAdultSelectOptions();
+            return;
             }
 
             const dep = userDependentsList[val];
@@ -2351,6 +2383,7 @@
             if (idInput) idInput.value = dep.cccd || '';
             if (phoneInput) phoneInput.value = dep.phone || '';
         }
+            updateAdultSelectOptions();
 
         function validateAgeInput(input) {
             const val = parseInt(input.value);
@@ -3444,12 +3477,7 @@
                 generateChildRows(children);
 
                 // Generate adult companions
-                // Nếu khách CHỌN làm người tham gia, sinh 'adults - 1' dòng nhập thông tin (trừ suất của khách chính).
-                // Nếu khách KHÔNG tham gia (đặt hộ), sinh đủ 'adults' dòng nhập thông tin.
-                const chkParticipate = document.getElementById('isPayerParticipating');
-                const isPayerParticipatingVal = chkParticipate ? chkParticipate.checked : true;
-                const adultCompanionsCount = isPayerParticipatingVal ? (adults > 1 ? adults - 1 : 0) : adults;
-                generateAdultCompanionRows(adultCompanionsCount);
+                generateAdultCompanionRows(adults);
                 validateParticipantsWithRoomOnInput();
                 return true;
             }
@@ -3628,9 +3656,7 @@
             const companions = [];
             let isCustomerGoing = false;
             const adultsVal = parseInt(document.getElementById('num-adults').value) || 1;
-            const chkParticipateSubmit = document.getElementById('isPayerParticipating');
-            const isPayerParticipatingValSubmit = chkParticipateSubmit ? chkParticipateSubmit.checked : true;
-            if (!isPayerParticipatingValSubmit || adultsVal > 1) {
+            if (adultsVal > 0) {
                 const adultCompanionRows = document.querySelectorAll('.adult-companion-row');
                 adultCompanionRows.forEach(row => {
                     const selectEl = row.querySelector('.adult-companion-select');
@@ -3686,7 +3712,7 @@
                 isCustomerGoing: isCustomerGoing,
                 promoCode: appliedPromoState ? appliedPromoState.code : null,
                 notes: customerNotes,
-                isPayerParticipating: isPayerParticipatingValSubmit,
+                isPayerParticipating: isCustomerGoing,
                 acceptInsurance: (function () {
                     const chk = document.getElementById('insuranceConsent');
                     return chk ? chk.checked : false;
@@ -3995,9 +4021,7 @@
             }
         });
 
-        function onPayerParticipatingChange() {
-            validateCompanions(false, false);
-        }
+        
 
         function checkDuplicateTourRegistration() {
             const tourInfo = tourData[currentTour];
@@ -4045,6 +4069,7 @@
 
         document.addEventListener('DOMContentLoaded', () => {
             renderTour();
+            validateCompanions(false, false);
             const tomorrow = new Date();
             tomorrow.setDate(tomorrow.getDate() + 1);
             const yyyy = tomorrow.getFullYear();
@@ -4074,6 +4099,24 @@
                 validateParticipantsWithRoomOnInput();
             }
         });
+        function updateAdultSelectOptions() {
+            const selects = document.querySelectorAll('.adult-companion-select');
+            const selectedValues = Array.from(selects).map(s => s.value).filter(v => v !== '');
+            
+            selects.forEach(select => {
+                const options = select.querySelectorAll('option');
+                options.forEach(opt => {
+                    if (opt.value === '') return;
+                    if (selectedValues.includes(opt.value) && opt.value !== select.value) {
+                        opt.style.display = 'none';
+                        opt.disabled = true;
+                    } else {
+                        opt.style.display = '';
+                        opt.disabled = false;
+                    }
+                });
+            });
+        }
     </script>
     <div th:replace="~{guest/fragments/auth :: authModal}"></div>
 
@@ -4195,3 +4238,8 @@
 </body>
 
 </html>
+
+
+
+
+

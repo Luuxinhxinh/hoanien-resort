@@ -443,28 +443,37 @@ function toggleShowMoreRooms() {
 function prevRoomDetailImage(e) {
     if (e) e.stopPropagation();
     if (currentRoomImages.length <= 1) return;
+    document.getElementById(`gallery-img-${currentRoomImageIndex}`).classList.replace('opacity-100', 'opacity-0');
     currentRoomImageIndex = (currentRoomImageIndex - 1 + currentRoomImages.length) % currentRoomImages.length;
-    document.getElementById('detailRoomImg').src = currentRoomImages[currentRoomImageIndex];
+    document.getElementById(`gallery-img-${currentRoomImageIndex}`).classList.replace('opacity-0', 'opacity-100');
 }
 
 function nextRoomDetailImage(e) {
     if (e) e.stopPropagation();
     if (currentRoomImages.length <= 1) return;
+    document.getElementById(`gallery-img-${currentRoomImageIndex}`).classList.replace('opacity-100', 'opacity-0');
     currentRoomImageIndex = (currentRoomImageIndex + 1) % currentRoomImages.length;
-    document.getElementById('detailRoomImg').src = currentRoomImages[currentRoomImageIndex];
+    document.getElementById(`gallery-img-${currentRoomImageIndex}`).classList.replace('opacity-0', 'opacity-100');
 }
 
 function openRoomInfoModal(roomJsonStr) {
     const room = JSON.parse(decodeURIComponent(roomJsonStr));
     currentRoomImages = room.coverImgUrl ? room.coverImgUrl.split(',') : CONFIG.defaultImages;
 
-    if (currentRoomImages.length > 1) {
-        currentRoomImages.forEach(src => { (new Image()).src = src; });
-    }
-
     currentRoomImageIndex = 0;
     document.getElementById('detailRoomName').innerText = room.categoryName;
-    document.getElementById('detailRoomImg').src = currentRoomImages[currentRoomImageIndex];
+    
+    const gallery = document.getElementById('detailRoomImageGallery');
+    if (gallery) {
+        gallery.innerHTML = '';
+        currentRoomImages.forEach((src, idx) => {
+            const img = document.createElement('img');
+            img.src = src;
+            img.id = `gallery-img-${idx}`;
+            img.className = `absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${idx === 0 ? 'opacity-100' : 'opacity-0'}`;
+            gallery.appendChild(img);
+        });
+    }
 
     const prevBtn = document.getElementById('prevRoomImageBtn');
     const nextBtn = document.getElementById('nextRoomImageBtn');

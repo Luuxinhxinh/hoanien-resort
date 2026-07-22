@@ -368,9 +368,10 @@
 
             <div class="flex flex-col md:flex-row">
                 <!-- Left: Image -->
-                <div class="md:w-[50%] relative h-[300px] md:h-auto min-h-[400px] bg-[#1a1814] group">
-                    <img id="detailRoomImg" src="" alt="Room"
-                        class="w-full h-full object-contain" />
+                <div class="md:w-[50%] relative h-[300px] md:h-auto min-h-[400px] bg-[#1a1814] group overflow-hidden">
+                    <div id="detailRoomImageGallery" class="absolute inset-0 w-full h-full">
+                        <!-- JS injects images here for smooth fading -->
+                    </div>
                     
                     <!-- Navigation Buttons -->
                     <button type="button" id="prevRoomImageBtn" class="absolute left-4 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-black/80 text-white rounded-full p-2 backdrop-blur-sm z-10 hidden" onclick="prevRoomDetailImage(event)">
