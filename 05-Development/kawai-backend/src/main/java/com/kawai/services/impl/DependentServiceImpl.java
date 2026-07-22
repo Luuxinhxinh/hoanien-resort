@@ -321,7 +321,7 @@ public class DependentServiceImpl implements DependentService {
             // Upload trực tiếp chuỗi Data URI (Base64) lên Cloudinary
             java.util.Map<String, Object> uploadResult = cloudinary.uploader().upload(faceImageBase64,
                     com.cloudinary.utils.ObjectUtils.asMap(
-                            "folder", "kawai_faces",
+                            "folder", "hoanien_faces",
                             "public_id", "dep_" + saved.getId() + "_" + System.currentTimeMillis()));
             String publicUrl = uploadResult.get("secure_url").toString();
             saved.setFaceImgUrl(publicUrl);

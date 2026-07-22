@@ -175,7 +175,7 @@ public class FaceIdApiController {
                     // tự động)
                     Map<String, Object> uploadResult = cloudinary.uploader().upload(base64Image,
                             com.cloudinary.utils.ObjectUtils.asMap(
-                                    "folder", "kawai_faces",
+                                    "folder", "hoanien_faces",
                                     "public_id", "face_" + System.currentTimeMillis()));
                     savedImageUrl = uploadResult.get("secure_url").toString();
                 } catch (Exception ex) {

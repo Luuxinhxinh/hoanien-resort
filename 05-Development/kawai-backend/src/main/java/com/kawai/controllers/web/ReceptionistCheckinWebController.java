@@ -117,7 +117,7 @@ public class ReceptionistCheckinWebController {
                         java.util.Map<String, Object> uploadResult = cloudinary.uploader().upload(
                                 form.getFaceImageBase64(),
                                 com.cloudinary.utils.ObjectUtils.asMap(
-                                        "folder", "kawai_faces",
+                                        "folder", "hoanien_faces",
                                         "public_id", "cust_" + customer.getId() + "_" + System.currentTimeMillis()));
                         String publicUrl = uploadResult.get("secure_url").toString();
                         customer.setFaceImgUrl(publicUrl);
