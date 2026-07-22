@@ -183,7 +183,10 @@ public class ReceptionistCheckinWebController {
                         + " đã được gán làm chủ phòng. (Khách đã có tài khoản: " + username + ")";
             } else {
                 successMsg = "Nâng cấp thành công Khách hàng: " + customer.getFullName() + roomInfo
-                        + ". Tài khoản: " + username + " - Mật khẩu: " + password;
+                        + ". Thông tin đăng nhập đã được gửi qua email";
+
+                // successMsg = "Nâng cấp thành công Khách hàng: Tài khoản: " + username + " -
+                // Mật khẩu: " + password;
             }
 
             return org.springframework.http.ResponseEntity.ok(java.util.Map.of(

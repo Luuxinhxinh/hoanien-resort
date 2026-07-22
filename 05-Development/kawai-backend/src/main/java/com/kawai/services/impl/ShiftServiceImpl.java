@@ -108,6 +108,7 @@ public class ShiftServiceImpl implements ShiftService {
     }
 
     @Override
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
     public boolean checkIsOnShift(org.springframework.security.core.Authentication auth, jakarta.servlet.http.HttpSession session) {
         if (session != null && session.getAttribute("demoBypassShift") != null) {
             return true;

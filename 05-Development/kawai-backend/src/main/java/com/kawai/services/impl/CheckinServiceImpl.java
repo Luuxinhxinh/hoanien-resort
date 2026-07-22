@@ -158,10 +158,6 @@ public class CheckinServiceImpl implements CheckinService {
                         throw new IllegalStateException(
                                         "ROOM-001: Phòng đang Occupied, không thể check-in. (MOD2-002)");
                 }
-                if (STATUS_DIRTY.equalsIgnoreCase(status)) {
-                        throw new IllegalStateException(
-                                        "ROOM-001: Phòng đang Dirty, không thể check-in. (MOD2-002)");
-                }
                 boolean hasPendingMaintenance = maintenanceRequestRepo.existsByRoomIdAndStatusInAndOperationalTypeIn(
                                 room.getId(),
                                 java.util.Arrays.asList("Pending", "InProgress"),

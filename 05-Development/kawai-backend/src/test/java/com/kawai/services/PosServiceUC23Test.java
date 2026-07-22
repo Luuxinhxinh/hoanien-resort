@@ -1,6 +1,6 @@
 package com.kawai.services;
 
-import com.kawai.dtos.CancelOrderRequestDTO;
+import com.kawai.dto.CancelOrderRequestDTO;
 import com.kawai.exceptions.BusinessException;
 import com.kawai.models.*;
 import com.kawai.repositories.FolioItemRepository;
@@ -55,7 +55,7 @@ class PosServiceUC23Test {
         when(foodOrderRepository.findById(orderId)).thenReturn(Optional.of(order));
 
         // Act
-        posService.cancelOrder(orderId, null);
+        posService.cancelOrder(orderId, null, null, null);
 
         // Assert
         assertEquals("Cancelled", order.getOrderStatus(), "Trạng thái đơn phải là Cancelled");
@@ -90,7 +90,7 @@ class PosServiceUC23Test {
         when(folioItemRepository.findByRoomBookingDetailId(10L)).thenReturn(Arrays.asList(targetFolio, otherFolio));
 
         // Act
-        posService.cancelOrder(orderId, null);
+        posService.cancelOrder(orderId, null, null, null);
 
         // Assert
         verify(folioItemRepository, times(1)).delete(targetFolio);
@@ -117,7 +117,7 @@ class PosServiceUC23Test {
         dto.setAccountName("Nguyen Van A");
 
         // Act
-        posService.cancelOrder(orderId, dto);
+        posService.cancelOrder(orderId, dto, null, null);
 
         // Assert
         verify(refundRequestRepository, times(1)).save(argThat(req -> 
@@ -140,7 +140,7 @@ class PosServiceUC23Test {
 
         // Act & Assert
         BusinessException exception = assertThrows(BusinessException.class, () -> {
-            posService.cancelOrder(orderId, null);
+            posService.cancelOrder(orderId, null, null, null);
         });
 
         assertEquals("POS-007", exception.getErrorCode());
