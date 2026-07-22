@@ -1,0 +1,871 @@
+<mxfile host="app.diagrams.net">
+  <diagram id="diagram-1" name="Package Structure Diagram">
+    <mxGraphModel dx="1290" dy="1285" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="2300" pageHeight="1700" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="2" parent="1" style="shape=swimlane;whiteSpace=wrap;html=1;horizontal=1;startSize=38;collapsible=1;fillColor=#dbeafe;strokeColor=#3b82f6;strokeWidth=3;fontSize=18;fontStyle=1;fontColor=#1e3a8a;rounded=1;arcSize=2;" value="&lt;b&gt;KawaiResort.Backend (com.kawai)&lt;/b&gt;" vertex="1">
+          <mxGeometry height="1870" width="1560" x="20" y="-30" as="geometry" />
+        </mxCell>
+        <mxCell id="3" parent="2" style="swimlane;whiteSpace=wrap;html=1;startSize=30;fillColor=#d5e8d4;strokeColor=#82b366;strokeWidth=2;fontSize=13;fontStyle=1;fontColor=#1a3a1a;rounded=1;arcSize=2;" value="Controllers - 23 Web + 21 REST API Controllers  (com.kawai.controllers.web / api)" vertex="1">
+          <mxGeometry height="330" width="1560" x="17" y="74" as="geometry" />
+        </mxCell>
+        <mxCell id="4" parent="3" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8fff8;strokeColor=#82b366;fontColor=#1a3a1a;fontSize=9;fontStyle=1;arcSize=15;overflow=hidden;" value="AccountController" vertex="1">
+          <mxGeometry height="26" width="165" x="10" y="38" as="geometry" />
+        </mxCell>
+        <mxCell id="5" parent="3" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8fff8;strokeColor=#82b366;fontColor=#1a3a1a;fontSize=9;fontStyle=1;arcSize=15;overflow=hidden;" value="AdminAddOnController" vertex="1">
+          <mxGeometry height="26" width="165" x="183" y="38" as="geometry" />
+        </mxCell>
+        <mxCell id="6" parent="3" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8fff8;strokeColor=#82b366;fontColor=#1a3a1a;fontSize=9;fontStyle=1;arcSize=15;overflow=hidden;" value="AdminController" vertex="1">
+          <mxGeometry height="26" width="165" x="356" y="38" as="geometry" />
+        </mxCell>
+        <mxCell id="7" parent="3" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8fff8;strokeColor=#82b366;fontColor=#1a3a1a;fontSize=9;fontStyle=1;arcSize=15;overflow=hidden;" value="AuthController" vertex="1">
+          <mxGeometry height="26" width="165" x="529" y="38" as="geometry" />
+        </mxCell>
+        <mxCell id="8" parent="3" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8fff8;strokeColor=#82b366;fontColor=#1a3a1a;fontSize=9;fontStyle=1;arcSize=15;overflow=hidden;" value="BackdoorController" vertex="1">
+          <mxGeometry height="26" width="165" x="702" y="38" as="geometry" />
+        </mxCell>
+        <mxCell id="9" parent="3" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8fff8;strokeColor=#82b366;fontColor=#1a3a1a;fontSize=9;fontStyle=1;arcSize=15;overflow=hidden;" value="BookingController" vertex="1">
+          <mxGeometry height="26" width="165" x="875" y="38" as="geometry" />
+        </mxCell>
+        <mxCell id="10" parent="3" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8fff8;strokeColor=#82b366;fontColor=#1a3a1a;fontSize=9;fontStyle=1;arcSize=15;overflow=hidden;" value="ChangeRoomController" vertex="1">
+          <mxGeometry height="26" width="165" x="1048" y="38" as="geometry" />
+        </mxCell>
+        <mxCell id="11" parent="3" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8fff8;strokeColor=#82b366;fontColor=#1a3a1a;fontSize=9;fontStyle=1;arcSize=15;overflow=hidden;" value="FeedbackController" vertex="1">
+          <mxGeometry height="26" width="165" x="1221" y="38" as="geometry" />
+        </mxCell>
+        <mxCell id="12" parent="3" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8fff8;strokeColor=#82b366;fontColor=#1a3a1a;fontSize=9;fontStyle=1;arcSize=15;overflow=hidden;" value="HousekeepingWebController" vertex="1">
+          <mxGeometry height="26" width="165" x="10" y="70" as="geometry" />
+        </mxCell>
+        <mxCell id="13" parent="3" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8fff8;strokeColor=#82b366;fontColor=#1a3a1a;fontSize=9;fontStyle=1;arcSize=15;overflow=hidden;" value="KitchenController" vertex="1">
+          <mxGeometry height="26" width="165" x="183" y="70" as="geometry" />
+        </mxCell>
+        <mxCell id="14" parent="3" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8fff8;strokeColor=#82b366;fontColor=#1a3a1a;fontSize=9;fontStyle=1;arcSize=15;overflow=hidden;" value="LoginController" vertex="1">
+          <mxGeometry height="26" width="165" x="356" y="70" as="geometry" />
+        </mxCell>
+        <mxCell id="15" parent="3" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8fff8;strokeColor=#82b366;fontColor=#1a3a1a;fontSize=9;fontStyle=1;arcSize=15;overflow=hidden;" value="MaintenanceWebController" vertex="1">
+          <mxGeometry height="26" width="165" x="529" y="70" as="geometry" />
+        </mxCell>
+        <mxCell id="16" parent="3" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8fff8;strokeColor=#82b366;fontColor=#1a3a1a;fontSize=9;fontStyle=1;arcSize=15;overflow=hidden;" value="ManagerController" vertex="1">
+          <mxGeometry height="26" width="165" x="702" y="70" as="geometry" />
+        </mxCell>
+        <mxCell id="17" parent="3" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8fff8;strokeColor=#82b366;fontColor=#1a3a1a;fontSize=9;fontStyle=1;arcSize=15;overflow=hidden;" value="OrderFoodController" vertex="1">
+          <mxGeometry height="26" width="165" x="875" y="70" as="geometry" />
+        </mxCell>
+        <mxCell id="18" parent="3" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8fff8;strokeColor=#82b366;fontColor=#1a3a1a;fontSize=9;fontStyle=1;arcSize=15;overflow=hidden;" value="PaymentController" vertex="1">
+          <mxGeometry height="26" width="165" x="1048" y="70" as="geometry" />
+        </mxCell>
+        <mxCell id="19" parent="3" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8fff8;strokeColor=#82b366;fontColor=#1a3a1a;fontSize=9;fontStyle=1;arcSize=15;overflow=hidden;" value="PosController" vertex="1">
+          <mxGeometry height="26" width="165" x="1221" y="70" as="geometry" />
+        </mxCell>
+        <mxCell id="20" parent="3" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8fff8;strokeColor=#82b366;fontColor=#1a3a1a;fontSize=9;fontStyle=1;arcSize=15;overflow=hidden;" value="ProfileController" vertex="1">
+          <mxGeometry height="26" width="165" x="10" y="102" as="geometry" />
+        </mxCell>
+        <mxCell id="21" parent="3" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8fff8;strokeColor=#82b366;fontColor=#1a3a1a;fontSize=9;fontStyle=1;arcSize=15;overflow=hidden;" value="ReceptionistCheckinWebController" vertex="1">
+          <mxGeometry height="26" width="165" x="183" y="102" as="geometry" />
+        </mxCell>
+        <mxCell id="22" parent="3" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8fff8;strokeColor=#82b366;fontColor=#1a3a1a;fontSize=9;fontStyle=1;arcSize=15;overflow=hidden;" value="ReceptionistController" vertex="1">
+          <mxGeometry height="26" width="165" x="356" y="102" as="geometry" />
+        </mxCell>
+        <mxCell id="23" parent="3" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8fff8;strokeColor=#82b366;fontColor=#1a3a1a;fontSize=9;fontStyle=1;arcSize=15;overflow=hidden;" value="RemoteScanWebController" vertex="1">
+          <mxGeometry height="26" width="165" x="529" y="102" as="geometry" />
+        </mxCell>
+        <mxCell id="24" parent="3" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8fff8;strokeColor=#82b366;fontColor=#1a3a1a;fontSize=9;fontStyle=1;arcSize=15;overflow=hidden;" value="TourController" vertex="1">
+          <mxGeometry height="26" width="165" x="702" y="102" as="geometry" />
+        </mxCell>
+        <mxCell id="25" parent="3" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8fff8;strokeColor=#82b366;fontColor=#1a3a1a;fontSize=9;fontStyle=1;arcSize=15;overflow=hidden;" value="TourGuideController" vertex="1">
+          <mxGeometry height="26" width="165" x="875" y="102" as="geometry" />
+        </mxCell>
+        <mxCell id="26" parent="3" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8fff8;strokeColor=#82b366;fontColor=#1a3a1a;fontSize=9;fontStyle=1;arcSize=15;overflow=hidden;" value="TourGuideWebController" vertex="1">
+          <mxGeometry height="26" width="165" x="1048" y="102" as="geometry" />
+        </mxCell>
+        <mxCell id="27" parent="3" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e8f5e8;strokeColor=#57a65d;fontColor=#1a3a1a;fontSize=9;fontStyle=1;arcSize=15;overflow=hidden;" value="[REST] AdminAccountRestController" vertex="1">
+          <mxGeometry height="26" width="165" x="10" y="134" as="geometry" />
+        </mxCell>
+        <mxCell id="28" parent="3" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e8f5e8;strokeColor=#57a65d;fontColor=#1a3a1a;fontSize=9;fontStyle=1;arcSize=15;overflow=hidden;" value="[REST] AddOnServiceApiController" vertex="1">
+          <mxGeometry height="26" width="165" x="183" y="134" as="geometry" />
+        </mxCell>
+        <mxCell id="29" parent="3" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e8f5e8;strokeColor=#57a65d;fontColor=#1a3a1a;fontSize=9;fontStyle=1;arcSize=15;overflow=hidden;" value="[REST] AuditApiController" vertex="1">
+          <mxGeometry height="26" width="165" x="356" y="134" as="geometry" />
+        </mxCell>
+        <mxCell id="30" parent="3" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e8f5e8;strokeColor=#57a65d;fontColor=#1a3a1a;fontSize=9;fontStyle=1;arcSize=15;overflow=hidden;" value="[REST] AuthApiController" vertex="1">
+          <mxGeometry height="26" width="165" x="529" y="134" as="geometry" />
+        </mxCell>
+        <mxCell id="31" parent="3" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e8f5e8;strokeColor=#57a65d;fontColor=#1a3a1a;fontSize=9;fontStyle=1;arcSize=15;overflow=hidden;" value="[REST] AuthorizedDeviceApiController" vertex="1">
+          <mxGeometry height="26" width="165" x="702" y="134" as="geometry" />
+        </mxCell>
+        <mxCell id="32" parent="3" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e8f5e8;strokeColor=#57a65d;fontColor=#1a3a1a;fontSize=9;fontStyle=1;arcSize=15;overflow=hidden;" value="[REST] BookingApiController" vertex="1">
+          <mxGeometry height="26" width="165" x="875" y="134" as="geometry" />
+        </mxCell>
+        <mxCell id="33" parent="3" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e8f5e8;strokeColor=#57a65d;fontColor=#1a3a1a;fontSize=9;fontStyle=1;arcSize=15;overflow=hidden;" value="[REST] BookingInfoApiController" vertex="1">
+          <mxGeometry height="26" width="165" x="1048" y="134" as="geometry" />
+        </mxCell>
+        <mxCell id="34" parent="3" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e8f5e8;strokeColor=#57a65d;fontColor=#1a3a1a;fontSize=9;fontStyle=1;arcSize=15;overflow=hidden;" value="[REST] CronjobApiController" vertex="1">
+          <mxGeometry height="26" width="165" x="1221" y="134" as="geometry" />
+        </mxCell>
+        <mxCell id="35" parent="3" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e8f5e8;strokeColor=#57a65d;fontColor=#1a3a1a;fontSize=9;fontStyle=1;arcSize=15;overflow=hidden;" value="[REST] DebugApiController" vertex="1">
+          <mxGeometry height="26" width="165" x="10" y="166" as="geometry" />
+        </mxCell>
+        <mxCell id="36" parent="3" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e8f5e8;strokeColor=#57a65d;fontColor=#1a3a1a;fontSize=9;fontStyle=1;arcSize=15;overflow=hidden;" value="[REST] EmployeeScheduleApiController" vertex="1">
+          <mxGeometry height="26" width="165" x="183" y="166" as="geometry" />
+        </mxCell>
+        <mxCell id="37" parent="3" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e8f5e8;strokeColor=#57a65d;fontColor=#1a3a1a;fontSize=9;fontStyle=1;arcSize=15;overflow=hidden;" value="[REST] ExportApiController" vertex="1">
+          <mxGeometry height="26" width="165" x="356" y="166" as="geometry" />
+        </mxCell>
+        <mxCell id="38" parent="3" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e8f5e8;strokeColor=#57a65d;fontColor=#1a3a1a;fontSize=9;fontStyle=1;arcSize=15;overflow=hidden;" value="[REST] FaceIdApiController" vertex="1">
+          <mxGeometry height="26" width="165" x="529" y="166" as="geometry" />
+        </mxCell>
+        <mxCell id="39" parent="3" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e8f5e8;strokeColor=#57a65d;fontColor=#1a3a1a;fontSize=9;fontStyle=1;arcSize=15;overflow=hidden;" value="[REST] FileUploadController" vertex="1">
+          <mxGeometry height="26" width="165" x="702" y="166" as="geometry" />
+        </mxCell>
+        <mxCell id="40" parent="3" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e8f5e8;strokeColor=#57a65d;fontColor=#1a3a1a;fontSize=9;fontStyle=1;arcSize=15;overflow=hidden;" value="[REST] FnBDailyReportController" vertex="1">
+          <mxGeometry height="26" width="165" x="875" y="166" as="geometry" />
+        </mxCell>
+        <mxCell id="41" parent="3" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e8f5e8;strokeColor=#57a65d;fontColor=#1a3a1a;fontSize=9;fontStyle=1;arcSize=15;overflow=hidden;" value="[REST] FolioRestController" vertex="1">
+          <mxGeometry height="26" width="165" x="1048" y="166" as="geometry" />
+        </mxCell>
+        <mxCell id="42" parent="3" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e8f5e8;strokeColor=#57a65d;fontColor=#1a3a1a;fontSize=9;fontStyle=1;arcSize=15;overflow=hidden;" value="[REST] GuestApiController" vertex="1">
+          <mxGeometry height="26" width="165" x="1221" y="166" as="geometry" />
+        </mxCell>
+        <mxCell id="43" parent="3" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e8f5e8;strokeColor=#57a65d;fontColor=#1a3a1a;fontSize=9;fontStyle=1;arcSize=15;overflow=hidden;" value="[REST] GuestRequestApiController" vertex="1">
+          <mxGeometry height="26" width="165" x="10" y="198" as="geometry" />
+        </mxCell>
+        <mxCell id="44" parent="3" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e8f5e8;strokeColor=#57a65d;fontColor=#1a3a1a;fontSize=9;fontStyle=1;arcSize=15;overflow=hidden;" value="[REST] HousekeepingApiController" vertex="1">
+          <mxGeometry height="26" width="165" x="183" y="198" as="geometry" />
+        </mxCell>
+        <mxCell id="45" parent="3" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e8f5e8;strokeColor=#57a65d;fontColor=#1a3a1a;fontSize=9;fontStyle=1;arcSize=15;overflow=hidden;" value="[REST] ImportApiController" vertex="1">
+          <mxGeometry height="26" width="165" x="356" y="198" as="geometry" />
+        </mxCell>
+        <mxCell id="46" parent="3" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e8f5e8;strokeColor=#57a65d;fontColor=#1a3a1a;fontSize=9;fontStyle=1;arcSize=15;overflow=hidden;" value="[REST] ManagerApprovalApiController" vertex="1">
+          <mxGeometry height="26" width="165" x="529" y="198" as="geometry" />
+        </mxCell>
+        <mxCell id="47" parent="3" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e8f5e8;strokeColor=#57a65d;fontColor=#1a3a1a;fontSize=9;fontStyle=1;arcSize=15;overflow=hidden;" value="[REST] ManagerRefundApiController" vertex="1">
+          <mxGeometry height="26" width="165" x="702" y="198" as="geometry" />
+        </mxCell>
+        <mxCell id="48" parent="3" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e8f5e8;strokeColor=#57a65d;fontColor=#1a3a1a;fontSize=9;fontStyle=1;arcSize=15;overflow=hidden;" value="[REST] ManagerReportApiController" vertex="1">
+          <mxGeometry height="26" width="165" x="875" y="198" as="geometry" />
+        </mxCell>
+        <mxCell id="49" parent="3" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e8f5e8;strokeColor=#57a65d;fontColor=#1a3a1a;fontSize=9;fontStyle=1;arcSize=15;overflow=hidden;" value="[REST] ManagerRequestApiController" vertex="1">
+          <mxGeometry height="26" width="165" x="1048" y="198" as="geometry" />
+        </mxCell>
+        <mxCell id="50" parent="3" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e8f5e8;strokeColor=#57a65d;fontColor=#1a3a1a;fontSize=9;fontStyle=1;arcSize=15;overflow=hidden;" value="[REST] ManagerScheduleApiController" vertex="1">
+          <mxGeometry height="26" width="165" x="1221" y="198" as="geometry" />
+        </mxCell>
+        <mxCell id="51" parent="3" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e8f5e8;strokeColor=#57a65d;fontColor=#1a3a1a;fontSize=9;fontStyle=1;arcSize=15;overflow=hidden;" value="[REST] MasterDataApiController" vertex="1">
+          <mxGeometry height="26" width="165" x="10" y="230" as="geometry" />
+        </mxCell>
+        <mxCell id="52" parent="3" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e8f5e8;strokeColor=#57a65d;fontColor=#1a3a1a;fontSize=9;fontStyle=1;arcSize=15;overflow=hidden;" value="[REST] MenuItemApiController" vertex="1">
+          <mxGeometry height="26" width="165" x="183" y="230" as="geometry" />
+        </mxCell>
+        <mxCell id="53" parent="3" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e8f5e8;strokeColor=#57a65d;fontColor=#1a3a1a;fontSize=9;fontStyle=1;arcSize=15;overflow=hidden;" value="[REST] NightAuditRestController" vertex="1">
+          <mxGeometry height="26" width="165" x="356" y="230" as="geometry" />
+        </mxCell>
+        <mxCell id="54" parent="3" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e8f5e8;strokeColor=#57a65d;fontColor=#1a3a1a;fontSize=9;fontStyle=1;arcSize=15;overflow=hidden;" value="[REST] PaymentApiController" vertex="1">
+          <mxGeometry height="26" width="165" x="529" y="230" as="geometry" />
+        </mxCell>
+        <mxCell id="55" parent="3" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e8f5e8;strokeColor=#57a65d;fontColor=#1a3a1a;fontSize=9;fontStyle=1;arcSize=15;overflow=hidden;" value="[REST] PosApiController" vertex="1">
+          <mxGeometry height="26" width="165" x="702" y="230" as="geometry" />
+        </mxCell>
+        <mxCell id="56" parent="3" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e8f5e8;strokeColor=#57a65d;fontColor=#1a3a1a;fontSize=9;fontStyle=1;arcSize=15;overflow=hidden;" value="[REST] RemoteScanApiController" vertex="1">
+          <mxGeometry height="26" width="165" x="875" y="230" as="geometry" />
+        </mxCell>
+        <mxCell id="57" parent="3" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e8f5e8;strokeColor=#57a65d;fontColor=#1a3a1a;fontSize=9;fontStyle=1;arcSize=15;overflow=hidden;" value="[REST] ReviewRestController" vertex="1">
+          <mxGeometry height="26" width="165" x="1048" y="230" as="geometry" />
+        </mxCell>
+        <mxCell id="58" parent="3" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e8f5e8;strokeColor=#57a65d;fontColor=#1a3a1a;fontSize=9;fontStyle=1;arcSize=15;overflow=hidden;" value="[REST] RoomApiController" vertex="1">
+          <mxGeometry height="26" width="165" x="1221" y="230" as="geometry" />
+        </mxCell>
+        <mxCell id="59" parent="3" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e8f5e8;strokeColor=#57a65d;fontColor=#1a3a1a;fontSize=9;fontStyle=1;arcSize=15;overflow=hidden;" value="[REST] StaffScheduleRestController" vertex="1">
+          <mxGeometry height="26" width="165" x="10" y="262" as="geometry" />
+        </mxCell>
+        <mxCell id="60" parent="3" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e8f5e8;strokeColor=#57a65d;fontColor=#1a3a1a;fontSize=9;fontStyle=1;arcSize=15;overflow=hidden;" value="[REST] SystemNotificationApiController" vertex="1">
+          <mxGeometry height="26" width="165" x="183" y="262" as="geometry" />
+        </mxCell>
+        <mxCell id="61" parent="3" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e8f5e8;strokeColor=#57a65d;fontColor=#1a3a1a;fontSize=9;fontStyle=1;arcSize=15;overflow=hidden;" value="[REST] TableApiController" vertex="1">
+          <mxGeometry height="26" width="165" x="356" y="262" as="geometry" />
+        </mxCell>
+        <mxCell id="62" parent="3" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e8f5e8;strokeColor=#57a65d;fontColor=#1a3a1a;fontSize=9;fontStyle=1;arcSize=15;overflow=hidden;" value="[REST] TourAttendanceRestController" vertex="1">
+          <mxGeometry height="26" width="165" x="529" y="262" as="geometry" />
+        </mxCell>
+        <mxCell id="63" parent="3" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e8f5e8;strokeColor=#57a65d;fontColor=#1a3a1a;fontSize=9;fontStyle=1;arcSize=15;overflow=hidden;" value="[REST] TourBookingApiController" vertex="1">
+          <mxGeometry height="26" width="165" x="702" y="262" as="geometry" />
+        </mxCell>
+        <mxCell id="64" parent="3" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e8f5e8;strokeColor=#57a65d;fontColor=#1a3a1a;fontSize=9;fontStyle=1;arcSize=15;overflow=hidden;" value="[REST] TourGpsApiController" vertex="1">
+          <mxGeometry height="26" width="165" x="875" y="262" as="geometry" />
+        </mxCell>
+        <mxCell id="65" parent="3" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e8f5e8;strokeColor=#57a65d;fontColor=#1a3a1a;fontSize=9;fontStyle=1;arcSize=15;overflow=hidden;" value="[REST] TourIncidentApiController" vertex="1">
+          <mxGeometry height="26" width="165" x="1048" y="262" as="geometry" />
+        </mxCell>
+        <mxCell id="66" parent="3" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e8f5e8;strokeColor=#57a65d;fontColor=#1a3a1a;fontSize=9;fontStyle=1;arcSize=15;overflow=hidden;" value="[REST] WalkInCheckInApiController" vertex="1">
+          <mxGeometry height="26" width="165" x="1221" y="262" as="geometry" />
+        </mxCell>
+        <mxCell id="67" parent="3" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e8f5e8;strokeColor=#57a65d;fontColor=#1a3a1a;fontSize=9;fontStyle=1;arcSize=15;overflow=hidden;" value="[REST] WorkflowApiController" vertex="1">
+          <mxGeometry height="26" width="165" x="10" y="294" as="geometry" />
+        </mxCell>
+        <mxCell id="100" parent="2" style="swimlane;whiteSpace=wrap;html=1;startSize=30;fillColor=#dae8fc;strokeColor=#6c8ebf;strokeWidth=2;fontSize=13;fontStyle=1;fontColor=#1e3a8a;rounded=1;arcSize=2;" value="Services - 35 Interfaces . 39 Implementations . 10 Jobs and Tasks  (com.kawai.services.*)" vertex="1">
+          <mxGeometry height="450" width="1560" y="425" as="geometry" />
+        </mxCell>
+        <mxCell id="200" parent="100" style="swimlane;whiteSpace=wrap;html=1;startSize=22;fillColor=#eaf2ff;strokeColor=#80b3ff;strokeWidth=1.5;fontSize=11;fontStyle=1;fontColor=#1e3a8a;rounded=1;arcSize=3;" value="Bookings and Rooms" vertex="1">
+          <mxGeometry height="195" width="300" x="10" y="36" as="geometry" />
+        </mxCell>
+        <mxCell id="201" parent="200" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#6c8ebf;fontColor=#000000;fontSize=9;arcSize=12;overflow=hidden;" value="IBookingService / BookingServiceImpl" vertex="1">
+          <mxGeometry height="18" width="284" x="8" y="28" as="geometry" />
+        </mxCell>
+        <mxCell id="202" parent="200" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#6c8ebf;fontColor=#000000;fontSize=9;arcSize=12;overflow=hidden;" value="IRoomService / RoomServiceImpl" vertex="1">
+          <mxGeometry height="18" width="284" x="8" y="49" as="geometry" />
+        </mxCell>
+        <mxCell id="203" parent="200" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#6c8ebf;fontColor=#000000;fontSize=9;arcSize=12;overflow=hidden;" value="IChangeRoomCategoryService / Impl" vertex="1">
+          <mxGeometry height="18" width="284" x="8" y="70" as="geometry" />
+        </mxCell>
+        <mxCell id="204" parent="200" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#6c8ebf;fontColor=#000000;fontSize=9;arcSize=12;overflow=hidden;" value="ICheckinService / CheckinServiceImpl" vertex="1">
+          <mxGeometry height="18" width="284" x="8" y="91" as="geometry" />
+        </mxCell>
+        <mxCell id="205" parent="200" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#6c8ebf;fontColor=#000000;fontSize=9;arcSize=12;overflow=hidden;" value="IWalkInCheckInService / WalkInCheckInServiceImpl" vertex="1">
+          <mxGeometry height="18" width="284" x="8" y="112" as="geometry" />
+        </mxCell>
+        <mxCell id="206" parent="200" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fffde7;strokeColor=#f0a500;fontColor=#5a3e00;fontSize=8.5;arcSize=12;overflow=hidden;" value="ReservationCleanupTask  |  RoomBookingCleanupTask" vertex="1">
+          <mxGeometry height="18" width="284" x="8" y="133" as="geometry" />
+        </mxCell>
+        <mxCell id="207" parent="100" style="swimlane;whiteSpace=wrap;html=1;startSize=22;fillColor=#eaf2ff;strokeColor=#80b3ff;strokeWidth=1.5;fontSize=11;fontStyle=1;fontColor=#1e3a8a;rounded=1;arcSize=3;" value="POS and FnB Services" vertex="1">
+          <mxGeometry height="195" width="300" x="318" y="36" as="geometry" />
+        </mxCell>
+        <mxCell id="208" parent="207" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#6c8ebf;fontColor=#000000;fontSize=9;arcSize=12;overflow=hidden;" value="IPosService / PosServiceImpl" vertex="1">
+          <mxGeometry height="18" width="284" x="8" y="28" as="geometry" />
+        </mxCell>
+        <mxCell id="209" parent="207" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#6c8ebf;fontColor=#000000;fontSize=9;arcSize=12;overflow=hidden;" value="IPosWebFacadeService / Impl" vertex="1">
+          <mxGeometry height="18" width="284" x="8" y="49" as="geometry" />
+        </mxCell>
+        <mxCell id="210" parent="207" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#6c8ebf;fontColor=#000000;fontSize=9;arcSize=12;overflow=hidden;" value="IKdsService / KdsServiceImpl" vertex="1">
+          <mxGeometry height="18" width="284" x="8" y="70" as="geometry" />
+        </mxCell>
+        <mxCell id="211" parent="207" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#6c8ebf;fontColor=#000000;fontSize=9;arcSize=12;overflow=hidden;" value="ITableService / TableServiceImpl" vertex="1">
+          <mxGeometry height="18" width="284" x="8" y="91" as="geometry" />
+        </mxCell>
+        <mxCell id="212" parent="207" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#6c8ebf;fontColor=#000000;fontSize=9;arcSize=12;overflow=hidden;" value="ITableReservationService / Impl" vertex="1">
+          <mxGeometry height="18" width="284" x="8" y="112" as="geometry" />
+        </mxCell>
+        <mxCell id="213" parent="207" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#6c8ebf;fontColor=#000000;fontSize=9;arcSize=12;overflow=hidden;" value="IFnBDailyReportService / Impl" vertex="1">
+          <mxGeometry height="18" width="284" x="8" y="133" as="geometry" />
+        </mxCell>
+        <mxCell id="214" parent="207" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fffde7;strokeColor=#f0a500;fontColor=#5a3e00;fontSize=8.5;arcSize=12;overflow=hidden;" value="TableReservationCleanupTask" vertex="1">
+          <mxGeometry height="18" width="284" x="8" y="154" as="geometry" />
+        </mxCell>
+        <mxCell id="215" parent="100" style="swimlane;whiteSpace=wrap;html=1;startSize=22;fillColor=#eaf2ff;strokeColor=#80b3ff;strokeWidth=1.5;fontSize=11;fontStyle=1;fontColor=#1e3a8a;rounded=1;arcSize=3;" value="Tours and Activities" vertex="1">
+          <mxGeometry height="195" width="300" x="626" y="36" as="geometry" />
+        </mxCell>
+        <mxCell id="216" parent="215" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#6c8ebf;fontColor=#000000;fontSize=9;arcSize=12;overflow=hidden;" value="ITourService / TourServiceImpl" vertex="1">
+          <mxGeometry height="18" width="284" x="8" y="28" as="geometry" />
+        </mxCell>
+        <mxCell id="217" parent="215" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#6c8ebf;fontColor=#000000;fontSize=9;arcSize=12;overflow=hidden;" value="ITourBookingService / TourBookingServiceImpl" vertex="1">
+          <mxGeometry height="18" width="284" x="8" y="49" as="geometry" />
+        </mxCell>
+        <mxCell id="218" parent="215" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fffde7;strokeColor=#f0a500;fontColor=#5a3e00;fontSize=8.5;arcSize=12;overflow=hidden;" value="TourBookingCleanupTask" vertex="1">
+          <mxGeometry height="18" width="284" x="8" y="70" as="geometry" />
+        </mxCell>
+        <mxCell id="219" parent="100" style="swimlane;whiteSpace=wrap;html=1;startSize=22;fillColor=#eaf2ff;strokeColor=#80b3ff;strokeWidth=1.5;fontSize=11;fontStyle=1;fontColor=#1e3a8a;rounded=1;arcSize=3;" value="Payments and Invoices" vertex="1">
+          <mxGeometry height="195" width="300" x="934" y="36" as="geometry" />
+        </mxCell>
+        <mxCell id="220" parent="219" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#6c8ebf;fontColor=#000000;fontSize=9;arcSize=12;overflow=hidden;" value="IPaymentService / PaymentServiceImpl" vertex="1">
+          <mxGeometry height="18" width="284" x="8" y="28" as="geometry" />
+        </mxCell>
+        <mxCell id="221" parent="219" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#6c8ebf;fontColor=#000000;fontSize=9;arcSize=12;overflow=hidden;" value="IVnPayService / VnPayServiceImpl" vertex="1">
+          <mxGeometry height="18" width="284" x="8" y="49" as="geometry" />
+        </mxCell>
+        <mxCell id="222" parent="219" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#6c8ebf;fontColor=#000000;fontSize=9;arcSize=12;overflow=hidden;" value="IFolioService / FolioServiceImpl" vertex="1">
+          <mxGeometry height="18" width="284" x="8" y="70" as="geometry" />
+        </mxCell>
+        <mxCell id="223" parent="219" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#6c8ebf;fontColor=#000000;fontSize=9;arcSize=12;overflow=hidden;" value="IInvoicePdfService / InvoicePdfServiceImpl" vertex="1">
+          <mxGeometry height="18" width="284" x="8" y="91" as="geometry" />
+        </mxCell>
+        <mxCell id="224" parent="100" style="swimlane;whiteSpace=wrap;html=1;startSize=22;fillColor=#eaf2ff;strokeColor=#80b3ff;strokeWidth=1.5;fontSize=11;fontStyle=1;fontColor=#1e3a8a;rounded=1;arcSize=3;" value="Users Auth and Staff" vertex="1">
+          <mxGeometry height="195" width="300" x="1242" y="36" as="geometry" />
+        </mxCell>
+        <mxCell id="225" parent="224" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#6c8ebf;fontColor=#000000;fontSize=9;arcSize=12;overflow=hidden;" value="IUserService / UserServiceImpl" vertex="1">
+          <mxGeometry height="18" width="284" x="8" y="28" as="geometry" />
+        </mxCell>
+        <mxCell id="226" parent="224" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#6c8ebf;fontColor=#000000;fontSize=9;arcSize=12;overflow=hidden;" value="IAuthService / AuthServiceImpl" vertex="1">
+          <mxGeometry height="18" width="284" x="8" y="49" as="geometry" />
+        </mxCell>
+        <mxCell id="227" parent="224" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#6c8ebf;fontColor=#000000;fontSize=9;arcSize=12;overflow=hidden;" value="IDependentService / DependentServiceImpl" vertex="1">
+          <mxGeometry height="18" width="284" x="8" y="70" as="geometry" />
+        </mxCell>
+        <mxCell id="228" parent="224" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#6c8ebf;fontColor=#000000;fontSize=9;arcSize=12;overflow=hidden;" value="IShiftService / ShiftServiceImpl" vertex="1">
+          <mxGeometry height="18" width="284" x="8" y="91" as="geometry" />
+        </mxCell>
+        <mxCell id="229" parent="224" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#6c8ebf;fontColor=#000000;fontSize=9;arcSize=12;overflow=hidden;" value="ScheduleGeneratorService" vertex="1">
+          <mxGeometry height="18" width="284" x="8" y="112" as="geometry" />
+        </mxCell>
+        <mxCell id="230" parent="224" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#6c8ebf;fontColor=#000000;fontSize=9;arcSize=12;overflow=hidden;" value="CustomOAuth2UserService  |  OAuthAccountService" vertex="1">
+          <mxGeometry height="18" width="284" x="8" y="133" as="geometry" />
+        </mxCell>
+        <mxCell id="231" parent="224" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fffde7;strokeColor=#f0a500;fontColor=#5a3e00;fontSize=8.5;arcSize=12;overflow=hidden;" value="ScheduleNotificationJob  |  NightAuditJob  |  AuditCleanupTask" vertex="1">
+          <mxGeometry height="18" width="284" x="8" y="154" as="geometry" />
+        </mxCell>
+        <mxCell id="232" parent="100" style="swimlane;whiteSpace=wrap;html=1;startSize=22;fillColor=#eaf2ff;strokeColor=#80b3ff;strokeWidth=1.5;fontSize=11;fontStyle=1;fontColor=#1e3a8a;rounded=1;arcSize=3;" value="Housekeeping and Maintenance" vertex="1">
+          <mxGeometry height="155" width="300" x="10" y="242" as="geometry" />
+        </mxCell>
+        <mxCell id="233" parent="232" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#6c8ebf;fontColor=#000000;fontSize=9;arcSize=12;overflow=hidden;" value="IHousekeepingService / HousekeepingServiceImpl" vertex="1">
+          <mxGeometry height="18" width="284" x="8" y="28" as="geometry" />
+        </mxCell>
+        <mxCell id="234" parent="100" style="swimlane;whiteSpace=wrap;html=1;startSize=22;fillColor=#eaf2ff;strokeColor=#80b3ff;strokeWidth=1.5;fontSize=11;fontStyle=1;fontColor=#1e3a8a;rounded=1;arcSize=3;" value="Reports and Analytics" vertex="1">
+          <mxGeometry height="155" width="300" x="318" y="242" as="geometry" />
+        </mxCell>
+        <mxCell id="235" parent="234" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#6c8ebf;fontColor=#000000;fontSize=9;arcSize=12;overflow=hidden;" value="IReportService / ReportServiceImpl" vertex="1">
+          <mxGeometry height="18" width="284" x="8" y="28" as="geometry" />
+        </mxCell>
+        <mxCell id="236" parent="234" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#6c8ebf;fontColor=#000000;fontSize=9;arcSize=12;overflow=hidden;" value="INightAuditService / NightAuditServiceImpl" vertex="1">
+          <mxGeometry height="18" width="284" x="8" y="49" as="geometry" />
+        </mxCell>
+        <mxCell id="237" parent="234" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#6c8ebf;fontColor=#000000;fontSize=9;arcSize=12;overflow=hidden;" value="IMasterDataService / MasterDataServiceImpl" vertex="1">
+          <mxGeometry height="18" width="284" x="8" y="70" as="geometry" />
+        </mxCell>
+        <mxCell id="238" parent="234" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#6c8ebf;fontColor=#000000;fontSize=9;arcSize=12;overflow=hidden;" value="IAdminViewService / AdminViewServiceImpl" vertex="1">
+          <mxGeometry height="18" width="284" x="8" y="91" as="geometry" />
+        </mxCell>
+        <mxCell id="239" parent="100" style="swimlane;whiteSpace=wrap;html=1;startSize=22;fillColor=#eaf2ff;strokeColor=#80b3ff;strokeWidth=1.5;fontSize=11;fontStyle=1;fontColor=#1e3a8a;rounded=1;arcSize=3;" value="Marketing Pricing and AI" vertex="1">
+          <mxGeometry height="155" width="300" x="626" y="242" as="geometry" />
+        </mxCell>
+        <mxCell id="240" parent="239" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#6c8ebf;fontColor=#000000;fontSize=9;arcSize=12;overflow=hidden;" value="IMarketingService / MarketingServiceImpl" vertex="1">
+          <mxGeometry height="18" width="284" x="8" y="28" as="geometry" />
+        </mxCell>
+        <mxCell id="241" parent="239" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#6c8ebf;fontColor=#000000;fontSize=9;arcSize=12;overflow=hidden;" value="IPricingService / PricingServiceImpl" vertex="1">
+          <mxGeometry height="18" width="284" x="8" y="49" as="geometry" />
+        </mxCell>
+        <mxCell id="242" parent="239" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#6c8ebf;fontColor=#000000;fontSize=9;arcSize=12;overflow=hidden;" value="IAIServiceClient / AIServiceClientImpl" vertex="1">
+          <mxGeometry height="18" width="284" x="8" y="70" as="geometry" />
+        </mxCell>
+        <mxCell id="243" parent="239" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#6c8ebf;fontColor=#000000;fontSize=9;arcSize=12;overflow=hidden;" value="IWeatherApiClient / WeatherApiClientImpl" vertex="1">
+          <mxGeometry height="18" width="284" x="8" y="91" as="geometry" />
+        </mxCell>
+        <mxCell id="244" parent="239" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#6c8ebf;fontColor=#000000;fontSize=9;arcSize=12;overflow=hidden;" value="IWorkflowEngineService / WorkflowEngineServiceImpl" vertex="1">
+          <mxGeometry height="18" width="284" x="8" y="112" as="geometry" />
+        </mxCell>
+        <mxCell id="245" parent="100" style="swimlane;whiteSpace=wrap;html=1;startSize=22;fillColor=#eaf2ff;strokeColor=#80b3ff;strokeWidth=1.5;fontSize=11;fontStyle=1;fontColor=#1e3a8a;rounded=1;arcSize=3;" value="Notifications and Files" vertex="1">
+          <mxGeometry height="155" width="300" x="934" y="242" as="geometry" />
+        </mxCell>
+        <mxCell id="246" parent="245" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#6c8ebf;fontColor=#000000;fontSize=9;arcSize=12;overflow=hidden;" value="INotificationService / NotificationServiceImpl" vertex="1">
+          <mxGeometry height="18" width="284" x="8" y="28" as="geometry" />
+        </mxCell>
+        <mxCell id="247" parent="245" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#6c8ebf;fontColor=#000000;fontSize=9;arcSize=12;overflow=hidden;" value="ISystemNotificationService / Impl" vertex="1">
+          <mxGeometry height="18" width="284" x="8" y="49" as="geometry" />
+        </mxCell>
+        <mxCell id="248" parent="245" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#6c8ebf;fontColor=#000000;fontSize=9;arcSize=12;overflow=hidden;" value="IEmailService / EmailServiceImpl" vertex="1">
+          <mxGeometry height="18" width="284" x="8" y="70" as="geometry" />
+        </mxCell>
+        <mxCell id="249" parent="245" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#6c8ebf;fontColor=#000000;fontSize=9;arcSize=12;overflow=hidden;" value="FileUploadService" vertex="1">
+          <mxGeometry height="18" width="284" x="8" y="91" as="geometry" />
+        </mxCell>
+        <mxCell id="300" parent="2" style="swimlane;whiteSpace=wrap;html=1;startSize=30;fillColor=#fff2cc;strokeColor=#d6b656;strokeWidth=2;fontSize=13;fontStyle=1;fontColor=#5a3e00;rounded=1;arcSize=2;" value="Models and Entities - 51 JPA Entities  (com.kawai.models)" vertex="1">
+          <mxGeometry height="200" width="1560" y="925" as="geometry" />
+        </mxCell>
+        <mxCell id="400" parent="300" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fffde7;strokeColor=#d6b656;fontColor=#5a3e00;fontSize=9.5;fontStyle=1;arcSize=15;overflow=hidden;" value="Account" vertex="1">
+          <mxGeometry height="26" width="130" x="10" y="36" as="geometry" />
+        </mxCell>
+        <mxCell id="401" parent="300" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fffde7;strokeColor=#d6b656;fontColor=#5a3e00;fontSize=9.5;fontStyle=1;arcSize=15;overflow=hidden;" value="AuditLog" vertex="1">
+          <mxGeometry height="26" width="130" x="146" y="36" as="geometry" />
+        </mxCell>
+        <mxCell id="402" parent="300" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fffde7;strokeColor=#d6b656;fontColor=#5a3e00;fontSize=9;fontStyle=1;arcSize=15;overflow=hidden;" value="AuthorizedDevice" vertex="1">
+          <mxGeometry height="26" width="130" x="282" y="36" as="geometry" />
+        </mxCell>
+        <mxCell id="403" parent="300" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fffde7;strokeColor=#d6b656;fontColor=#5a3e00;fontSize=9.5;fontStyle=1;arcSize=15;overflow=hidden;" value="Booking" vertex="1">
+          <mxGeometry height="26" width="130" x="418" y="36" as="geometry" />
+        </mxCell>
+        <mxCell id="404" parent="300" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fffde7;strokeColor=#d6b656;fontColor=#5a3e00;fontSize=9.5;fontStyle=1;arcSize=15;overflow=hidden;" value="BookingService" vertex="1">
+          <mxGeometry height="26" width="130" x="554" y="36" as="geometry" />
+        </mxCell>
+        <mxCell id="405" parent="300" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fffde7;strokeColor=#d6b656;fontColor=#5a3e00;fontSize=9;fontStyle=1;arcSize=15;overflow=hidden;" value="CheckpointAttendance" vertex="1">
+          <mxGeometry height="26" width="130" x="690" y="36" as="geometry" />
+        </mxCell>
+        <mxCell id="406" parent="300" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fffde7;strokeColor=#d6b656;fontColor=#5a3e00;fontSize=9;fontStyle=1;arcSize=15;overflow=hidden;" value="ConsolidatedInvoice" vertex="1">
+          <mxGeometry height="26" width="130" x="826" y="36" as="geometry" />
+        </mxCell>
+        <mxCell id="407" parent="300" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fffde7;strokeColor=#d6b656;fontColor=#5a3e00;fontSize=9;fontStyle=1;arcSize=15;overflow=hidden;" value="CustomRevisionEntity" vertex="1">
+          <mxGeometry height="26" width="130" x="962" y="36" as="geometry" />
+        </mxCell>
+        <mxCell id="408" parent="300" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fffde7;strokeColor=#d6b656;fontColor=#5a3e00;fontSize=9.5;fontStyle=1;arcSize=15;overflow=hidden;" value="Customer" vertex="1">
+          <mxGeometry height="26" width="130" x="1098" y="36" as="geometry" />
+        </mxCell>
+        <mxCell id="409" parent="300" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fffde7;strokeColor=#d6b656;fontColor=#5a3e00;fontSize=9.5;fontStyle=1;arcSize=15;overflow=hidden;" value="DailyRate" vertex="1">
+          <mxGeometry height="26" width="130" x="1234" y="36" as="geometry" />
+        </mxCell>
+        <mxCell id="410" parent="300" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fffde7;strokeColor=#d6b656;fontColor=#5a3e00;fontSize=9.5;fontStyle=1;arcSize=15;overflow=hidden;" value="Dependent" vertex="1">
+          <mxGeometry height="26" width="130" x="1370" y="36" as="geometry" />
+        </mxCell>
+        <mxCell id="411" parent="300" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fffde7;strokeColor=#d6b656;fontColor=#5a3e00;fontSize=9.5;fontStyle=1;arcSize=15;overflow=hidden;" value="DynamicPricing" vertex="1">
+          <mxGeometry height="26" width="130" x="10" y="68" as="geometry" />
+        </mxCell>
+        <mxCell id="412" parent="300" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fffde7;strokeColor=#d6b656;fontColor=#5a3e00;fontSize=9.5;fontStyle=1;arcSize=15;overflow=hidden;" value="Employee" vertex="1">
+          <mxGeometry height="26" width="130" x="146" y="68" as="geometry" />
+        </mxCell>
+        <mxCell id="413" parent="300" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fffde7;strokeColor=#d6b656;fontColor=#5a3e00;fontSize=9.5;fontStyle=1;arcSize=15;overflow=hidden;" value="ExportHistory" vertex="1">
+          <mxGeometry height="26" width="130" x="282" y="68" as="geometry" />
+        </mxCell>
+        <mxCell id="414" parent="300" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fffde7;strokeColor=#d6b656;fontColor=#5a3e00;fontSize=9.5;fontStyle=1;arcSize=15;overflow=hidden;" value="FnBDailyReport" vertex="1">
+          <mxGeometry height="26" width="130" x="418" y="68" as="geometry" />
+        </mxCell>
+        <mxCell id="415" parent="300" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fffde7;strokeColor=#d6b656;fontColor=#5a3e00;fontSize=9.5;fontStyle=1;arcSize=15;overflow=hidden;" value="FolioItem" vertex="1">
+          <mxGeometry height="26" width="130" x="554" y="68" as="geometry" />
+        </mxCell>
+        <mxCell id="416" parent="300" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fffde7;strokeColor=#d6b656;fontColor=#5a3e00;fontSize=9.5;fontStyle=1;arcSize=15;overflow=hidden;" value="FoodOrder" vertex="1">
+          <mxGeometry height="26" width="130" x="690" y="68" as="geometry" />
+        </mxCell>
+        <mxCell id="417" parent="300" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fffde7;strokeColor=#d6b656;fontColor=#5a3e00;fontSize=9;fontStyle=1;arcSize=15;overflow=hidden;" value="FoodOrderDetail" vertex="1">
+          <mxGeometry height="26" width="130" x="826" y="68" as="geometry" />
+        </mxCell>
+        <mxCell id="418" parent="300" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fffde7;strokeColor=#d6b656;fontColor=#5a3e00;fontSize=9.5;fontStyle=1;arcSize=15;overflow=hidden;" value="HotelOperation" vertex="1">
+          <mxGeometry height="26" width="130" x="962" y="68" as="geometry" />
+        </mxCell>
+        <mxCell id="419" parent="300" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fffde7;strokeColor=#d6b656;fontColor=#5a3e00;fontSize=9.5;fontStyle=1;arcSize=15;overflow=hidden;" value="HotelService" vertex="1">
+          <mxGeometry height="26" width="130" x="1098" y="68" as="geometry" />
+        </mxCell>
+        <mxCell id="420" parent="300" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fffde7;strokeColor=#d6b656;fontColor=#5a3e00;fontSize=9.5;fontStyle=1;arcSize=15;overflow=hidden;" value="MembershipTier" vertex="1">
+          <mxGeometry height="26" width="130" x="1234" y="68" as="geometry" />
+        </mxCell>
+        <mxCell id="421" parent="300" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fffde7;strokeColor=#d6b656;fontColor=#5a3e00;fontSize=9.5;fontStyle=1;arcSize=15;overflow=hidden;" value="MenuItem" vertex="1">
+          <mxGeometry height="26" width="130" x="1370" y="68" as="geometry" />
+        </mxCell>
+        <mxCell id="422" parent="300" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fffde7;strokeColor=#d6b656;fontColor=#5a3e00;fontSize=9;fontStyle=1;arcSize=15;overflow=hidden;" value="PaymentTransaction" vertex="1">
+          <mxGeometry height="26" width="130" x="10" y="100" as="geometry" />
+        </mxCell>
+        <mxCell id="423" parent="300" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fffde7;strokeColor=#d6b656;fontColor=#5a3e00;fontSize=9.5;fontStyle=1;arcSize=15;overflow=hidden;" value="Promotion" vertex="1">
+          <mxGeometry height="26" width="130" x="146" y="100" as="geometry" />
+        </mxCell>
+        <mxCell id="424" parent="300" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fffde7;strokeColor=#d6b656;fontColor=#5a3e00;fontSize=9.5;fontStyle=1;arcSize=15;overflow=hidden;" value="RefundRequest" vertex="1">
+          <mxGeometry height="26" width="130" x="282" y="100" as="geometry" />
+        </mxCell>
+        <mxCell id="425" parent="300" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fffde7;strokeColor=#d6b656;fontColor=#5a3e00;fontSize=9;fontStyle=1;arcSize=15;overflow=hidden;" value="RestaurantTable" vertex="1">
+          <mxGeometry height="26" width="130" x="418" y="100" as="geometry" />
+        </mxCell>
+        <mxCell id="426" parent="300" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fffde7;strokeColor=#d6b656;fontColor=#5a3e00;fontSize=9.5;fontStyle=1;arcSize=15;overflow=hidden;" value="Review" vertex="1">
+          <mxGeometry height="26" width="130" x="554" y="100" as="geometry" />
+        </mxCell>
+        <mxCell id="427" parent="300" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fffde7;strokeColor=#d6b656;fontColor=#5a3e00;fontSize=9.5;fontStyle=1;arcSize=15;overflow=hidden;" value="Role" vertex="1">
+          <mxGeometry height="26" width="130" x="690" y="100" as="geometry" />
+        </mxCell>
+        <mxCell id="428" parent="300" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fffde7;strokeColor=#d6b656;fontColor=#5a3e00;fontSize=9.5;fontStyle=1;arcSize=15;overflow=hidden;" value="Room" vertex="1">
+          <mxGeometry height="26" width="130" x="826" y="100" as="geometry" />
+        </mxCell>
+        <mxCell id="429" parent="300" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fffde7;strokeColor=#d6b656;fontColor=#5a3e00;fontSize=9.5;fontStyle=1;arcSize=15;overflow=hidden;" value="RoomBooking" vertex="1">
+          <mxGeometry height="26" width="130" x="962" y="100" as="geometry" />
+        </mxCell>
+        <mxCell id="430" parent="300" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fffde7;strokeColor=#d6b656;fontColor=#5a3e00;fontSize=9;fontStyle=1;arcSize=15;overflow=hidden;" value="RoomBookingDetail" vertex="1">
+          <mxGeometry height="26" width="130" x="1098" y="100" as="geometry" />
+        </mxCell>
+        <mxCell id="431" parent="300" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fffde7;strokeColor=#d6b656;fontColor=#5a3e00;fontSize=9.5;fontStyle=1;arcSize=15;overflow=hidden;" value="RoomCategory" vertex="1">
+          <mxGeometry height="26" width="130" x="1234" y="100" as="geometry" />
+        </mxCell>
+        <mxCell id="432" parent="300" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fffde7;strokeColor=#d6b656;fontColor=#5a3e00;fontSize=9.5;fontStyle=1;arcSize=15;overflow=hidden;" value="RoomGuest" vertex="1">
+          <mxGeometry height="26" width="130" x="1370" y="100" as="geometry" />
+        </mxCell>
+        <mxCell id="433" parent="300" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fffde7;strokeColor=#d6b656;fontColor=#5a3e00;fontSize=9.5;fontStyle=1;arcSize=15;overflow=hidden;" value="RoomSurcharge" vertex="1">
+          <mxGeometry height="26" width="130" x="10" y="132" as="geometry" />
+        </mxCell>
+        <mxCell id="434" parent="300" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fffde7;strokeColor=#d6b656;fontColor=#5a3e00;fontSize=9.5;fontStyle=1;arcSize=15;overflow=hidden;" value="Shift" vertex="1">
+          <mxGeometry height="26" width="130" x="146" y="132" as="geometry" />
+        </mxCell>
+        <mxCell id="435" parent="300" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fffde7;strokeColor=#d6b656;fontColor=#5a3e00;fontSize=9.5;fontStyle=1;arcSize=15;overflow=hidden;" value="StaffSchedule" vertex="1">
+          <mxGeometry height="26" width="130" x="282" y="132" as="geometry" />
+        </mxCell>
+        <mxCell id="436" parent="300" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fffde7;strokeColor=#d6b656;fontColor=#5a3e00;fontSize=9;fontStyle=1;arcSize=15;overflow=hidden;" value="SystemNotification" vertex="1">
+          <mxGeometry height="26" width="130" x="418" y="132" as="geometry" />
+        </mxCell>
+        <mxCell id="437" parent="300" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fffde7;strokeColor=#d6b656;fontColor=#5a3e00;fontSize=9;fontStyle=1;arcSize=15;overflow=hidden;" value="TableReservation" vertex="1">
+          <mxGeometry height="26" width="130" x="554" y="132" as="geometry" />
+        </mxCell>
+        <mxCell id="438" parent="300" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fffde7;strokeColor=#d6b656;fontColor=#5a3e00;fontSize=9.5;fontStyle=1;arcSize=15;overflow=hidden;" value="Tour" vertex="1">
+          <mxGeometry height="26" width="130" x="690" y="132" as="geometry" />
+        </mxCell>
+        <mxCell id="439" parent="300" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fffde7;strokeColor=#d6b656;fontColor=#5a3e00;fontSize=9.5;fontStyle=1;arcSize=15;overflow=hidden;" value="TourAttendee" vertex="1">
+          <mxGeometry height="26" width="130" x="826" y="132" as="geometry" />
+        </mxCell>
+        <mxCell id="440" parent="300" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fffde7;strokeColor=#d6b656;fontColor=#5a3e00;fontSize=9.5;fontStyle=1;arcSize=15;overflow=hidden;" value="TourBooking" vertex="1">
+          <mxGeometry height="26" width="130" x="962" y="132" as="geometry" />
+        </mxCell>
+        <mxCell id="441" parent="300" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fffde7;strokeColor=#d6b656;fontColor=#5a3e00;fontSize=9.5;fontStyle=1;arcSize=15;overflow=hidden;" value="TourImage" vertex="1">
+          <mxGeometry height="26" width="130" x="1098" y="132" as="geometry" />
+        </mxCell>
+        <mxCell id="442" parent="300" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fffde7;strokeColor=#d6b656;fontColor=#5a3e00;fontSize=9.5;fontStyle=1;arcSize=15;overflow=hidden;" value="TourItinerary" vertex="1">
+          <mxGeometry height="26" width="130" x="1234" y="132" as="geometry" />
+        </mxCell>
+        <mxCell id="443" parent="300" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fffde7;strokeColor=#d6b656;fontColor=#5a3e00;fontSize=9;fontStyle=1;arcSize=15;overflow=hidden;" value="TourItineraryDetail" vertex="1">
+          <mxGeometry height="26" width="130" x="1370" y="132" as="geometry" />
+        </mxCell>
+        <mxCell id="444" parent="300" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fffde7;strokeColor=#d6b656;fontColor=#5a3e00;fontSize=9.5;fontStyle=1;arcSize=15;overflow=hidden;" value="TourLocation" vertex="1">
+          <mxGeometry height="26" width="130" x="10" y="164" as="geometry" />
+        </mxCell>
+        <mxCell id="445" parent="300" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fffde7;strokeColor=#d6b656;fontColor=#5a3e00;fontSize=9.5;fontStyle=1;arcSize=15;overflow=hidden;" value="TourPrice" vertex="1">
+          <mxGeometry height="26" width="130" x="146" y="164" as="geometry" />
+        </mxCell>
+        <mxCell id="446" parent="300" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fffde7;strokeColor=#d6b656;fontColor=#5a3e00;fontSize=9.5;fontStyle=1;arcSize=15;overflow=hidden;" value="TourSchedule" vertex="1">
+          <mxGeometry height="26" width="130" x="282" y="164" as="geometry" />
+        </mxCell>
+        <mxCell id="447" parent="300" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fffde7;strokeColor=#d6b656;fontColor=#5a3e00;fontSize=9;fontStyle=1;arcSize=15;overflow=hidden;" value="TourStaffAssignment" vertex="1">
+          <mxGeometry height="26" width="130" x="418" y="164" as="geometry" />
+        </mxCell>
+        <mxCell id="448" parent="300" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fffde7;strokeColor=#d6b656;fontColor=#5a3e00;fontSize=9.5;fontStyle=1;arcSize=15;overflow=hidden;" value="Workflow" vertex="1">
+          <mxGeometry height="26" width="130" x="554" y="164" as="geometry" />
+        </mxCell>
+        <mxCell id="449" parent="300" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fffde7;strokeColor=#d6b656;fontColor=#5a3e00;fontSize=9.5;fontStyle=1;arcSize=15;overflow=hidden;" value="WorkflowStep" vertex="1">
+          <mxGeometry height="26" width="130" x="690" y="164" as="geometry" />
+        </mxCell>
+        <mxCell id="450" parent="300" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fffde7;strokeColor=#d6b656;fontColor=#5a3e00;fontSize=9;fontStyle=1;arcSize=15;overflow=hidden;" value="WorkflowTransition" vertex="1">
+          <mxGeometry height="26" width="130" x="826" y="164" as="geometry" />
+        </mxCell>
+        <mxCell id="500" parent="2" style="swimlane;whiteSpace=wrap;html=1;startSize=30;fillColor=#ffe6cc;strokeColor=#d79b00;strokeWidth=2;fontSize=13;fontStyle=1;fontColor=#5a3e00;rounded=1;arcSize=2;" value="Enums and Status Constants  (com.kawai.models . com.kawai.security)" vertex="1">
+          <mxGeometry height="70" width="1560" y="1175" as="geometry" />
+        </mxCell>
+        <mxCell id="501" parent="500" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff3e0;strokeColor=#d79b00;fontColor=#5a3e00;fontSize=9;fontStyle=1;arcSize=15;overflow=hidden;" value="PaymentStatus" vertex="1">
+          <mxGeometry height="26" width="195" x="10" y="36" as="geometry" />
+        </mxCell>
+        <mxCell id="502" parent="500" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff3e0;strokeColor=#d79b00;fontColor=#5a3e00;fontSize=9;fontStyle=1;arcSize=15;overflow=hidden;" value="RunItineraryStatus" vertex="1">
+          <mxGeometry height="26" width="195" x="217" y="36" as="geometry" />
+        </mxCell>
+        <mxCell id="503" parent="500" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff3e0;strokeColor=#d79b00;fontColor=#5a3e00;fontSize=9;fontStyle=1;arcSize=15;overflow=hidden;" value="RolePermissionConstants" vertex="1">
+          <mxGeometry height="26" width="195" x="424" y="36" as="geometry" />
+        </mxCell>
+        <mxCell id="504" parent="500" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff3e0;strokeColor=#d79b00;fontColor=#5a3e00;fontSize=9;fontStyle=1;arcSize=15;overflow=hidden;" value="AuthenticationEvents" vertex="1">
+          <mxGeometry height="26" width="195" x="631" y="36" as="geometry" />
+        </mxCell>
+        <mxCell id="600" parent="2" style="swimlane;whiteSpace=wrap;html=1;startSize=30;fillColor=#e1d5e7;strokeColor=#9673a6;strokeWidth=2;fontSize=13;fontStyle=1;fontColor=#3a1a5a;rounded=1;arcSize=2;" value="ViewModels and DTOs - 32 DTO Classes  (com.kawai.dto.*)" vertex="1">
+          <mxGeometry height="200" width="1560" y="1295" as="geometry" />
+        </mxCell>
+        <mxCell id="601" parent="600" style="swimlane;whiteSpace=wrap;html=1;startSize=20;fillColor=#f5edff;strokeColor=#9673a6;strokeWidth=1.5;fontSize=10.5;fontStyle=1;fontColor=#3a1a5a;rounded=1;arcSize=3;" value="com.kawai.dto (Core DTOs)" vertex="1">
+          <mxGeometry height="160" width="970" x="10" y="30" as="geometry" />
+        </mxCell>
+        <mxCell id="700" parent="601" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fdf5ff;strokeColor=#9673a6;fontColor=#3a1a5a;fontSize=9;arcSize=12;overflow=hidden;" value="BookingApiResponse" vertex="1">
+          <mxGeometry height="22" width="175" x="10" y="25" as="geometry" />
+        </mxCell>
+        <mxCell id="701" parent="601" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fdf5ff;strokeColor=#9673a6;fontColor=#3a1a5a;fontSize=9;arcSize=12;overflow=hidden;" value="BookingDetailResponseDTO" vertex="1">
+          <mxGeometry height="22" width="175" x="193" y="25" as="geometry" />
+        </mxCell>
+        <mxCell id="702" parent="601" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fdf5ff;strokeColor=#9673a6;fontColor=#3a1a5a;fontSize=9;arcSize=12;overflow=hidden;" value="BookingInfoDto" vertex="1">
+          <mxGeometry height="22" width="175" x="376" y="25" as="geometry" />
+        </mxCell>
+        <mxCell id="703" parent="601" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fdf5ff;strokeColor=#9673a6;fontColor=#3a1a5a;fontSize=9;arcSize=12;overflow=hidden;" value="BookingRequestDTO" vertex="1">
+          <mxGeometry height="22" width="175" x="559" y="25" as="geometry" />
+        </mxCell>
+        <mxCell id="704" parent="601" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fdf5ff;strokeColor=#9673a6;fontColor=#3a1a5a;fontSize=9;arcSize=12;overflow=hidden;" value="BookingResponseDTO" vertex="1">
+          <mxGeometry height="22" width="175" x="742" y="25" as="geometry" />
+        </mxCell>
+        <mxCell id="705" parent="601" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fdf5ff;strokeColor=#9673a6;fontColor=#3a1a5a;fontSize=9;arcSize=12;overflow=hidden;" value="CancelBookingRequestDTO" vertex="1">
+          <mxGeometry height="22" width="175" x="10" y="50" as="geometry" />
+        </mxCell>
+        <mxCell id="706" parent="601" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fdf5ff;strokeColor=#9673a6;fontColor=#3a1a5a;fontSize=9;arcSize=12;overflow=hidden;" value="CancelOrderRequestDTO" vertex="1">
+          <mxGeometry height="22" width="175" x="193" y="50" as="geometry" />
+        </mxCell>
+        <mxCell id="707" parent="601" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fdf5ff;strokeColor=#9673a6;fontColor=#3a1a5a;fontSize=9;arcSize=12;overflow=hidden;" value="CancelRequestDTO" vertex="1">
+          <mxGeometry height="22" width="175" x="376" y="50" as="geometry" />
+        </mxCell>
+        <mxCell id="708" parent="601" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fdf5ff;strokeColor=#9673a6;fontColor=#3a1a5a;fontSize=9;arcSize=12;overflow=hidden;" value="CartItemDto" vertex="1">
+          <mxGeometry height="22" width="175" x="559" y="50" as="geometry" />
+        </mxCell>
+        <mxCell id="709" parent="601" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fdf5ff;strokeColor=#9673a6;fontColor=#3a1a5a;fontSize=9;arcSize=12;overflow=hidden;" value="CheckinSubmitFormDTO" vertex="1">
+          <mxGeometry height="22" width="175" x="742" y="50" as="geometry" />
+        </mxCell>
+        <mxCell id="710" parent="601" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fdf5ff;strokeColor=#9673a6;fontColor=#3a1a5a;fontSize=9;arcSize=12;overflow=hidden;" value="CreateEmployeeDTO" vertex="1">
+          <mxGeometry height="22" width="175" x="10" y="75" as="geometry" />
+        </mxCell>
+        <mxCell id="711" parent="601" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fdf5ff;strokeColor=#9673a6;fontColor=#3a1a5a;fontSize=9;arcSize=12;overflow=hidden;" value="CreateFoodOrderRequest" vertex="1">
+          <mxGeometry height="22" width="175" x="193" y="75" as="geometry" />
+        </mxCell>
+        <mxCell id="712" parent="601" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fdf5ff;strokeColor=#9673a6;fontColor=#3a1a5a;fontSize=9;arcSize=12;overflow=hidden;" value="DependentRegistrationDTO" vertex="1">
+          <mxGeometry height="22" width="175" x="376" y="75" as="geometry" />
+        </mxCell>
+        <mxCell id="713" parent="601" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fdf5ff;strokeColor=#9673a6;fontColor=#3a1a5a;fontSize=9;arcSize=12;overflow=hidden;" value="DependentResponseDTO" vertex="1">
+          <mxGeometry height="22" width="175" x="559" y="75" as="geometry" />
+        </mxCell>
+        <mxCell id="714" parent="601" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fdf5ff;strokeColor=#9673a6;fontColor=#3a1a5a;fontSize=9;arcSize=12;overflow=hidden;" value="OpenTableRequest" vertex="1">
+          <mxGeometry height="22" width="175" x="742" y="75" as="geometry" />
+        </mxCell>
+        <mxCell id="715" parent="601" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fdf5ff;strokeColor=#9673a6;fontColor=#3a1a5a;fontSize=9;arcSize=12;overflow=hidden;" value="RoomDashboardDTO" vertex="1">
+          <mxGeometry height="22" width="175" x="10" y="100" as="geometry" />
+        </mxCell>
+        <mxCell id="716" parent="601" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fdf5ff;strokeColor=#9673a6;fontColor=#3a1a5a;fontSize=9;arcSize=12;overflow=hidden;" value="RoomInfoDto" vertex="1">
+          <mxGeometry height="22" width="175" x="193" y="100" as="geometry" />
+        </mxCell>
+        <mxCell id="717" parent="601" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fdf5ff;strokeColor=#9673a6;fontColor=#3a1a5a;fontSize=9;arcSize=12;overflow=hidden;" value="RoomSearchRequestDTO" vertex="1">
+          <mxGeometry height="22" width="175" x="376" y="100" as="geometry" />
+        </mxCell>
+        <mxCell id="718" parent="601" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fdf5ff;strokeColor=#9673a6;fontColor=#3a1a5a;fontSize=9;arcSize=12;overflow=hidden;" value="RoomSearchResponseDTO" vertex="1">
+          <mxGeometry height="22" width="175" x="559" y="100" as="geometry" />
+        </mxCell>
+        <mxCell id="719" parent="601" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fdf5ff;strokeColor=#9673a6;fontColor=#3a1a5a;fontSize=9;arcSize=12;overflow=hidden;" value="RoomSelectionDTO" vertex="1">
+          <mxGeometry height="22" width="175" x="742" y="100" as="geometry" />
+        </mxCell>
+        <mxCell id="720" parent="601" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fdf5ff;strokeColor=#9673a6;fontColor=#3a1a5a;fontSize=9;arcSize=12;overflow=hidden;" value="SystemNotificationDTO" vertex="1">
+          <mxGeometry height="22" width="175" x="10" y="125" as="geometry" />
+        </mxCell>
+        <mxCell id="721" parent="601" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fdf5ff;strokeColor=#9673a6;fontColor=#3a1a5a;fontSize=9;arcSize=12;overflow=hidden;" value="TableReservationRequest" vertex="1">
+          <mxGeometry height="22" width="175" x="193" y="125" as="geometry" />
+        </mxCell>
+        <mxCell id="722" parent="601" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fdf5ff;strokeColor=#9673a6;fontColor=#3a1a5a;fontSize=9;arcSize=12;overflow=hidden;" value="TourBookingRequest" vertex="1">
+          <mxGeometry height="22" width="175" x="376" y="125" as="geometry" />
+        </mxCell>
+        <mxCell id="723" parent="601" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fdf5ff;strokeColor=#9673a6;fontColor=#3a1a5a;fontSize=9;arcSize=12;overflow=hidden;" value="TourSearchResult" vertex="1">
+          <mxGeometry height="22" width="175" x="559" y="125" as="geometry" />
+        </mxCell>
+        <mxCell id="724" parent="601" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fdf5ff;strokeColor=#9673a6;fontColor=#3a1a5a;fontSize=9;arcSize=12;overflow=hidden;" value="WeatherInfo" vertex="1">
+          <mxGeometry height="22" width="175" x="742" y="125" as="geometry" />
+        </mxCell>
+        <mxCell id="800" parent="600" style="swimlane;whiteSpace=wrap;html=1;startSize=20;fillColor=#f5edff;strokeColor=#9673a6;strokeWidth=1.5;fontSize=10.5;fontStyle=1;fontColor=#3a1a5a;rounded=1;arcSize=3;" value="com.kawai.dto.fnb" vertex="1">
+          <mxGeometry height="78" width="265" x="988" y="30" as="geometry" />
+        </mxCell>
+        <mxCell id="800_0" parent="800" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fdf5ff;strokeColor=#9673a6;fontColor=#3a1a5a;fontSize=9;arcSize=12;overflow=hidden;" value="FnBDailyReportPreviewResponse" vertex="1">
+          <mxGeometry height="20" width="249" x="8" y="24" as="geometry" />
+        </mxCell>
+        <mxCell id="800_1" parent="800" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fdf5ff;strokeColor=#9673a6;fontColor=#3a1a5a;fontSize=9;arcSize=12;overflow=hidden;" value="FnBTransactionDto" vertex="1">
+          <mxGeometry height="20" width="249" x="8" y="47" as="geometry" />
+        </mxCell>
+        <mxCell id="803" parent="600" style="swimlane;whiteSpace=wrap;html=1;startSize=20;fillColor=#f5edff;strokeColor=#9673a6;strokeWidth=1.5;fontSize=10.5;fontStyle=1;fontColor=#3a1a5a;rounded=1;arcSize=3;" value="com.kawai.dto.roomchange" vertex="1">
+          <mxGeometry height="78" width="265" x="1261" y="30" as="geometry" />
+        </mxCell>
+        <mxCell id="803_0" parent="803" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fdf5ff;strokeColor=#9673a6;fontColor=#3a1a5a;fontSize=9;arcSize=12;overflow=hidden;" value="ChangeRoomCategoryRequest" vertex="1">
+          <mxGeometry height="20" width="249" x="8" y="24" as="geometry" />
+        </mxCell>
+        <mxCell id="803_1" parent="803" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fdf5ff;strokeColor=#9673a6;fontColor=#3a1a5a;fontSize=9;arcSize=12;overflow=hidden;" value="ChangeRoomCategoryResponse" vertex="1">
+          <mxGeometry height="20" width="249" x="8" y="47" as="geometry" />
+        </mxCell>
+        <mxCell id="806" parent="600" style="swimlane;whiteSpace=wrap;html=1;startSize=20;fillColor=#f5edff;strokeColor=#9673a6;strokeWidth=1.5;fontSize=10.5;fontStyle=1;fontColor=#3a1a5a;rounded=1;arcSize=3;" value="com.kawai.dto.walkin" vertex="1">
+          <mxGeometry height="78" width="536" x="988" y="112" as="geometry" />
+        </mxCell>
+        <mxCell id="806_0" parent="806" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fdf5ff;strokeColor=#9673a6;fontColor=#3a1a5a;fontSize=9;arcSize=12;overflow=hidden;" value="WalkInCheckInRequest" vertex="1">
+          <mxGeometry height="20" width="254" x="10" y="24" as="geometry" />
+        </mxCell>
+        <mxCell id="806_1" parent="806" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fdf5ff;strokeColor=#9673a6;fontColor=#3a1a5a;fontSize=9;arcSize=12;overflow=hidden;" value="WalkInCheckInResponse" vertex="1">
+          <mxGeometry height="20" width="254" x="272" y="24" as="geometry" />
+        </mxCell>
+        <mxCell id="806_2" parent="806" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fdf5ff;strokeColor=#9673a6;fontColor=#3a1a5a;fontSize=9;arcSize=12;overflow=hidden;" value="WalkInRoomSelectionDTO" vertex="1">
+          <mxGeometry height="20" width="254" x="10" y="47" as="geometry" />
+        </mxCell>
+        <mxCell id="806_3" parent="806" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fdf5ff;strokeColor=#9673a6;fontColor=#3a1a5a;fontSize=9;arcSize=12;overflow=hidden;" value="WalkInSurchargeResponse" vertex="1">
+          <mxGeometry height="20" width="254" x="272" y="47" as="geometry" />
+        </mxCell>
+        <mxCell id="900" parent="2" style="swimlane;whiteSpace=wrap;html=1;startSize=30;fillColor=#f8cecc;strokeColor=#b85450;strokeWidth=2;fontSize=13;fontStyle=1;fontColor=#5a0000;rounded=1;arcSize=2;" value="Data Repositories Security and Utilities  (com.kawai.repositories / security / utils)" vertex="1">
+          <mxGeometry height="285" width="1560" y="1545" as="geometry" />
+        </mxCell>
+        <mxCell id="901" parent="900" style="swimlane;whiteSpace=wrap;html=1;startSize=22;fillColor=#ffe8e6;strokeColor=#b85450;strokeWidth=1.5;fontSize=11;fontStyle=1;fontColor=#5a0000;rounded=1;arcSize=3;" value="Data and Repositories - 47 Spring Data JPA Repositories" vertex="1">
+          <mxGeometry height="240" width="840" x="10" y="30" as="geometry" />
+        </mxCell>
+        <mxCell id="1000" parent="901" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff5f5;strokeColor=#b85450;fontColor=#5a0000;fontSize=8.5;arcSize=12;overflow=hidden;" value="AccountRepo" vertex="1">
+          <mxGeometry height="21" width="128" x="10" y="26" as="geometry" />
+        </mxCell>
+        <mxCell id="1001" parent="901" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff5f5;strokeColor=#b85450;fontColor=#5a0000;fontSize=8.5;arcSize=12;overflow=hidden;" value="AuditLogRepo" vertex="1">
+          <mxGeometry height="21" width="128" x="144" y="26" as="geometry" />
+        </mxCell>
+        <mxCell id="1002" parent="901" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff5f5;strokeColor=#b85450;fontColor=#5a0000;fontSize=8.5;arcSize=12;overflow=hidden;" value="AuthDeviceRepo" vertex="1">
+          <mxGeometry height="21" width="128" x="278" y="26" as="geometry" />
+        </mxCell>
+        <mxCell id="1003" parent="901" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff5f5;strokeColor=#b85450;fontColor=#5a0000;fontSize=8.5;arcSize=12;overflow=hidden;" value="BookingInfoRepo" vertex="1">
+          <mxGeometry height="21" width="128" x="412" y="26" as="geometry" />
+        </mxCell>
+        <mxCell id="1004" parent="901" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff5f5;strokeColor=#b85450;fontColor=#5a0000;fontSize=8.5;arcSize=12;overflow=hidden;" value="BookingRepo" vertex="1">
+          <mxGeometry height="21" width="128" x="546" y="26" as="geometry" />
+        </mxCell>
+        <mxCell id="1005" parent="901" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff5f5;strokeColor=#b85450;fontColor=#5a0000;fontSize=8.5;arcSize=12;overflow=hidden;" value="BookingServiceRepo" vertex="1">
+          <mxGeometry height="21" width="128" x="680" y="26" as="geometry" />
+        </mxCell>
+        <mxCell id="1006" parent="901" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff5f5;strokeColor=#b85450;fontColor=#5a0000;fontSize=8.5;arcSize=12;overflow=hidden;" value="ConsolidatedInvoiceRepo" vertex="1">
+          <mxGeometry height="21" width="128" x="10" y="50" as="geometry" />
+        </mxCell>
+        <mxCell id="1007" parent="901" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff5f5;strokeColor=#b85450;fontColor=#5a0000;fontSize=8.5;arcSize=12;overflow=hidden;" value="CustomerRepo" vertex="1">
+          <mxGeometry height="21" width="128" x="144" y="50" as="geometry" />
+        </mxCell>
+        <mxCell id="1008" parent="901" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff5f5;strokeColor=#b85450;fontColor=#5a0000;fontSize=8.5;arcSize=12;overflow=hidden;" value="DailyRateRepo" vertex="1">
+          <mxGeometry height="21" width="128" x="278" y="50" as="geometry" />
+        </mxCell>
+        <mxCell id="1009" parent="901" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff5f5;strokeColor=#b85450;fontColor=#5a0000;fontSize=8.5;arcSize=12;overflow=hidden;" value="DependentRepo" vertex="1">
+          <mxGeometry height="21" width="128" x="412" y="50" as="geometry" />
+        </mxCell>
+        <mxCell id="1010" parent="901" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff5f5;strokeColor=#b85450;fontColor=#5a0000;fontSize=8.5;arcSize=12;overflow=hidden;" value="DynamicPricingRepo" vertex="1">
+          <mxGeometry height="21" width="128" x="546" y="50" as="geometry" />
+        </mxCell>
+        <mxCell id="1011" parent="901" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff5f5;strokeColor=#b85450;fontColor=#5a0000;fontSize=8.5;arcSize=12;overflow=hidden;" value="EmployeeRepo" vertex="1">
+          <mxGeometry height="21" width="128" x="680" y="50" as="geometry" />
+        </mxCell>
+        <mxCell id="1012" parent="901" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff5f5;strokeColor=#b85450;fontColor=#5a0000;fontSize=8.5;arcSize=12;overflow=hidden;" value="ExportHistoryRepo" vertex="1">
+          <mxGeometry height="21" width="128" x="10" y="74" as="geometry" />
+        </mxCell>
+        <mxCell id="1013" parent="901" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff5f5;strokeColor=#b85450;fontColor=#5a0000;fontSize=8.5;arcSize=12;overflow=hidden;" value="FnBDailyReportRepo" vertex="1">
+          <mxGeometry height="21" width="128" x="144" y="74" as="geometry" />
+        </mxCell>
+        <mxCell id="1014" parent="901" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff5f5;strokeColor=#b85450;fontColor=#5a0000;fontSize=8.5;arcSize=12;overflow=hidden;" value="FolioItemRepo" vertex="1">
+          <mxGeometry height="21" width="128" x="278" y="74" as="geometry" />
+        </mxCell>
+        <mxCell id="1015" parent="901" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff5f5;strokeColor=#b85450;fontColor=#5a0000;fontSize=8.5;arcSize=12;overflow=hidden;" value="FoodItemRepo" vertex="1">
+          <mxGeometry height="21" width="128" x="412" y="74" as="geometry" />
+        </mxCell>
+        <mxCell id="1016" parent="901" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff5f5;strokeColor=#b85450;fontColor=#5a0000;fontSize=8.5;arcSize=12;overflow=hidden;" value="FoodOrderDetailRepo" vertex="1">
+          <mxGeometry height="21" width="128" x="546" y="74" as="geometry" />
+        </mxCell>
+        <mxCell id="1017" parent="901" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff5f5;strokeColor=#b85450;fontColor=#5a0000;fontSize=8.5;arcSize=12;overflow=hidden;" value="FoodOrderRepo" vertex="1">
+          <mxGeometry height="21" width="128" x="680" y="74" as="geometry" />
+        </mxCell>
+        <mxCell id="1018" parent="901" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff5f5;strokeColor=#b85450;fontColor=#5a0000;fontSize=8.5;arcSize=12;overflow=hidden;" value="HotelOperationRepo" vertex="1">
+          <mxGeometry height="21" width="128" x="10" y="98" as="geometry" />
+        </mxCell>
+        <mxCell id="1019" parent="901" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff5f5;strokeColor=#b85450;fontColor=#5a0000;fontSize=8.5;arcSize=12;overflow=hidden;" value="HotelServiceRepo" vertex="1">
+          <mxGeometry height="21" width="128" x="144" y="98" as="geometry" />
+        </mxCell>
+        <mxCell id="1020" parent="901" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff5f5;strokeColor=#b85450;fontColor=#5a0000;fontSize=8.5;arcSize=12;overflow=hidden;" value="HousekeepingTaskRepo" vertex="1">
+          <mxGeometry height="21" width="128" x="278" y="98" as="geometry" />
+        </mxCell>
+        <mxCell id="1021" parent="901" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff5f5;strokeColor=#b85450;fontColor=#5a0000;fontSize=8.5;arcSize=12;overflow=hidden;" value="MaintenanceRequestRepo" vertex="1">
+          <mxGeometry height="21" width="128" x="412" y="98" as="geometry" />
+        </mxCell>
+        <mxCell id="1022" parent="901" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff5f5;strokeColor=#b85450;fontColor=#5a0000;fontSize=8.5;arcSize=12;overflow=hidden;" value="MembershipTierRepo" vertex="1">
+          <mxGeometry height="21" width="128" x="546" y="98" as="geometry" />
+        </mxCell>
+        <mxCell id="1023" parent="901" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff5f5;strokeColor=#b85450;fontColor=#5a0000;fontSize=8.5;arcSize=12;overflow=hidden;" value="PaymentTransactionRepo" vertex="1">
+          <mxGeometry height="21" width="128" x="680" y="98" as="geometry" />
+        </mxCell>
+        <mxCell id="1024" parent="901" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff5f5;strokeColor=#b85450;fontColor=#5a0000;fontSize=8.5;arcSize=12;overflow=hidden;" value="PromotionRepo" vertex="1">
+          <mxGeometry height="21" width="128" x="10" y="122" as="geometry" />
+        </mxCell>
+        <mxCell id="1025" parent="901" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff5f5;strokeColor=#b85450;fontColor=#5a0000;fontSize=8.5;arcSize=12;overflow=hidden;" value="RefundRequestRepo" vertex="1">
+          <mxGeometry height="21" width="128" x="144" y="122" as="geometry" />
+        </mxCell>
+        <mxCell id="1026" parent="901" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff5f5;strokeColor=#b85450;fontColor=#5a0000;fontSize=8.5;arcSize=12;overflow=hidden;" value="RestaurantTableRepo" vertex="1">
+          <mxGeometry height="21" width="128" x="278" y="122" as="geometry" />
+        </mxCell>
+        <mxCell id="1027" parent="901" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff5f5;strokeColor=#b85450;fontColor=#5a0000;fontSize=8.5;arcSize=12;overflow=hidden;" value="ReviewRepo" vertex="1">
+          <mxGeometry height="21" width="128" x="412" y="122" as="geometry" />
+        </mxCell>
+        <mxCell id="1028" parent="901" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff5f5;strokeColor=#b85450;fontColor=#5a0000;fontSize=8.5;arcSize=12;overflow=hidden;" value="RoleRepo" vertex="1">
+          <mxGeometry height="21" width="128" x="546" y="122" as="geometry" />
+        </mxCell>
+        <mxCell id="1029" parent="901" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff5f5;strokeColor=#b85450;fontColor=#5a0000;fontSize=8.5;arcSize=12;overflow=hidden;" value="RoomBookingDetailRepo" vertex="1">
+          <mxGeometry height="21" width="128" x="680" y="122" as="geometry" />
+        </mxCell>
+        <mxCell id="1030" parent="901" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff5f5;strokeColor=#b85450;fontColor=#5a0000;fontSize=8.5;arcSize=12;overflow=hidden;" value="RoomBookingRepo" vertex="1">
+          <mxGeometry height="21" width="128" x="10" y="146" as="geometry" />
+        </mxCell>
+        <mxCell id="1031" parent="901" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff5f5;strokeColor=#b85450;fontColor=#5a0000;fontSize=8.5;arcSize=12;overflow=hidden;" value="RoomCategoryRepo" vertex="1">
+          <mxGeometry height="21" width="128" x="144" y="146" as="geometry" />
+        </mxCell>
+        <mxCell id="1032" parent="901" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff5f5;strokeColor=#b85450;fontColor=#5a0000;fontSize=8.5;arcSize=12;overflow=hidden;" value="RoomGuestRepo" vertex="1">
+          <mxGeometry height="21" width="128" x="278" y="146" as="geometry" />
+        </mxCell>
+        <mxCell id="1033" parent="901" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff5f5;strokeColor=#b85450;fontColor=#5a0000;fontSize=8.5;arcSize=12;overflow=hidden;" value="RoomRepo" vertex="1">
+          <mxGeometry height="21" width="128" x="412" y="146" as="geometry" />
+        </mxCell>
+        <mxCell id="1034" parent="901" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff5f5;strokeColor=#b85450;fontColor=#5a0000;fontSize=8.5;arcSize=12;overflow=hidden;" value="RoomSurchargeRepo" vertex="1">
+          <mxGeometry height="21" width="128" x="546" y="146" as="geometry" />
+        </mxCell>
+        <mxCell id="1035" parent="901" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff5f5;strokeColor=#b85450;fontColor=#5a0000;fontSize=8.5;arcSize=12;overflow=hidden;" value="ShiftRepo" vertex="1">
+          <mxGeometry height="21" width="128" x="680" y="146" as="geometry" />
+        </mxCell>
+        <mxCell id="1036" parent="901" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff5f5;strokeColor=#b85450;fontColor=#5a0000;fontSize=8.5;arcSize=12;overflow=hidden;" value="StaffScheduleRepo" vertex="1">
+          <mxGeometry height="21" width="128" x="10" y="170" as="geometry" />
+        </mxCell>
+        <mxCell id="1037" parent="901" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff5f5;strokeColor=#b85450;fontColor=#5a0000;fontSize=8.5;arcSize=12;overflow=hidden;" value="SystemNotificationRepo" vertex="1">
+          <mxGeometry height="21" width="128" x="144" y="170" as="geometry" />
+        </mxCell>
+        <mxCell id="1038" parent="901" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff5f5;strokeColor=#b85450;fontColor=#5a0000;fontSize=8.5;arcSize=12;overflow=hidden;" value="TableReservationRepo" vertex="1">
+          <mxGeometry height="21" width="128" x="278" y="170" as="geometry" />
+        </mxCell>
+        <mxCell id="1039" parent="901" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff5f5;strokeColor=#b85450;fontColor=#5a0000;fontSize=8.5;arcSize=12;overflow=hidden;" value="TourAttendeeRepo" vertex="1">
+          <mxGeometry height="21" width="128" x="412" y="170" as="geometry" />
+        </mxCell>
+        <mxCell id="1040" parent="901" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff5f5;strokeColor=#b85450;fontColor=#5a0000;fontSize=8.5;arcSize=12;overflow=hidden;" value="TourBookingRepo" vertex="1">
+          <mxGeometry height="21" width="128" x="546" y="170" as="geometry" />
+        </mxCell>
+        <mxCell id="1041" parent="901" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff5f5;strokeColor=#b85450;fontColor=#5a0000;fontSize=8.5;arcSize=12;overflow=hidden;" value="TourImageRepo" vertex="1">
+          <mxGeometry height="21" width="128" x="680" y="170" as="geometry" />
+        </mxCell>
+        <mxCell id="1042" parent="901" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff5f5;strokeColor=#b85450;fontColor=#5a0000;fontSize=8.5;arcSize=12;overflow=hidden;" value="TourItineraryRepo" vertex="1">
+          <mxGeometry height="21" width="128" x="10" y="194" as="geometry" />
+        </mxCell>
+        <mxCell id="1043" parent="901" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff5f5;strokeColor=#b85450;fontColor=#5a0000;fontSize=8.5;arcSize=12;overflow=hidden;" value="TourRepo" vertex="1">
+          <mxGeometry height="21" width="128" x="144" y="194" as="geometry" />
+        </mxCell>
+        <mxCell id="1044" parent="901" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff5f5;strokeColor=#b85450;fontColor=#5a0000;fontSize=8.5;arcSize=12;overflow=hidden;" value="TourScheduleRepo" vertex="1">
+          <mxGeometry height="21" width="128" x="278" y="194" as="geometry" />
+        </mxCell>
+        <mxCell id="1045" parent="901" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff5f5;strokeColor=#b85450;fontColor=#5a0000;fontSize=8.5;arcSize=12;overflow=hidden;" value="TourStaffAssignmentRepo" vertex="1">
+          <mxGeometry height="21" width="128" x="412" y="194" as="geometry" />
+        </mxCell>
+        <mxCell id="1046" parent="901" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff5f5;strokeColor=#b85450;fontColor=#5a0000;fontSize=8.5;arcSize=12;overflow=hidden;" value="WorkflowRepo" vertex="1">
+          <mxGeometry height="21" width="128" x="546" y="194" as="geometry" />
+        </mxCell>
+        <mxCell id="1100" parent="900" style="swimlane;whiteSpace=wrap;html=1;startSize=22;fillColor=#ffe8e6;strokeColor=#b85450;strokeWidth=1.5;fontSize=11;fontStyle=1;fontColor=#5a0000;rounded=1;arcSize=3;" value="Security Events and Constants" vertex="1">
+          <mxGeometry height="175" width="330" x="858" y="30" as="geometry" />
+        </mxCell>
+        <mxCell id="1101" parent="1100" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff5f5;strokeColor=#b85450;fontColor=#5a0000;fontSize=9;arcSize=12;overflow=hidden;" value="SecurityConfig" vertex="1">
+          <mxGeometry height="16" width="314" x="8" y="26" as="geometry" />
+        </mxCell>
+        <mxCell id="1102" parent="1100" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff5f5;strokeColor=#b85450;fontColor=#5a0000;fontSize=9;arcSize=12;overflow=hidden;" value="RolePermissionConstants" vertex="1">
+          <mxGeometry height="16" width="314" x="8" y="44" as="geometry" />
+        </mxCell>
+        <mxCell id="1103" parent="1100" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff5f5;strokeColor=#b85450;fontColor=#5a0000;fontSize=9;arcSize=12;overflow=hidden;" value="AuthenticationEvents" vertex="1">
+          <mxGeometry height="16" width="314" x="8" y="62" as="geometry" />
+        </mxCell>
+        <mxCell id="1104" parent="1100" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff5f5;strokeColor=#b85450;fontColor=#5a0000;fontSize=9;arcSize=12;overflow=hidden;" value="ApprovalFinancialListener" vertex="1">
+          <mxGeometry height="16" width="314" x="8" y="80" as="geometry" />
+        </mxCell>
+        <mxCell id="1105" parent="1100" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff5f5;strokeColor=#b85450;fontColor=#5a0000;fontSize=9;arcSize=12;overflow=hidden;" value="ApprovalInventoryListener" vertex="1">
+          <mxGeometry height="16" width="314" x="8" y="98" as="geometry" />
+        </mxCell>
+        <mxCell id="1106" parent="1100" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff5f5;strokeColor=#b85450;fontColor=#5a0000;fontSize=9;arcSize=12;overflow=hidden;" value="SystemEmailEventListener" vertex="1">
+          <mxGeometry height="16" width="314" x="8" y="116" as="geometry" />
+        </mxCell>
+        <mxCell id="1107" parent="1100" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff5f5;strokeColor=#b85450;fontColor=#5a0000;fontSize=9;arcSize=12;overflow=hidden;" value="CustomerCheckedOutEvent" vertex="1">
+          <mxGeometry height="16" width="314" x="8" y="134" as="geometry" />
+        </mxCell>
+        <mxCell id="1108" parent="1100" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff5f5;strokeColor=#b85450;fontColor=#5a0000;fontSize=9;arcSize=12;overflow=hidden;" value="ManagerApprovalEvent" vertex="1">
+          <mxGeometry height="16" width="314" x="8" y="152" as="geometry" />
+        </mxCell>
+        <mxCell id="1200" parent="900" style="swimlane;whiteSpace=wrap;html=1;startSize=22;fillColor=#ffe8e6;strokeColor=#b85450;strokeWidth=1.5;fontSize=11;fontStyle=1;fontColor=#5a0000;rounded=1;arcSize=3;" value="Utilities and Exception Handling" vertex="1">
+          <mxGeometry height="175" width="330" x="1196" y="30" as="geometry" />
+        </mxCell>
+        <mxCell id="1201" parent="1200" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff5f5;strokeColor=#b85450;fontColor=#5a0000;fontSize=9;arcSize=12;overflow=hidden;" value="GlobalExceptionHandler" vertex="1">
+          <mxGeometry height="13" width="314" x="8" y="26" as="geometry" />
+        </mxCell>
+        <mxCell id="1202" parent="1200" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff5f5;strokeColor=#b85450;fontColor=#5a0000;fontSize=9;arcSize=12;overflow=hidden;" value="BusinessException" vertex="1">
+          <mxGeometry height="13" width="314" x="8" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="1203" parent="1200" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff5f5;strokeColor=#b85450;fontColor=#5a0000;fontSize=9;arcSize=12;overflow=hidden;" value="PaymentGatewayException" vertex="1">
+          <mxGeometry height="13" width="314" x="8" y="54" as="geometry" />
+        </mxCell>
+        <mxCell id="1204" parent="1200" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff5f5;strokeColor=#b85450;fontColor=#5a0000;fontSize=9;arcSize=12;overflow=hidden;" value="RoomNotAvailableException" vertex="1">
+          <mxGeometry height="13" width="314" x="8" y="68" as="geometry" />
+        </mxCell>
+        <mxCell id="1205" parent="1200" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff5f5;strokeColor=#b85450;fontColor=#5a0000;fontSize=9;arcSize=12;overflow=hidden;" value="EncryptionUtils" vertex="1">
+          <mxGeometry height="13" width="314" x="8" y="82" as="geometry" />
+        </mxCell>
+        <mxCell id="1206" parent="1200" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff5f5;strokeColor=#b85450;fontColor=#5a0000;fontSize=9;arcSize=12;overflow=hidden;" value="LogActivity" vertex="1">
+          <mxGeometry height="13" width="314" x="8" y="96" as="geometry" />
+        </mxCell>
+        <mxCell id="1207" parent="1200" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff5f5;strokeColor=#b85450;fontColor=#5a0000;fontSize=9;arcSize=12;overflow=hidden;" value="SecurityUtils" vertex="1">
+          <mxGeometry height="13" width="314" x="8" y="110" as="geometry" />
+        </mxCell>
+        <mxCell id="1208" parent="1200" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff5f5;strokeColor=#b85450;fontColor=#5a0000;fontSize=9;arcSize=12;overflow=hidden;" value="UploadPathResolver" vertex="1">
+          <mxGeometry height="13" width="314" x="8" y="124" as="geometry" />
+        </mxCell>
+        <mxCell id="1209" parent="1200" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff5f5;strokeColor=#b85450;fontColor=#5a0000;fontSize=9;arcSize=12;overflow=hidden;" value="ValidationUtils" vertex="1">
+          <mxGeometry height="13" width="314" x="8" y="138" as="geometry" />
+        </mxCell>
+        <mxCell id="1210" parent="1200" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff5f5;strokeColor=#b85450;fontColor=#5a0000;fontSize=9;arcSize=12;overflow=hidden;" value="VnPayUtil" vertex="1">
+          <mxGeometry height="13" width="314" x="8" y="152" as="geometry" />
+        </mxCell>
+        <mxCell id="9000" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#bdc3c7;strokeWidth=1.5;fontSize=10;fontStyle=0;align=left;spacingLeft=10;arcSize=2;" value="Legend: Controllers (Web + REST) | Services / Jobs | JPA Entities | Enums | DTOs | Repos / Security / Utils | Lines: solid = direct dependency call  dashed = test/reference" vertex="1">
+          <mxGeometry height="45" width="1990" x="20" y="1880" as="geometry" />
+        </mxCell>
+        <mxCell id="9001" edge="1" parent="1" source="3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#27ae60;strokeWidth=2.5;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="100" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="9002" edge="1" parent="1" source="100" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#2980b9;strokeWidth=2.5;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="300" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="9003" edge="1" parent="1" source="300" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#e67e22;strokeWidth=2.5;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="500" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="9004" edge="1" parent="1" source="500" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#8e44ad;strokeWidth=2.5;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="600" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="9005" edge="1" parent="1" source="600" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#c0392b;strokeWidth=2.5;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="900" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

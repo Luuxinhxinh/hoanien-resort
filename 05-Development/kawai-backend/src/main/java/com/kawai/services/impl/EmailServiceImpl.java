@@ -474,7 +474,12 @@ public class EmailServiceImpl implements EmailService {
             String checkInDateStr = "N/A";
             String checkOutDateStr = "N/A";
 
-            if (invoice.getBooking() instanceof com.kawai.models.RoomBooking rb) {
+            com.kawai.models.Booking baseBooking = invoice.getBooking();
+            if (baseBooking instanceof org.hibernate.proxy.HibernateProxy proxy) {
+                baseBooking = (com.kawai.models.Booking) proxy.getHibernateLazyInitializer().getImplementation();
+            }
+
+            if (baseBooking instanceof com.kawai.models.RoomBooking rb) {
                 checkInDateStr = rb.getCheckInDate() != null ? rb.getCheckInDate().format(DATE_FMT) : "N/A";
                 checkOutDateStr = rb.getCheckOutDate() != null ? rb.getCheckOutDate().format(DATE_FMT) : "N/A";
 
@@ -500,9 +505,8 @@ public class EmailServiceImpl implements EmailService {
                 }
 
                 // Filter details by Checked_Out status (and map guest counts)
-                java.util.List<com.kawai.models.RoomBookingDetail> details = roomBookingDetailRepository.findAll()
+                java.util.List<com.kawai.models.RoomBookingDetail> details = roomBookingDetailRepository.findByRoomBookingId(rb.getId())
                         .stream()
-                        .filter(d -> d.getRoomBooking() != null && d.getRoomBooking().getId().equals(rb.getId()))
                         .filter(d -> "Checked_Out".equalsIgnoreCase(d.getDetailStatus()))
                         .toList();
 
@@ -854,6 +858,7 @@ public class EmailServiceImpl implements EmailService {
             ctx.setVariable("vatAmount", formatVnd(invoice.getVatAmount()));
             ctx.setVariable("depositAmount", formatVnd(depositAmount));
             ctx.setVariable("totalAmount", formatVnd(invoice.getTotalAmount().subtract(depositAmount)));
+            ctx.setVariable("issuedDate", invoice.getIssuedAt() != null ? invoice.getIssuedAt().format(DATE_FMT) : java.time.LocalDate.now().format(DATE_FMT));
 
             String html = templateEngine.process("email/invoice", ctx);
             sendEmail(toEmail, "Hóa đơn thanh toán - " + invoice.getInvoiceNumber() + " | Hòa Niên Retreat & Resort",
@@ -1571,6 +1576,7 @@ public class EmailServiceImpl implements EmailService {
     }
 
     private static class TempItem {
+        String key = "";
         String date = "";
         String description = "";
         int qty = 1;

@@ -222,6 +222,7 @@
             text-align: right;
             font-weight: 700;
             color: #2c2a29;
+            white-space: nowrap;
         }
 
         .bill-summary-card {
@@ -1324,6 +1325,19 @@
             return isMaintenance || isHousekeepingDamage || desc.includes('đền bù hỏng hóc');
         }
 
+        function formatItemDescription(rawDesc) {
+            if (!rawDesc) return '';
+            let desc = rawDesc.replace('Ký bill đồ ăn F&B', 'Dịch vụ Nhà hàng').replace('[Đền bù hỏng hóc]', 'Phụ thu tài sản:');
+            if (desc.includes('. Sự cố:')) {
+                const parts = desc.split('. Sự cố:');
+                return `<div>${parts[0]}</div><div style="font-size: 0.82rem; color: #7f8c8d; margin-top: 3px; font-style: italic;">↳ Sự cố: ${parts[1]}</div>`;
+            } else if (desc.includes('Sự cố:')) {
+                const parts = desc.split('Sự cố:');
+                return `<div>${parts[0]}</div><div style="font-size: 0.82rem; color: #7f8c8d; margin-top: 3px; font-style: italic;">↳ Sự cố: ${parts[1]}</div>`;
+            }
+            return desc;
+        }
+
 
         document.addEventListener('DOMContentLoaded', function () {
             const urlParams = new URLSearchParams(window.location.search);
@@ -1610,7 +1624,7 @@
                     if (!isRoom && (item.amount > 0 || (item.amount < 0 && !isDeposit))) {
                         if (!allGroups[dep]) allGroups[dep] = { items: [] };
                         allGroups[dep].items.push(item);
-                        if (isDamageOrMaintenanceItem(item) || item.amount < 0) {
+                        if (isDamageOrMaintenanceItem(item)) {
                             roomNonTaxable += item.amount;
                         } else {
                             roomTaxable += item.amount;
@@ -1643,7 +1657,7 @@
                                 globalServiceChargeTotal += fnbServiceCharge;
                             }
 
-                            if (isDamageOrMaintenanceItem(item) || item.amount < 0) {
+                            if (isDamageOrMaintenanceItem(item)) {
                                 originalNonTaxable += (item.amount - fnbServiceCharge);
                             } else {
                                 originalTaxable += (item.amount - fnbServiceCharge);
@@ -1832,7 +1846,7 @@
                                 return `
                                                   <tr id="tour-booking-row-${tourBookingId}" class="tour-booking-placeholder ${trClass}" data-tour-booking="${tourBookingId}" data-amount="${i.amount}" data-date="${dateStr}" data-split="${isSplit ? 'true' : 'false'}" data-desc="${i.description}">
                                                       <td colspan="3" style="text-align: left;">
-                                                          ${i.description} 
+                                                          ${formatItemDescription(i.description)} 
                                                           ${dateStr ? `<div style="font-size: 0.8rem; color: #95a5a6;">${dateStr}</div>` : ''}
                                                           ${isSplit ? '<span style="color:#e74c3c; font-size: 0.8rem; font-weight: 500;">(Đã tách)</span>' : ''}
                                                           <div style="font-size: 0.8rem; font-style: italic; color: #8e8a86; margin-top: 4px;">
@@ -1845,7 +1859,7 @@
                                 return `
                                                   <tr class="${trClass}">
                                                       <td colspan="3" style="text-align: left;">
-                                                          ${i.description} 
+                                                          ${formatItemDescription(i.description)} 
                                                           ${dateStr ? `<div style="font-size: 0.8rem; color: #95a5a6;">${dateStr}</div>` : ''}
                                                           ${isSplit ? '<span style="color:#e74c3c; font-size: 0.8rem; font-weight: 500;">(Đã tách)</span>' : ''}
                                                       </td>
@@ -1859,7 +1873,7 @@
                                 return `
                                                   <tr id="fnb-order-row-${fnbOrderId}" class="fnb-order-placeholder ${trClass}" data-fnb-order="${fnbOrderId}" data-amount="${i.amount}" data-date="${dateStr}" data-split="${isSplit ? 'true' : 'false'}" data-desc="${i.description ? i.description.replace('Ký bill đồ ăn F&B', 'Dịch vụ Nhà hàng') : ''}">
                                                       <td colspan="3" style="text-align: left;">
-                                                          ${i.description ? i.description.replace('Ký bill đồ ăn F&B', 'Dịch vụ Nhà hàng') : ''} 
+                                                          ${formatItemDescription(i.description)} 
                                                           ${dateStr ? `<div style="font-size: 0.8rem; color: #95a5a6;">${dateStr}</div>` : ''}
                                                           ${isSplit ? '<span style="color:#e74c3c; font-size: 0.8rem; font-weight: 500;">(Đã tách)</span>' : ''}
                                                           <div style="font-size: 0.8rem; font-style: italic; color: #8e8a86; margin-top: 4px;">
@@ -1873,7 +1887,7 @@
                                     return `
                                                       <tr class="${trClass}">
                                                           <td colspan="3" style="text-align: left;">
-                                                              ${i.description ? i.description.replace('Ký bill đồ ăn F&B', 'Dịch vụ Nhà hàng') : ''} 
+                                                              ${formatItemDescription(i.description)} 
                                                               ${dateStr ? `<div style="font-size: 0.8rem; color: #95a5a6;">${dateStr}</div>` : ''}
                                                               ${isSplit ? '<span style="color:#e74c3c; font-size: 0.8rem; font-weight: 500;">(Đã tách)</span>' : ''}
                                                           </td>
@@ -1883,7 +1897,7 @@
                                     return `
                                                       <tr class="${trClass}">
                                                           <td style="text-align: left;">
-                                                               ${i.description ? i.description.replace('[Đền bù hỏng hóc]', 'Phụ thu tài sản:') : ''} 
+                                                               ${formatItemDescription(i.description)} 
                                                               ${dateStr ? `<div style="font-size: 0.8rem; color: #95a5a6;">${dateStr}</div>` : ''}
                                                               ${isSplit ? '<span style="color:#e74c3c; font-size: 0.8rem; font-weight: 500;">(Đã tách)</span>' : ''}
                                                           </td>

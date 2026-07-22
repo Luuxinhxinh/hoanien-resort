@@ -593,19 +593,6 @@ public class VnPayServiceImpl implements VnPayService {
                 com.kawai.models.ConsolidatedInvoice invoice = txn.getInvoice();
                 invoice.setInvoiceStatus("Paid");
                 consolidatedInvoiceRepository.save(invoice);
-
-                try {
-                    String pdfPath = invoicePdfService.generateInvoicePdf(invoice);
-                    if (booking != null && booking.getCustomer() != null && booking.getCustomer().getEmail() != null) {
-                        Map<String, Object> ctx = new java.util.HashMap<>();
-                        ctx.put("invoice", invoice);
-                        ctx.put("pdfPath", pdfPath);
-                        eventPublisher.publishEvent(new com.kawai.events.SystemEmailEvent(this,
-                                booking.getCustomer().getEmail(), "Hóa đơn điện tử - HOANIEN", "invoice", ctx));
-                    }
-                } catch (Exception e) {
-                    System.err.println("Lỗi khi sinh PDF hoặc gửi Email cho hóa đơn VNPay: " + e.getMessage());
-                }
             }
         } else {
             txn.setStatus(PaymentStatus.FAILED);

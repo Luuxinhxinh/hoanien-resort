@@ -295,7 +295,7 @@ INSERT INTO Promotions (promo_id, promo_code, discount_type, discount_value, val
 (1, 'SUMMER2026', 'PERCENTAGE', 10.00, '2026-05-01 00:00:00', '2026-08-31 23:59:59', 1000, 15, TRUE, 'Giảm giá 10% cho toàn bộ dịch vụ đặt phòng hè.'),
 (2, 'WELCOMETOHOANIEN', 'FIXED_AMOUNT', 200000.00, '2026-01-01 00:00:00', '2026-12-31 23:59:59', 5000, 120, TRUE, 'Tặng ngay 200,000 VND cho khách đặt phòng lần đầu.'),
 (3, 'VIPGOLD', 'PERCENTAGE', 15.00, '2026-01-01 00:00:00', '2026-12-31 23:59:59', 9999, 45, TRUE, 'Ưu đãi đặc biệt giảm 15% cho thành viên Gold.'),
-(4, 'MIDWEEK20', 'PERCENTAGE', 20.00, '2026-01-01 00:00:00', '2026-12-31 23:59:59', 200, 10, TRUE, 'Giảm 20% đặt phòng từ thứ 2 đến thứ 5.'),
+(4, 'MIDWEEK20', 'PERCENTAGE', 55.00, '2026-01-01 00:00:00', '2026-12-31 23:59:59', 200, 10, TRUE, 'Giảm 20% đặt phòng từ thứ 2 đến thứ 5.'),
 
 (5, 'AUTUMNRETREAT', 'PERCENTAGE', 12.00, '2026-09-01 00:00:00', '2026-11-30 23:59:59', 500, 0, TRUE, 'Giảm giá 12% chăm sóc sức khoẻ mùa thu.'),
 
@@ -1222,25 +1222,22 @@ INSERT INTO Room_Bookings (room_booking_id, check_in_date, check_out_date, depos
 -- DATA TEST NGHIỆP VỤ MANAGER APPROVALS & REFUNDS
 -- ============================================================
 
--- 1. Thêm Booking chờ duyệt vượt hạn mức chiết khấu (Booking ID: 201)
+-- 1. Thêm Booking quá hạn lưu trú (Overdue Checked_In ID: 301)
 INSERT INTO Bookings (booking_id, customer_id, booking_date, total_price, booking_status, booking_source, applied_promotion_id, version) VALUES
-(201, 1, '2026-06-28', 3000000, 'Pending_Approval', 'Direct_Web', 1, 1);
+(301, 1, '2026-07-18', 3500000, 'Checked_In', 'Direct_Web', NULL, 1);
 
 INSERT INTO Room_Bookings (room_booking_id, check_in_date, check_out_date, deposit_amount, cancellation_deadline, credit_limit, personal_pin_hash) VALUES
-(201, '2026-07-10', '2026-07-12', 1000000, '2026-07-08', 5000000, 'hash');
+(301, DATE_SUB(CURDATE(), INTERVAL 2 DAY), DATE_SUB(CURDATE(), INTERVAL 1 DAY), 1000000, DATE_SUB(CURDATE(), INTERVAL 3 DAY), 5000000, 'hash301');
 
 INSERT INTO Room_Booking_Details (detail_id, room_booking_id, category_id, room_id, room_charge, detail_status, bed_preference, special_requests, is_charge_to_room_allowed, sub_credit_limit, billing_routing_strategy, number_of_adults, number_of_children) VALUES
-(2011, 201, 1, 4, 3000000, 'Pending', 'KING_SIZE', 'Cần duyệt chiết khấu vượt hạn mức 35%', TRUE, 5000000, 'BILL_TO_LEADER', 2, 0);
+(3011, 301, 1, 1, 3500000, 'Checked_In', 'KING_SIZE', 'Khách trả phòng quá hạn', TRUE, 5000000, 'BILL_TO_LEADER', 2, 0);
 
 INSERT INTO Room_Guests (guest_id, detail_id, customer_id, dependent_id, guest_type, is_primary_contact) VALUES
-(20111, 2011, 1, NULL, 'ADULT', TRUE);
+(30111, 3011, 1, NULL, 'ADULT', TRUE);
 
 -- Tác vụ phê duyệt dành cho Manager
 INSERT INTO Hotel_Operations (task_id, room_id, staff_id, supervisor_id, operational_type, priority, status, created_at, started_at, completed_at, notes) VALUES 
-(901, 4, 1, 1, 'Manager_Approval', 'High', 'Pending', CURRENT_TIMESTAMP, NULL, NULL, 'Mã giảm giá SUMMER2026 áp dụng vượt ngưỡng (15.0% > 10.0%). Yêu cầu phê duyệt cho booking ID: 201'),
-(902, 1, 1, 1, 'Late_Checkout_Waiver', 'Normal', 'Pending', CURRENT_TIMESTAMP, NULL, NULL, 'Khách trả phòng trễ 3 tiếng do trời mưa bão. Xin miễn phí phụ thu trả phòng trễ cho booking ID: 1'),
-(903, 2, 1, 1, 'Cancellation_Fee_Waiver', 'High', 'Pending', CURRENT_TIMESTAMP, NULL, NULL, 'Khách gặp tai nạn không thể đến nhận phòng. Xin miễn 100% phí phạt hủy cho booking ID: 2'),
-(904, 3, 1, 1, 'Room_Downgrade_Refund', 'High', 'Pending', CURRENT_TIMESTAMP, NULL, NULL, 'Máy lạnh phòng Deluxe hỏng, khách đồng ý xuống hạng Superior. Xin duyệt hoàn tiền chênh lệch 500k cho booking ID: 3');
+(902, 1, 1, 1, 'Late_Checkout_Waiver', 'Normal', 'Pending', CURRENT_TIMESTAMP, NULL, NULL, 'Khách trả phòng trễ 3 tiếng do trời mưa bão. Xin miễn phí phụ thu trả phòng trễ cho booking ID: 301');
 
 
 -- 2. Thêm các yêu cầu hoàn tiền (Refund Requests)
@@ -1929,7 +1926,6 @@ INSERT INTO Employees (employee_id, account_id, full_name, gender, cccd, phone, 
 INSERT INTO workflows (workflow_name, trigger_event, conditions_json, actions_json, is_active, updated_at) VALUES 
 ('Room Checkout Automation', 'ROOM_CHECKOUT', '{}', '[{"type":"UPDATE_ROOM_STATUS","value":"Vacant_Dirty"},{"type":"CREATE_OPERATION_TASK","value":"CHECKOUT_CLEAN"}]', true, NOW()),
 ('Room Report Damage Automation', 'ROOM_REPORT_DAMAGE', '{}', '[{"type":"CREATE_OPERATION_TASK","value":"Maintenance","priority":"High"}]', true, NOW()),
-('Promotion Exceeded Automation', 'PROMOTION_EXCEEDED', '{"threshold_pct_gt":20}', '[{"type":"REQUIRE_MANAGER_APPROVAL"}]', true, NOW()),
 ('SLA Escalation Automation', 'SLA_ESCALATE', '{}', '[{"type":"SEND_EMAIL","target_email":"{{email}}","email_subject":"SLA Warning for {{taskName}}","email_body_html":"sla-warning"}]', true, NOW()),
 ('Account Security OTP', 'ACCOUNT_SECURITY', '{}', '[{"type":"SEND_EMAIL","target_email":"{{email}}","email_subject":"Security Alert","email_body_html":"security-alert"}]', true, NOW()),
 ('User Registration OTP', 'USER_REGISTRATION_OTP', '{}', '[{"type":"SEND_EMAIL","target_email":"{{email}}","email_subject":"Your OTP Code","email_body_html":"otp-email"}]', true, NOW()),
@@ -2237,17 +2233,12 @@ UPDATE Bookings b SET total_price = (
     WHERE room_booking_id = b.booking_id
 ) WHERE b.booking_id IN (8008, 910);
 -- 1. Từ 0-5 tuổi: Miễn phí (0 VNĐ)
-INSERT INTO Room_Surcharges (category_id, surcharge_type, age_from, age_to, price_modifier, is_active)
+INSERT IGNORE INTO Room_Surcharges (category_id, surcharge_type, age_from, age_to, price_modifier, is_active)
 SELECT category_id, 'CHILD_0_5', 0, 5, 0, 1 FROM Room_Categories;
 -- 2. Từ 6-11 tuổi: Phụ thu 200.000 VNĐ
-INSERT INTO Room_Surcharges (category_id, surcharge_type, age_from, age_to, price_modifier, is_active)
+INSERT IGNORE INTO Room_Surcharges (category_id, surcharge_type, age_from, age_to, price_modifier, is_active)
 SELECT category_id, 'CHILD_6_11', 6, 11, 200000, 1 FROM Room_Categories;
 -- 3. Từ 12-17 tuổi: Phụ thu 350.000 VNĐ
-INSERT INTO Room_Surcharges (category_id, surcharge_type, age_from, age_to, price_modifier, is_active)
+INSERT IGNORE INTO Room_Surcharges (category_id, surcharge_type, age_from, age_to, price_modifier, is_active)
 SELECT category_id, 'CHILD_12_17', 12, 17, 350000, 1 FROM Room_Categories;
--- 2. Từ 6-11 tuổi: Phụ thu 200.000 VNĐ
-INSERT INTO Room_Surcharges (category_id, surcharge_type, age_from, age_to, price_modifier, is_active)
-SELECT category_id, 'CHILD_6_11', 6, 11, 200000, 1 FROM Room_Categories;
--- 3. Từ 12-17 tuổi: Phụ thu 350.000 VNĐ
-INSERT INTO Room_Surcharges (category_id, surcharge_type, age_from, age_to, price_modifier, is_active)
-SELECT category_id, 'CHILD_12_17', 12, 17, 350000, 1 FROM Room_Categories;
+

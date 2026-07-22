@@ -35,6 +35,11 @@ public class WorkflowEngineServiceImpl implements WorkflowEngineService {
     private final SimpMessagingTemplate messagingTemplate;
 
     @Override
+    public boolean hasActiveWorkflow(String eventType) {
+        return workflowRepository.findByTriggerEventAndIsActive(eventType, true).size() > 0;
+    }
+
+    @Override
     @Transactional
     public void triggerEvent(String eventType, Map<String, Object> payload) {
         System.out.println("========== WORKFLOW ENGINE: Trigger Event " + eventType + " ==========");
@@ -384,6 +389,7 @@ public class WorkflowEngineServiceImpl implements WorkflowEngineService {
                             Map<String, Object> ctx = new java.util.HashMap<>();
                             ctx.put("taskName", taskName);
                             ctx.put("pendingMinutes", maxPendingMinutes);
+                            ctx.put("max_pending_minutes", maxPendingMinutes);
                             ctx.put("roomNumber", roomNum);
                             ctx.put("email", supervisor.getEmail());
                             

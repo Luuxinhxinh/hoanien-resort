@@ -118,6 +118,7 @@ public class WorkflowEngineCustomTest {
         wf.setTriggerEvent("SLA_ESCALATE");
         wf.setIsActive(true);
         wf.setConditionsJson("{\"max_pending_minutes\":15}");
+        wf.setActionsJson("[{\"type\":\"SEND_EMAIL\",\"sender_email\":\"admin@resort.com\",\"target_email\":\"{{email}}\",\"email_subject\":\"SLA Alert\",\"email_body_html\":\"Task {{taskName}} has been pending for {{pendingMinutes}} minutes.\"}]");
 
         Employee supervisor = new Employee();
         supervisor.setId(1L);
