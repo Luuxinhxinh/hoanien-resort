@@ -247,7 +247,7 @@ public class BookingServiceImpl implements BookingService {
             String catName = entry.getKey();
             java.util.List<com.kawai.dto.RoomSelectionDTO> selections = entry.getValue();
             int requestedQty = selections.size();
-            com.kawai.models.RoomCategory category = roomCategoryRepository.findByCategoryName(catName)
+            com.kawai.models.RoomCategory category = roomCategoryRepository.findByCategoryNameWithLock(catName)
                     .orElseThrow(() -> new BusinessException("CATEGORY_NOT_FOUND", "Category not found: " + catName));
 
             // Tính toán số phòng không bị trùng
