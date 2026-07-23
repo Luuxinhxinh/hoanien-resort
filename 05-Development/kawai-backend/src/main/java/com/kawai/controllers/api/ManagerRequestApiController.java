@@ -73,11 +73,12 @@ public class ManagerRequestApiController {
             op.setStatus("Pending");
             op.setCreatedAt(LocalDateTime.now());
             op.setStaff(currentStaff);
-            
+
             // Tìm Manager đầu tiên để assign
             Employee manager = employeeRepository.findAll().stream()
                     .filter(e -> e.getAccount() != null && e.getAccount().getRole() != null &&
-                            (e.getAccount().getRole().getRoleName().equals("ROLE_MANAGER") || e.getAccount().getRole().getRoleName().equals("ROLE_ADMIN")))
+                            (e.getAccount().getRole().getRoleName().equals("ROLE_MANAGER")
+                                    || e.getAccount().getRole().getRoleName().equals("ROLE_ADMIN")))
                     .findFirst()
                     .orElse(currentStaff); // Fallback
 
@@ -123,15 +124,13 @@ public class ManagerRequestApiController {
 
             return ResponseEntity.ok(Map.of(
                     "success", true,
-                    "message", "Đã gửi yêu cầu phê duyệt thành công"
-            ));
+                    "message", "Đã gửi yêu cầu phê duyệt thành công"));
 
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.internalServerError().body(Map.of(
                     "success", false,
-                    "message", "Lỗi khi tạo yêu cầu: " + e.getMessage()
-            ));
+                    "message", "Lỗi khi tạo yêu cầu: " + e.getMessage()));
         }
     }
 }

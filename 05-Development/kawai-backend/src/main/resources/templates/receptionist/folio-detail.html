@@ -222,6 +222,7 @@
             text-align: right;
             font-weight: 700;
             color: #2c2a29;
+            white-space: nowrap;
         }
 
         .bill-summary-card {
@@ -1327,6 +1328,19 @@
             return isMaintenance || isHousekeepingDamage || desc.includes('đền bù hỏng hóc');
         }
 
+        function formatItemDescription(rawDesc) {
+            if (!rawDesc) return '';
+            let desc = rawDesc.replace('Ký bill đồ ăn F&B', 'Dịch vụ Nhà hàng').replace('[Đền bù hỏng hóc]', 'Phụ thu tài sản:');
+            if (desc.includes('. Sự cố:')) {
+                const parts = desc.split('. Sự cố:');
+                return `<div>${parts[0]}</div><div style="font-size: 0.82rem; color: #7f8c8d; margin-top: 3px; font-style: italic;">↳ Sự cố: ${parts[1]}</div>`;
+            } else if (desc.includes('Sự cố:')) {
+                const parts = desc.split('Sự cố:');
+                return `<div>${parts[0]}</div><div style="font-size: 0.82rem; color: #7f8c8d; margin-top: 3px; font-style: italic;">↳ Sự cố: ${parts[1]}</div>`;
+            }
+            return desc;
+        }
+
 
         document.addEventListener('DOMContentLoaded', function () {
             const urlParams = new URLSearchParams(window.location.search);
@@ -1613,7 +1627,7 @@
                     if (!isRoom && (item.amount > 0 || (item.amount < 0 && !isDeposit))) {
                         if (!allGroups[dep]) allGroups[dep] = { items: [] };
                         allGroups[dep].items.push(item);
-                        if (isDamageOrMaintenanceItem(item) || item.amount < 0) {
+                        if (isDamageOrMaintenanceItem(item)) {
                             roomNonTaxable += item.amount;
                         } else {
                             roomTaxable += item.amount;
@@ -1646,7 +1660,7 @@
                                 globalServiceChargeTotal += fnbServiceCharge;
                             }
 
-                            if (isDamageOrMaintenanceItem(item) || item.amount < 0) {
+                            if (isDamageOrMaintenanceItem(item)) {
                                 originalNonTaxable += (item.amount - fnbServiceCharge);
                             } else {
                                 originalTaxable += (item.amount - fnbServiceCharge);
@@ -1835,7 +1849,7 @@
                                 return `
                                                   <tr id="tour-booking-row-${tourBookingId}" class="tour-booking-placeholder ${trClass}" data-tour-booking="${tourBookingId}" data-amount="${i.amount}" data-date="${dateStr}" data-split="${isSplit ? 'true' : 'false'}" data-desc="${i.description}">
                                                       <td colspan="3" style="text-align: left;">
-                                                          ${i.description} 
+                                                          ${formatItemDescription(i.description)} 
                                                           ${dateStr ? `<div style="font-size: 0.8rem; color: #95a5a6;">${dateStr}</div>` : ''}
                                                           ${isSplit ? '<span style="color:#e74c3c; font-size: 0.8rem; font-weight: 500;">(Đã tách)</span>' : ''}
                                                           <div style="font-size: 0.8rem; font-style: italic; color: #8e8a86; margin-top: 4px;">
@@ -1848,7 +1862,7 @@
                                 return `
                                                   <tr class="${trClass}">
                                                       <td colspan="3" style="text-align: left;">
-                                                          ${i.description} 
+                                                          ${formatItemDescription(i.description)} 
                                                           ${dateStr ? `<div style="font-size: 0.8rem; color: #95a5a6;">${dateStr}</div>` : ''}
                                                           ${isSplit ? '<span style="color:#e74c3c; font-size: 0.8rem; font-weight: 500;">(Đã tách)</span>' : ''}
                                                       </td>
@@ -1862,7 +1876,7 @@
                                 return `
                                                   <tr id="fnb-order-row-${fnbOrderId}" class="fnb-order-placeholder ${trClass}" data-fnb-order="${fnbOrderId}" data-amount="${i.amount}" data-date="${dateStr}" data-split="${isSplit ? 'true' : 'false'}" data-desc="${i.description ? i.description.replace('Ký bill đồ ăn F&B', 'Dịch vụ Nhà hàng') : ''}">
                                                       <td colspan="3" style="text-align: left;">
-                                                          ${i.description ? i.description.replace('Ký bill đồ ăn F&B', 'Dịch vụ Nhà hàng') : ''} 
+                                                          ${formatItemDescription(i.description)} 
                                                           ${dateStr ? `<div style="font-size: 0.8rem; color: #95a5a6;">${dateStr}</div>` : ''}
                                                           ${isSplit ? '<span style="color:#e74c3c; font-size: 0.8rem; font-weight: 500;">(Đã tách)</span>' : ''}
                                                           <div style="font-size: 0.8rem; font-style: italic; color: #8e8a86; margin-top: 4px;">
@@ -1876,7 +1890,7 @@
                                     return `
                                                       <tr class="${trClass}">
                                                           <td colspan="3" style="text-align: left;">
-                                                              ${i.description ? i.description.replace('Ký bill đồ ăn F&B', 'Dịch vụ Nhà hàng') : ''} 
+                                                              ${formatItemDescription(i.description)} 
                                                               ${dateStr ? `<div style="font-size: 0.8rem; color: #95a5a6;">${dateStr}</div>` : ''}
                                                               ${isSplit ? '<span style="color:#e74c3c; font-size: 0.8rem; font-weight: 500;">(Đã tách)</span>' : ''}
                                                           </td>
@@ -1886,7 +1900,7 @@
                                     return `
                                                       <tr class="${trClass}">
                                                           <td style="text-align: left;">
-                                                               ${i.description ? i.description.replace('[Đền bù hỏng hóc]', 'Phụ thu tài sản:') : ''} 
+                                                               ${formatItemDescription(i.description)} 
                                                               ${dateStr ? `<div style="font-size: 0.8rem; color: #95a5a6;">${dateStr}</div>` : ''}
                                                               ${isSplit ? '<span style="color:#e74c3c; font-size: 0.8rem; font-weight: 500;">(Đã tách)</span>' : ''}
                                                           </td>
@@ -1986,10 +2000,10 @@
 
                 if (data.roomCharge && data.roomCharge > 0) {
                     const isWalkIn = data.bookingSource === 'WALK_IN';
-                    const key = `${data.categoryName || 'N/A'}_${data.roomCharge}`;
+                    const key = `${data.originalCategoryName || data.categoryName || 'N/A'}_${data.roomCharge}`;
                     if (!breakdownGroups[key]) {
                         breakdownGroups[key] = {
-                            categoryName: data.categoryName || 'Room',
+                            categoryName: data.originalCategoryName || data.categoryName || 'Room',
                             roomCharge: isWalkIn ? data.roomCharge : (data.roomCharge / nights),
                             extraSurcharge: isWalkIn ? (data.extraSurcharge || 0) : ((data.extraSurcharge || 0) / nights),
                             nights: nights,
@@ -2544,7 +2558,7 @@
         }
 
         function showSuccessModal(data) {
-            const invoiceNo = "INV-" + (data.invoiceId || Math.floor(Math.random() * 10000 + 1000));
+            const invoiceNo = data.invoiceNumber || ("INV-" + (data.invoiceId || Math.floor(Math.random() * 10000 + 1000)));
             document.getElementById('successInvoiceId').innerText = "#" + invoiceNo;
 
             // 1. Basic invoice metadata
@@ -2644,7 +2658,7 @@
                         let children = [];
                         if (tourDetail.adultCount > 0) {
                             children.push({
-                                description: `- Người lớn`,
+                                description: `- người lớn`,
                                 qty: tourDetail.adultCount,
                                 unitVal: tourDetail.adultPrice,
                                 amount: tourDetail.adultCount * tourDetail.adultPrice,
@@ -2653,7 +2667,7 @@
                         }
                         if (tourDetail.childCount > 0) {
                             children.push({
-                                description: `- Trẻ em (2-11 tuổi)`,
+                                description: `- trẻ em (2-11 tuổi)`,
                                 qty: tourDetail.childCount,
                                 unitVal: tourDetail.childPrice,
                                 amount: tourDetail.childCount * tourDetail.childPrice,
@@ -2662,7 +2676,7 @@
                         }
                         if (tourDetail.infantCount > 0) {
                             children.push({
-                                description: `- Em bé (dưới 2 tuổi)`,
+                                description: `- em bé (dưới 2 tuổi)`,
                                 qty: tourDetail.infantCount,
                                 unitVal: 0,
                                 amount: 0,
@@ -2674,7 +2688,7 @@
                             const insurancePolicy = tourDetail.insurancePolicyNumber ? ` (${tourDetail.insurancePolicyNumber})` : '';
                             const insuredCount = tourDetail.participantCount || (tourDetail.adultCount + tourDetail.childCount + tourDetail.infantCount);
                             children.push({
-                                description: `- Bảo hiểm du lịch bắt buộc${insurancePolicy}`,
+                                description: `- bảo hiểm du lịch bắt buộc${insurancePolicy}`,
                                 qty: insuredCount,
                                 unitVal: tourDetail.insurancePrice,
                                 amount: 0,
@@ -2683,15 +2697,28 @@
                             });
                         }
 
-                        groupedItems.push({
-                            description: `${tourDetail.tourName} (Khởi hành: ${departureTime} - ${departureDate})`,
-                            qty: "",
-                            unitVal: "",
-                            amount: tourDetail.tourCharge,
-                            itemDate: itemDate,
-                            isParentTour: true,
-                            children: children
-                        });
+                        const qty = tourDetail.participantCount || (tourDetail.adultCount + tourDetail.childCount + tourDetail.infantCount) || 1;
+                        const unitVal = Number(item.amount) / qty;
+
+                        const desc = `Tour Charge - ${tourDetail.tourName} (Khởi hành: ${departureTime} - ${departureDate})`;
+                        const key = `${desc}_${unitVal}`;
+
+                        let existing = groupedItems.find(g => g.key === key);
+                        if (existing) {
+                            existing.qty += qty;
+                            existing.amount += Number(item.amount);
+                        } else {
+                            groupedItems.push({
+                                key: key,
+                                description: desc,
+                                qty: qty,
+                                unitVal: unitVal,
+                                amount: Number(item.amount),
+                                itemDate: itemDate,
+                                isParentTour: true,
+                                children: children
+                            });
+                        }
                         return; // Done with Tour
                     }
                 }
@@ -2790,7 +2817,7 @@
                     lastDateStr = g.itemDate;
                 }
 
-                if (g.isParentFnb || g.isParentTour || g.isParentMinibar) {
+                if (g.isParentFnb || g.isParentMinibar) {
                     // Parent row: Normal description, blank qty and price, normal amount
                     tbodyHtml += `
                         <tr>
@@ -2798,6 +2825,39 @@
                             <td style="padding: 10px 0; border-bottom: 1px dashed #ddd;">${g.description}</td>
                             <td style="padding: 10px 0; border-bottom: 1px dashed #ddd; text-align: center;"></td>
                             <td style="padding: 10px 0; border-bottom: 1px dashed #ddd; text-align: right;"></td>
+                            <td style="padding: 10px 0; border-bottom: 1px dashed #ddd; text-align: right;">${formatNumber(g.amount)}</td>
+                        </tr>
+                    `;
+                    printSubtotal += g.amount;
+
+                    // Children rows: Indented, normal description, standard qty, price, and amount
+                    if (g.children) {
+                        g.children.forEach(c => {
+                            let formattedVal = c.isInfant ? 'Miễn phí' : formatNumber(c.unitVal);
+                            let formattedAmt = formatNumber(c.amount) + ' VNĐ';
+                            if (c.isInsurance) {
+                                formattedVal = formatNumber(c.unitVal);
+                                formattedAmt = 'Đã bao gồm';
+                            }
+                            tbodyHtml += `
+                                <tr style="color: #2F1F17; font-family: 'Times New Roman', serif; font-size: 14px;">
+                                    <td style="padding: 8px 0; border-bottom: 1px dashed #eee;"></td>
+                                    <td style="padding: 8px 0; border-bottom: 1px dashed #eee; padding-left: 20px; font-style: italic;">${c.description}</td>
+                                    <td style="padding: 8px 0; border-bottom: 1px dashed #eee; text-align: center; font-style: italic;">${c.qty}</td>
+                                    <td style="padding: 8px 0; border-bottom: 1px dashed #eee; text-align: right; font-style: italic;">${formattedVal}</td>
+                                    <td style="padding: 8px 0; border-bottom: 1px dashed #eee; text-align: right; font-style: italic;">${formattedAmt}</td>
+                                </tr>
+                            `;
+                        });
+                    }
+                } else if (g.isParentTour) {
+                    // Parent row for Tour: Normal description, with Qty and Unit Price, normal amount
+                    tbodyHtml += `
+                        <tr>
+                            <td style="padding: 10px 0; border-bottom: 1px dashed #ddd;">${displayDate}</td>
+                            <td style="padding: 10px 0; border-bottom: 1px dashed #ddd;">${g.description}</td>
+                            <td style="padding: 10px 0; border-bottom: 1px dashed #ddd; text-align: center;">${g.qty}</td>
+                            <td style="padding: 10px 0; border-bottom: 1px dashed #ddd; text-align: right;">${formatNumber(g.unitVal)}</td>
                             <td style="padding: 10px 0; border-bottom: 1px dashed #ddd; text-align: right;">${formatNumber(g.amount)}</td>
                         </tr>
                     `;
