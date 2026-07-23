@@ -111,7 +111,7 @@ async function checkAvailability() {
     }
 
     if (filterStart >= filterEnd) {
-        alert("Giờ kết thúc phải lớn hơn Giờ bắt đầu.");
+        alert("Giờ kết thúc phải lớn hơn giờ bắt đầu.");
         return;
     }
 
@@ -207,11 +207,17 @@ document.getElementById('bookingForm').addEventListener('submit', async function
     let endMins = endH * 60 + endM;
 
     if (endMins <= startMins) {
-        endMins += 24 * 60;
+        alert('Giờ kết thúc phải lớn hơn giờ bắt đầu.');
+        return;
     }
 
-    if (endMins - startMins > 12 * 60) {
-        alert('Thời gian đặt bàn quá dài hoặc giờ kết thúc không hợp lệ.');
+    if (endMins > 23 * 60) {
+        alert('Nhà hàng đóng cửa lúc 23:00, quý khách vui lòng chọn giờ kết thúc sớm hơn.');
+        return;
+    }
+
+    if (endMins - startMins < 30) {
+        alert('Thời gian đặt bàn tối thiểu là 30 phút.');
         return;
     }
 

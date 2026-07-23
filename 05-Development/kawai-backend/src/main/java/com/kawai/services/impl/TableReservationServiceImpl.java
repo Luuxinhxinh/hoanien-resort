@@ -65,7 +65,6 @@ public class TableReservationServiceImpl implements TableReservationService {
                     java.time.LocalDateTime rEndDT;
                     if (res.getEndTime() != null) {
                         rEndDT = java.time.LocalDateTime.of(date, res.getEndTime());
-                        if (rEndDT.isBefore(rStartDT)) rEndDT = rEndDT.plusDays(1);
                     } else {
                         rEndDT = rStartDT.plusHours(1);
                     }
@@ -77,7 +76,6 @@ public class TableReservationServiceImpl implements TableReservationService {
                     java.time.LocalDateTime endDT;
                     if (end != null) {
                         endDT = java.time.LocalDateTime.of(date, end);
-                        if (endDT.isBefore(startDT)) endDT = endDT.plusDays(1);
                     } else {
                         endDT = startDT.plusHours(1);
                     }
@@ -124,9 +122,15 @@ public class TableReservationServiceImpl implements TableReservationService {
         }
 
         if (request.getEndTime() != null) {
+            if (request.getEndTime().isBefore(request.getStartTime()) || request.getEndTime().equals(request.getStartTime())) {
+                throw new BusinessException("TABLE-006", "Giờ kết thúc phải lớn hơn giờ bắt đầu.");
+            }
+            if (request.getEndTime().isAfter(LocalTime.of(23, 0))) {
+                throw new BusinessException("TABLE-008", "Nhà hàng đóng cửa lúc 23:00, quý khách vui lòng chọn giờ kết thúc sớm hơn.");
+            }
+
             java.time.LocalDateTime newStartDT = java.time.LocalDateTime.of(request.getReserveDate(), request.getStartTime());
             java.time.LocalDateTime newEndDT = java.time.LocalDateTime.of(request.getReserveDate(), request.getEndTime());
-            if (newEndDT.isBefore(newStartDT)) newEndDT = newEndDT.plusDays(1);
             if (java.time.Duration.between(newStartDT, newEndDT).toMinutes() < 30) {
                 throw new BusinessException("TABLE-006", "Thời gian đặt bàn tối thiểu là 30 phút.");
             }
@@ -150,7 +154,6 @@ public class TableReservationServiceImpl implements TableReservationService {
                 java.time.LocalDateTime existingEndDT;
                 if (res.getEndTime() != null) {
                     existingEndDT = java.time.LocalDateTime.of(request.getReserveDate(), res.getEndTime());
-                    if (existingEndDT.isBefore(existingStartDT)) existingEndDT = existingEndDT.plusDays(1);
                 } else {
                     existingEndDT = existingStartDT.plusHours(1);
                 }
@@ -162,7 +165,6 @@ public class TableReservationServiceImpl implements TableReservationService {
                 java.time.LocalDateTime newEndDT;
                 if (request.getEndTime() != null) {
                     newEndDT = java.time.LocalDateTime.of(request.getReserveDate(), request.getEndTime());
-                    if (newEndDT.isBefore(newStartDT)) newEndDT = newEndDT.plusDays(1);
                 } else {
                     newEndDT = newStartDT.plusHours(1);
                 }

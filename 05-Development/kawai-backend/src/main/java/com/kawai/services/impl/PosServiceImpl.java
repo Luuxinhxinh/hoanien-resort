@@ -13,6 +13,9 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+
 @Service
 @Transactional
 public class PosServiceImpl implements PosService {
@@ -166,9 +169,7 @@ public class PosServiceImpl implements PosService {
                             java.time.LocalDateTime resEndDT;
                             if (res.getEndTime() != null) {
                                 resEndDT = java.time.LocalDateTime.of(today, res.getEndTime());
-                                if (resEndDT.isBefore(resStartDT)) {
-                                    resEndDT = resEndDT.plusDays(1);
-                                }
+                                // plusDays(1) removed
                             } else {
                                 resEndDT = resStartDT.plusHours(1);
                             }
@@ -236,11 +237,10 @@ public class PosServiceImpl implements PosService {
         }
         order.setNote(finalNote);
 
-        Optional<Employee> empOpt = employeeRepository.findById(2L);
-        if (empOpt.isPresent()) {
-            order.setCreatedByStaff(empOpt.get());
-        } else {
-            employeeRepository.findAll().stream().findFirst().ifPresent(order::setCreatedByStaff);
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && auth.isAuthenticated() && !"anonymousUser".equals(auth.getName())) {
+            employeeRepository.findByAccountUsername(auth.getName())
+                              .ifPresent(order::setCreatedByStaff);
         }
 
         FoodOrder savedOrder = foodOrderRepository.save(order);
@@ -301,6 +301,17 @@ public class PosServiceImpl implements PosService {
         savedOrder.setTotalAmount(finalTotal);
         foodOrderRepository.save(savedOrder);
         // -----------------------------------------------------------------
+
+        // =========================================================
+        // GUARD CLAUSE — NGHIỆP VỤ: Dine-in CHỈ thanh toán tại quầy POS.
+        // CHARGE_TO_ROOM chỉ được phép cho Room Service.
+        // Chặn cả trường hợp gọi API trực tiếp (Postman/curl) để bypass Frontend.
+        // =========================================================
+        if ("CHARGE_TO_ROOM".equalsIgnoreCase(request.getPaymentType())
+                && "Dine In".equalsIgnoreCase(savedOrder.getOrderType())) {
+            throw new BusinessException("POS-011",
+                    "Đơn ăn tại bàn (Dine-in) không hỗ trợ ký bill về phòng. Vui lòng thanh toán trực tiếp tại quầy.");
+        }
 
         if ("CHARGE_TO_ROOM".equalsIgnoreCase(request.getPaymentType()) && activeBooking != null
                 && activeBooking instanceof RoomBooking) {
