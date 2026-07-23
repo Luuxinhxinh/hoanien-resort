@@ -119,10 +119,12 @@ public class CheckinServiceImpl implements CheckinService {
                 detail.setRoom(room);
                 if (allocatedCreditLimit != null && allocatedCreditLimit.compareTo(java.math.BigDecimal.ZERO) > 0) {
                         detail.setSubCreditLimit(allocatedCreditLimit);
-                } else if (detail.getSubCreditLimit() == null || detail.getSubCreditLimit().compareTo(java.math.BigDecimal.ZERO) == 0) {
-                        java.math.BigDecimal defaultLimit = (detail.getRoomBooking() != null && detail.getRoomBooking().getCreditLimit() != null)
-                                        ? detail.getRoomBooking().getCreditLimit()
-                                        : new java.math.BigDecimal("5000000.00");
+                } else if (detail.getSubCreditLimit() == null
+                                || detail.getSubCreditLimit().compareTo(java.math.BigDecimal.ZERO) == 0) {
+                        java.math.BigDecimal defaultLimit = (detail.getRoomBooking() != null
+                                        && detail.getRoomBooking().getCreditLimit() != null)
+                                                        ? detail.getRoomBooking().getCreditLimit()
+                                                        : new java.math.BigDecimal("5000000.00");
                         detail.setSubCreditLimit(defaultLimit);
                 }
                 detail.setDetailStatus(STATUS_CHECKED_IN);
@@ -396,7 +398,7 @@ public class CheckinServiceImpl implements CheckinService {
         }
 
         private Room findRoom(Long id) {
-                return roomRepo.findById(id)
+                return roomRepo.findByIdWithPessimisticLock(id)
                                 .orElseThrow(() -> new IllegalArgumentException(
                                                 "Phòng không tìm thấy với ID: " + id));
         }
@@ -606,6 +608,26 @@ public class CheckinServiceImpl implements CheckinService {
 
                                         workflowEngineService.triggerEvent("ROOM_CHECKIN", payload);
                                 }
+                        }
+                }
+
+                // Gửi email xác nhận Check-in cho Khách đặt phòng chính (Sử dụng template
+                // walkin-checkin-existing)
+                if (emailService != null && customer != null && roomBooking != null) {
+                        try {
+                                com.kawai.models.RoomBookingDetail mailDetail = null;
+                                if (form.getAssignedRoomNumbers() != null && !form.getAssignedRoomNumbers().isEmpty()) {
+                                        Long fId = roomNumberToDetailIdMap.get(form.getAssignedRoomNumbers().get(0));
+                                        if (fId != null) {
+                                                mailDetail = roomBookingDetailRepo.findById(fId).orElse(null);
+                                        }
+                                }
+                                if (mailDetail != null) {
+                                        emailService.sendWalkInCheckInEmail(roomBooking, mailDetail, customer, false,
+                                                        null, null);
+                                }
+                        } catch (Exception e) {
+                                log.error("Lỗi gửi email xác nhận Check-in Booking Online: ", e);
                         }
                 }
 
