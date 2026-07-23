@@ -238,36 +238,4 @@ public class KdsServiceImpl implements KdsService {
         menuItem.setIsAvailable(false);
         foodItemRepository.save(menuItem);
     }
-
-    @Override
-    @Transactional
-    public void cancelFoodOrderDetail(Long detailId, String reason, Long staffId) {
-        FoodOrderDetail detail = foodOrderDetailRepository.findById(detailId)
-                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy order detail"));
-
-        if ("Preparing".equalsIgnoreCase(detail.getKotStatus())
-                || "Completed".equalsIgnoreCase(detail.getKotStatus())) {
-            throw new IllegalStateException("POS-004: Không thể sửa/xóa — order đã vào bếp");
-        }
-
-        Employee staff = employeeRepository.findById(staffId)
-                .orElseThrow(() -> new IllegalArgumentException("Nhân viên không tồn tại"));
-
-        detail.setKotStatus("Cancelled");
-        foodOrderDetailRepository.save(detail);
-
-        // Audit Log
-        AuditLog log = new AuditLog();
-        log.setAction("CANCEL_ORDER_ITEM");
-        log.setTableName("Food_Order_Details");
-        log.setRecordId(detail.getId());
-        log.setOldValue("Pending");
-        log.setNewValue("Cancelled (Reason: " + reason + ")");
-        log.setIpAddress("127.0.0.1");
-        log.setTimestamp(LocalDateTime.now());
-        if (staff.getAccount() != null) {
-            log.setAccount(staff.getAccount());
-        }
-        auditLogRepository.save(log);
-    }
 }
