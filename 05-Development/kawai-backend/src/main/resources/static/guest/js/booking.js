@@ -483,7 +483,6 @@ function openRoomInfoModal(roomJsonStr) {
 
     currentRoomImageIndex = 0;
     document.getElementById('detailRoomName').innerText = room.categoryName;
-
     const gallery = document.getElementById('detailRoomImageGallery');
     if (gallery) {
         gallery.innerHTML = '';
