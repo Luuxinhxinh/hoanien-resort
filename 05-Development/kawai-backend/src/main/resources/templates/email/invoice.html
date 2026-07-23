@@ -129,26 +129,55 @@
             <div class="invoice-title">HÓA ĐƠN KHÁCH HÀNG</div>
         </div>
 
-        <div class="info-grid">
-            <div><strong>Tên khách hàng:</strong> <span th:text="${customerName}">Customer</span><br><strong>Số
-                    phòng:</strong> <span th:text="${roomNumber}">...</span></div>
-            <div><strong>Mã hóa đơn:</strong> <span th:text="${invoiceNumber}">INV-1756</span><br><strong>Ngày:</strong>
-                <span th:text="${issuedDate}">26/06/2026</span></div>
-        </div>
+        <table style="width: 100%; border: none; margin-bottom: 30px; font-size: 14px; line-height: 1.6; font-family: 'Times New Roman', serif;">
+            <tr>
+                <td style="width: 60%; padding: 0; border: none; text-align: left; color: #2F1F17; vertical-align: top;">
+                    <strong>Tên khách hàng:</strong> <span th:text="${customerName}">Customer</span><br>
+                    <strong>Số phòng:</strong> <span th:text="${roomNumber}">...</span> &nbsp;|&nbsp; <strong>Số khách:</strong> <span th:text="${guestCount}">2</span><br>
+                    <strong>Check-in:</strong> <span th:text="${checkInDate}">20/07/2026</span><br>
+                    <strong>Check-out:</strong> <span th:text="${checkOutDate}">23/07/2026</span>
+                </td>
+                <td style="width: 40%; padding: 0; border: none; text-align: right; color: #2F1F17; vertical-align: top;">
+                    <strong>Mã hóa đơn:</strong> <span th:text="${invoiceNumber}">INV-1756</span><br>
+                    <strong>Ngày xuất:</strong> <span th:text="${issuedDate}">26/06/2026</span>
+                </td>
+            </tr>
+        </table>
 
-        <table>
+        <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px; font-family: 'Times New Roman', serif;">
             <thead>
                 <tr>
-                    <th>Thời gian</th>
-                    <th>Mô tả giao dịch</th>
-                    <th class="text-right">Thành tiền (VNĐ)</th>
+                    <th style="border-bottom: 1px solid #2F1F17; padding: 10px 0; text-align: left; font-size: 14px; width: 15%; color: #2F1F17;">Ngày</th>
+                    <th style="border-bottom: 1px solid #2F1F17; padding: 10px 0; text-align: left; font-size: 14px; width: 40%; color: #2F1F17;">Mô tả</th>
+                    <th style="border-bottom: 1px solid #2F1F17; padding: 10px 0; text-align: center; font-size: 14px; width: 10%; color: #2F1F17;">Số lượng</th>
+                    <th style="border-bottom: 1px solid #2F1F17; padding: 10px 0; text-align: right; font-size: 14px; width: 15%; color: #2F1F17;">Đơn giá</th>
+                    <th style="border-bottom: 1px solid #2F1F17; padding: 10px 0; text-align: right; font-size: 14px; width: 20%; color: #2F1F17;">Thành tiền (VNĐ)</th>
                 </tr>
             </thead>
             <tbody>
                 <tr th:each="item : ${items}">
-                    <td th:text="${item.date}">26/06/2026</td>
-                    <td th:text="${item.description}">Tiền phòng</td>
-                    <td class="text-right" th:text="${item.amount}">1.500.000</td>
+                    <!-- Cột Ngày -->
+                    <td style="padding: 10px 0; border-bottom: 1px dashed #ddd; font-size: 14px; color: #2F1F17; text-align: left;"
+                        th:text="${item.date}">26/06/2026</td>
+                    
+                    <!-- Cột Mô tả -->
+                    <td th:style="${item.isChild} ? 'padding: 8px 0 8px 20px; border-bottom: 1px dashed #eee; font-style: italic; font-size: 14px; color: #2F1F17; text-align: left;' : 'padding: 10px 0; border-bottom: 1px dashed #ddd; font-size: 14px; color: #2F1F17; text-align: left;'"
+                        th:text="${item.description}">Tiền phòng</td>
+                    
+                    <!-- Cột Số lượng -->
+                    <td style="padding: 10px 0; border-bottom: 1px dashed #ddd; font-size: 14px; color: #2F1F17; text-align: center;"
+                        th:style="${item.isChild} ? 'padding: 8px 0; border-bottom: 1px dashed #eee; font-style: italic; font-size: 14px; color: #2F1F17; text-align: center;' : 'padding: 10px 0; border-bottom: 1px dashed #ddd; font-size: 14px; color: #2F1F17; text-align: center;'"
+                        th:text="${item.qty}">1</td>
+                    
+                    <!-- Cột Đơn giá -->
+                    <td style="padding: 10px 0; border-bottom: 1px dashed #ddd; font-size: 14px; color: #2F1F17; text-align: right;"
+                        th:style="${item.isChild} ? 'padding: 8px 0; border-bottom: 1px dashed #eee; font-style: italic; font-size: 14px; color: #2F1F17; text-align: right;' : 'padding: 10px 0; border-bottom: 1px dashed #ddd; font-size: 14px; color: #2F1F17; text-align: right;'"
+                        th:text="${item.unitPrice}">1.500.000</td>
+                    
+                    <!-- Cột Thành tiền -->
+                    <td style="padding: 10px 0; border-bottom: 1px dashed #ddd; font-size: 14px; color: #2F1F17; text-align: right;"
+                        th:style="${item.isChild} ? 'padding: 8px 0; border-bottom: 1px dashed #eee; font-style: italic; font-size: 14px; color: #2F1F17; text-align: right;' : 'padding: 10px 0; border-bottom: 1px dashed #ddd; font-size: 14px; color: #2F1F17; text-align: right;'"
+                        th:text="${item.amount}">1.500.000</td>
                 </tr>
             </tbody>
         </table>

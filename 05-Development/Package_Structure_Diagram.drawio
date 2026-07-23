@@ -1,0 +1,283 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="app.diagrams.net" modified="2026-07-22T00:00:00.000Z" agent="5.0" version="21.6.5" type="device">
+  <diagram name="Package Structure" id="kawai-package-structure">
+    <mxGraphModel dx="1800" dy="1000" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1900" pageHeight="1400" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <mxCell id="title" value="com.kawai (Spring Boot -- Kawai Hotel Management System)" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=18;fontStyle=1;fontColor=#1a1a2e;" vertex="1" parent="1">
+          <mxGeometry x="100" y="20" width="1680" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- ===== CONFIG ===== -->
+        <mxCell id="config-pkg" value="config" style="swimlane;startSize=25;fillColor=#fce5cd;strokeColor=#d79b00;fontSize=12;fontStyle=1;arcSize=5;" vertex="1" parent="1">
+          <mxGeometry x="120" y="80" width="260" height="280" as="geometry" />
+        </mxCell>
+        <mxCell id="c1" value="SecurityConfig" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="config-pkg"><mxGeometry x="0" y="28" width="260" height="20" as="geometry" /></mxCell>
+        <mxCell id="c2" value="WebMvcConfig" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="config-pkg"><mxGeometry x="0" y="50" width="260" height="20" as="geometry" /></mxCell>
+        <mxCell id="c3" value="WebSocketConfig" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="config-pkg"><mxGeometry x="0" y="72" width="260" height="20" as="geometry" /></mxCell>
+        <mxCell id="c4" value="CloudinaryConfig" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="config-pkg"><mxGeometry x="0" y="94" width="260" height="20" as="geometry" /></mxCell>
+        <mxCell id="c5" value="VnPayConfig" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="config-pkg"><mxGeometry x="0" y="116" width="260" height="20" as="geometry" /></mxCell>
+        <mxCell id="c6" value="OAuth2SuccessHandler" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="config-pkg"><mxGeometry x="0" y="138" width="260" height="20" as="geometry" /></mxCell>
+        <mxCell id="c7" value="DynamicJobManager" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="config-pkg"><mxGeometry x="0" y="160" width="260" height="20" as="geometry" /></mxCell>
+        <mxCell id="c8" value="GlobalSessionAdvice" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="config-pkg"><mxGeometry x="0" y="182" width="260" height="20" as="geometry" /></mxCell>
+        <mxCell id="c9" value="AuditLogAspect" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="config-pkg"><mxGeometry x="0" y="204" width="260" height="20" as="geometry" /></mxCell>
+        <mxCell id="c10" value="RolePermissionSeeder" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="config-pkg"><mxGeometry x="0" y="226" width="260" height="20" as="geometry" /></mxCell>
+        <mxCell id="c11" value="TourItinerarySeeder / CustomRevisionListener" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="config-pkg"><mxGeometry x="0" y="248" width="260" height="20" as="geometry" /></mxCell>
+
+        <!-- ===== SECURITY ===== -->
+        <mxCell id="security-pkg" value="security" style="swimlane;startSize=25;fillColor=#f8cecc;strokeColor=#b85450;fontSize=12;fontStyle=1;arcSize=5;" vertex="1" parent="1">
+          <mxGeometry x="120" y="390" width="260" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="s1" value="UserDetailsServiceImpl" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="security-pkg"><mxGeometry x="0" y="28" width="260" height="20" as="geometry" /></mxCell>
+        <mxCell id="s2" value="AuthenticationEvents" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="security-pkg"><mxGeometry x="0" y="50" width="260" height="20" as="geometry" /></mxCell>
+        <mxCell id="s3" value="RolePermissionConstants" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="security-pkg"><mxGeometry x="0" y="72" width="260" height="20" as="geometry" /></mxCell>
+
+        <!-- ===== CONTROLLERS WEB ===== -->
+        <mxCell id="cw-pkg" value="controllers.web" style="swimlane;startSize=25;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=12;fontStyle=1;arcSize=5;" vertex="1" parent="1">
+          <mxGeometry x="420" y="80" width="280" height="300" as="geometry" />
+        </mxCell>
+        <mxCell id="cw1" value="AuthController / LoginController" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="cw-pkg"><mxGeometry x="0" y="28" width="280" height="20" as="geometry" /></mxCell>
+        <mxCell id="cw2" value="AdminController" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="cw-pkg"><mxGeometry x="0" y="50" width="280" height="20" as="geometry" /></mxCell>
+        <mxCell id="cw3" value="ManagerController" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="cw-pkg"><mxGeometry x="0" y="72" width="280" height="20" as="geometry" /></mxCell>
+        <mxCell id="cw4" value="ReceptionistController" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="cw-pkg"><mxGeometry x="0" y="94" width="280" height="20" as="geometry" /></mxCell>
+        <mxCell id="cw5" value="ReceptionistCheckinWebController" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="cw-pkg"><mxGeometry x="0" y="116" width="280" height="20" as="geometry" /></mxCell>
+        <mxCell id="cw6" value="BookingController" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="cw-pkg"><mxGeometry x="0" y="138" width="280" height="20" as="geometry" /></mxCell>
+        <mxCell id="cw7" value="TourController / TourGuideController" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="cw-pkg"><mxGeometry x="0" y="160" width="280" height="20" as="geometry" /></mxCell>
+        <mxCell id="cw8" value="HousekeepingWebController" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="cw-pkg"><mxGeometry x="0" y="182" width="280" height="20" as="geometry" /></mxCell>
+        <mxCell id="cw9" value="MaintenanceWebController" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="cw-pkg"><mxGeometry x="0" y="204" width="280" height="20" as="geometry" /></mxCell>
+        <mxCell id="cw10" value="OrderFoodController / KitchenController / PosController" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="cw-pkg"><mxGeometry x="0" y="226" width="280" height="20" as="geometry" /></mxCell>
+        <mxCell id="cw11" value="FeedbackController / ProfileController / PaymentController" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="cw-pkg"><mxGeometry x="0" y="248" width="280" height="20" as="geometry" /></mxCell>
+        <mxCell id="cw12" value="ChangeRoomController / AccountController / BackdoorController" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="cw-pkg"><mxGeometry x="0" y="270" width="280" height="20" as="geometry" /></mxCell>
+
+        <!-- ===== CONTROLLERS API ===== -->
+        <mxCell id="ca-pkg" value="controllers.api" style="swimlane;startSize=25;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=12;fontStyle=1;arcSize=5;" vertex="1" parent="1">
+          <mxGeometry x="420" y="410" width="280" height="520" as="geometry" />
+        </mxCell>
+        <mxCell id="ca1" value="AuthApiController" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="ca-pkg"><mxGeometry x="0" y="28" width="280" height="20" as="geometry" /></mxCell>
+        <mxCell id="ca2" value="BookingApiController" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="ca-pkg"><mxGeometry x="0" y="50" width="280" height="20" as="geometry" /></mxCell>
+        <mxCell id="ca3" value="RoomApiController" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="ca-pkg"><mxGeometry x="0" y="72" width="280" height="20" as="geometry" /></mxCell>
+        <mxCell id="ca4" value="FolioRestController" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="ca-pkg"><mxGeometry x="0" y="94" width="280" height="20" as="geometry" /></mxCell>
+        <mxCell id="ca5" value="PaymentApiController" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="ca-pkg"><mxGeometry x="0" y="116" width="280" height="20" as="geometry" /></mxCell>
+        <mxCell id="ca6" value="TourBookingApiController" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="ca-pkg"><mxGeometry x="0" y="138" width="280" height="20" as="geometry" /></mxCell>
+        <mxCell id="ca7" value="TourIncidentApiController / TourGpsApiController" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="ca-pkg"><mxGeometry x="0" y="160" width="280" height="20" as="geometry" /></mxCell>
+        <mxCell id="ca8" value="PosApiController" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="ca-pkg"><mxGeometry x="0" y="182" width="280" height="20" as="geometry" /></mxCell>
+        <mxCell id="ca9" value="HousekeepingApiController" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="ca-pkg"><mxGeometry x="0" y="204" width="280" height="20" as="geometry" /></mxCell>
+        <mxCell id="ca10" value="ManagerApprovalApiController" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="ca-pkg"><mxGeometry x="0" y="226" width="280" height="20" as="geometry" /></mxCell>
+        <mxCell id="ca11" value="ManagerReportApiController / ManagerRefundApiController" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="ca-pkg"><mxGeometry x="0" y="248" width="280" height="20" as="geometry" /></mxCell>
+        <mxCell id="ca12" value="ManagerRequestApiController / ManagerScheduleApiController" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="ca-pkg"><mxGeometry x="0" y="270" width="280" height="20" as="geometry" /></mxCell>
+        <mxCell id="ca13" value="AdminAccountRestController" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="ca-pkg"><mxGeometry x="0" y="292" width="280" height="20" as="geometry" /></mxCell>
+        <mxCell id="ca14" value="AuditApiController" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="ca-pkg"><mxGeometry x="0" y="314" width="280" height="20" as="geometry" /></mxCell>
+        <mxCell id="ca15" value="FaceIdApiController / RemoteScanApiController" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="ca-pkg"><mxGeometry x="0" y="336" width="280" height="20" as="geometry" /></mxCell>
+        <mxCell id="ca16" value="WorkflowApiController" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="ca-pkg"><mxGeometry x="0" y="358" width="280" height="20" as="geometry" /></mxCell>
+        <mxCell id="ca17" value="NightAuditRestController / CronjobApiController" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="ca-pkg"><mxGeometry x="0" y="380" width="280" height="20" as="geometry" /></mxCell>
+        <mxCell id="ca18" value="TableApiController / MenuItemApiController" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="ca-pkg"><mxGeometry x="0" y="402" width="280" height="20" as="geometry" /></mxCell>
+        <mxCell id="ca19" value="ReviewRestController / StaffScheduleRestController" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="ca-pkg"><mxGeometry x="0" y="424" width="280" height="20" as="geometry" /></mxCell>
+        <mxCell id="ca20" value="GuestApiController / GuestRequestApiController" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="ca-pkg"><mxGeometry x="0" y="446" width="280" height="20" as="geometry" /></mxCell>
+        <mxCell id="ca21" value="WalkInCheckInApiController" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="ca-pkg"><mxGeometry x="0" y="468" width="280" height="20" as="geometry" /></mxCell>
+        <mxCell id="ca22" value="MasterDataApiController / ExportApiController / ImportApiController" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="ca-pkg"><mxGeometry x="0" y="490" width="280" height="20" as="geometry" /></mxCell>
+
+        <!-- ===== SERVICES INTERFACES ===== -->
+        <mxCell id="si-pkg" value="services.interfaces" style="swimlane;startSize=25;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=12;fontStyle=1;arcSize=5;" vertex="1" parent="1">
+          <mxGeometry x="740" y="80" width="270" height="420" as="geometry" />
+        </mxCell>
+        <mxCell id="si1" value="AuthService" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="si-pkg"><mxGeometry x="0" y="28" width="270" height="20" as="geometry" /></mxCell>
+        <mxCell id="si2" value="BookingService" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="si-pkg"><mxGeometry x="0" y="50" width="270" height="20" as="geometry" /></mxCell>
+        <mxCell id="si3" value="RoomService" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="si-pkg"><mxGeometry x="0" y="72" width="270" height="20" as="geometry" /></mxCell>
+        <mxCell id="si4" value="PaymentService / VnPayService" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="si-pkg"><mxGeometry x="0" y="94" width="270" height="20" as="geometry" /></mxCell>
+        <mxCell id="si5" value="TourService / TourBookingService" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="si-pkg"><mxGeometry x="0" y="116" width="270" height="20" as="geometry" /></mxCell>
+        <mxCell id="si6" value="FolioService" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="si-pkg"><mxGeometry x="0" y="138" width="270" height="20" as="geometry" /></mxCell>
+        <mxCell id="si7" value="HousekeepingService" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="si-pkg"><mxGeometry x="0" y="160" width="270" height="20" as="geometry" /></mxCell>
+        <mxCell id="si8" value="PosService / PosWebFacadeService / KdsService" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="si-pkg"><mxGeometry x="0" y="182" width="270" height="20" as="geometry" /></mxCell>
+        <mxCell id="si9" value="EmailService / NotificationService" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="si-pkg"><mxGeometry x="0" y="204" width="270" height="20" as="geometry" /></mxCell>
+        <mxCell id="si10" value="UserService / AdminViewService" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="si-pkg"><mxGeometry x="0" y="226" width="270" height="20" as="geometry" /></mxCell>
+        <mxCell id="si11" value="ReviewService / SystemNotificationService" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="si-pkg"><mxGeometry x="0" y="248" width="270" height="20" as="geometry" /></mxCell>
+        <mxCell id="si12" value="CheckinService / WalkInCheckInService" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="si-pkg"><mxGeometry x="0" y="270" width="270" height="20" as="geometry" /></mxCell>
+        <mxCell id="si13" value="DependentService / CategoryService" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="si-pkg"><mxGeometry x="0" y="292" width="270" height="20" as="geometry" /></mxCell>
+        <mxCell id="si14" value="MasterDataService / ReportService" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="si-pkg"><mxGeometry x="0" y="314" width="270" height="20" as="geometry" /></mxCell>
+        <mxCell id="si15" value="TableService / TableReservationService" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="si-pkg"><mxGeometry x="0" y="336" width="270" height="20" as="geometry" /></mxCell>
+        <mxCell id="si16" value="WorkflowEngineService / NightAuditService" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="si-pkg"><mxGeometry x="0" y="358" width="270" height="20" as="geometry" /></mxCell>
+        <mxCell id="si17" value="AIServiceClient / WeatherApiClient" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="si-pkg"><mxGeometry x="0" y="380" width="270" height="20" as="geometry" /></mxCell>
+        <mxCell id="si18" value="FileUploadService / ChangeRoomCategoryService / PricingService" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="si-pkg"><mxGeometry x="0" y="402" width="270" height="18" as="geometry" /></mxCell>
+
+        <!-- ===== SERVICES IMPL ===== -->
+        <mxCell id="sim-pkg" value="services.impl" style="swimlane;startSize=25;fillColor=#c9b8e8;strokeColor=#7352a6;fontSize=12;fontStyle=1;arcSize=5;" vertex="1" parent="1">
+          <mxGeometry x="740" y="530" width="270" height="400" as="geometry" />
+        </mxCell>
+        <mxCell id="simnote" value="(implements interfaces above)" style="text;html=1;align=center;fontSize=9;fontStyle=2;fontColor=#555;" vertex="1" parent="sim-pkg"><mxGeometry x="0" y="28" width="270" height="16" as="geometry" /></mxCell>
+        <mxCell id="sim1" value="AuthServiceImpl" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="sim-pkg"><mxGeometry x="0" y="46" width="270" height="20" as="geometry" /></mxCell>
+        <mxCell id="sim2" value="BookingServiceImpl" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="sim-pkg"><mxGeometry x="0" y="68" width="270" height="20" as="geometry" /></mxCell>
+        <mxCell id="sim3" value="RoomServiceImpl" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="sim-pkg"><mxGeometry x="0" y="90" width="270" height="20" as="geometry" /></mxCell>
+        <mxCell id="sim4" value="PaymentServiceImpl / VnPayServiceImpl" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="sim-pkg"><mxGeometry x="0" y="112" width="270" height="20" as="geometry" /></mxCell>
+        <mxCell id="sim5" value="TourServiceImpl / TourBookingServiceImpl" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="sim-pkg"><mxGeometry x="0" y="134" width="270" height="20" as="geometry" /></mxCell>
+        <mxCell id="sim6" value="FolioServiceImpl / EmailServiceImpl" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="sim-pkg"><mxGeometry x="0" y="156" width="270" height="20" as="geometry" /></mxCell>
+        <mxCell id="sim7" value="HousekeepingServiceImpl" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="sim-pkg"><mxGeometry x="0" y="178" width="270" height="20" as="geometry" /></mxCell>
+        <mxCell id="sim8" value="PosServiceImpl / PosWebFacadeServiceImpl / KdsServiceImpl" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="sim-pkg"><mxGeometry x="0" y="200" width="270" height="20" as="geometry" /></mxCell>
+        <mxCell id="sim9" value="CheckinServiceImpl / WalkInCheckInServiceImpl" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="sim-pkg"><mxGeometry x="0" y="222" width="270" height="20" as="geometry" /></mxCell>
+        <mxCell id="sim10" value="UserServiceImpl / AdminViewServiceImpl" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="sim-pkg"><mxGeometry x="0" y="244" width="270" height="20" as="geometry" /></mxCell>
+        <mxCell id="sim11" value="MasterDataServiceImpl / ReportServiceImpl / ReviewServiceImpl" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="sim-pkg"><mxGeometry x="0" y="266" width="270" height="20" as="geometry" /></mxCell>
+        <mxCell id="sim12" value="DependentServiceImpl / CategoryServiceImpl" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="sim-pkg"><mxGeometry x="0" y="288" width="270" height="20" as="geometry" /></mxCell>
+        <mxCell id="sim13" value="TableServiceImpl / TableReservationServiceImpl" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="sim-pkg"><mxGeometry x="0" y="310" width="270" height="20" as="geometry" /></mxCell>
+        <mxCell id="sim14" value="WorkflowEngineServiceImpl / NightAuditServiceImpl" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="sim-pkg"><mxGeometry x="0" y="332" width="270" height="20" as="geometry" /></mxCell>
+        <mxCell id="sim15" value="NotificationServiceImpl / SystemNotificationServiceImpl" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="sim-pkg"><mxGeometry x="0" y="354" width="270" height="20" as="geometry" /></mxCell>
+        <mxCell id="sim16" value="EncryptionServiceImpl / InvoicePdfServiceImpl / MarketingServiceImpl" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="sim-pkg"><mxGeometry x="0" y="376" width="270" height="20" as="geometry" /></mxCell>
+
+        <!-- ===== REPOSITORIES ===== -->
+        <mxCell id="repo-pkg" value="repositories" style="swimlane;startSize=25;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=12;fontStyle=1;arcSize=5;" vertex="1" parent="1">
+          <mxGeometry x="1050" y="80" width="280" height="580" as="geometry" />
+        </mxCell>
+        <mxCell id="rpnote" value="(extends JpaRepository)" style="text;html=1;align=center;fontSize=9;fontStyle=2;fontColor=#555;" vertex="1" parent="repo-pkg"><mxGeometry x="0" y="28" width="280" height="16" as="geometry" /></mxCell>
+        <mxCell id="rp1" value="AccountRepository" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="repo-pkg"><mxGeometry x="0" y="46" width="280" height="20" as="geometry" /></mxCell>
+        <mxCell id="rp2" value="BookingRepository / BookingInfoRepository" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="repo-pkg"><mxGeometry x="0" y="68" width="280" height="20" as="geometry" /></mxCell>
+        <mxCell id="rp3" value="RoomRepository / RoomCategoryRepository" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="repo-pkg"><mxGeometry x="0" y="90" width="280" height="20" as="geometry" /></mxCell>
+        <mxCell id="rp4" value="RoomBookingRepository / RoomBookingDetailRepository" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="repo-pkg"><mxGeometry x="0" y="112" width="280" height="20" as="geometry" /></mxCell>
+        <mxCell id="rp5" value="RoomGuestRepository / RoomSurchargeRepository" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="repo-pkg"><mxGeometry x="0" y="134" width="280" height="20" as="geometry" /></mxCell>
+        <mxCell id="rp6" value="CustomerRepository / DependentRepository" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="repo-pkg"><mxGeometry x="0" y="156" width="280" height="20" as="geometry" /></mxCell>
+        <mxCell id="rp7" value="EmployeeRepository" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="repo-pkg"><mxGeometry x="0" y="178" width="280" height="20" as="geometry" /></mxCell>
+        <mxCell id="rp8" value="TourRepository / TourBookingRepository" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="repo-pkg"><mxGeometry x="0" y="200" width="280" height="20" as="geometry" /></mxCell>
+        <mxCell id="rp9" value="TourScheduleRepository / TourAttendeeRepository" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="repo-pkg"><mxGeometry x="0" y="222" width="280" height="20" as="geometry" /></mxCell>
+        <mxCell id="rp10" value="TourItineraryRepository / TourItineraryDetailRepository" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="repo-pkg"><mxGeometry x="0" y="244" width="280" height="20" as="geometry" /></mxCell>
+        <mxCell id="rp11" value="TourStaffAssignmentRepository" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="repo-pkg"><mxGeometry x="0" y="266" width="280" height="20" as="geometry" /></mxCell>
+        <mxCell id="rp12" value="PaymentTransactionRepository" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="repo-pkg"><mxGeometry x="0" y="288" width="280" height="20" as="geometry" /></mxCell>
+        <mxCell id="rp13" value="FolioItemRepository / ConsolidatedInvoiceRepository" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="repo-pkg"><mxGeometry x="0" y="310" width="280" height="20" as="geometry" /></mxCell>
+        <mxCell id="rp14" value="FoodOrderRepository / FoodOrderDetailRepository / FoodItemRepository" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="repo-pkg"><mxGeometry x="0" y="332" width="280" height="20" as="geometry" /></mxCell>
+        <mxCell id="rp15" value="RestaurantTableRepository / TableReservationRepository" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="repo-pkg"><mxGeometry x="0" y="354" width="280" height="20" as="geometry" /></mxCell>
+        <mxCell id="rp16" value="HousekeepingTaskRepository / MaintenanceRequestRepository" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="repo-pkg"><mxGeometry x="0" y="376" width="280" height="20" as="geometry" /></mxCell>
+        <mxCell id="rp17" value="ReviewRepository / AuditLogRepository" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="repo-pkg"><mxGeometry x="0" y="398" width="280" height="20" as="geometry" /></mxCell>
+        <mxCell id="rp18" value="RoleRepository / AuthorizedDeviceRepository" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="repo-pkg"><mxGeometry x="0" y="420" width="280" height="20" as="geometry" /></mxCell>
+        <mxCell id="rp19" value="WorkflowRepository / BookingServiceRepository" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="repo-pkg"><mxGeometry x="0" y="442" width="280" height="20" as="geometry" /></mxCell>
+        <mxCell id="rp20" value="DailyRateRepository / DynamicPricingRepository" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="repo-pkg"><mxGeometry x="0" y="464" width="280" height="20" as="geometry" /></mxCell>
+        <mxCell id="rp21" value="MembershipTierRepository / PromotionRepository" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="repo-pkg"><mxGeometry x="0" y="486" width="280" height="20" as="geometry" /></mxCell>
+        <mxCell id="rp22" value="RefundRequestRepository / ExportHistoryRepository" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="repo-pkg"><mxGeometry x="0" y="508" width="280" height="20" as="geometry" /></mxCell>
+        <mxCell id="rp23" value="ShiftRepository / StaffScheduleRepository" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="repo-pkg"><mxGeometry x="0" y="530" width="280" height="20" as="geometry" /></mxCell>
+        <mxCell id="rp24" value="HotelServiceRepository / SystemNotificationRepository" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="repo-pkg"><mxGeometry x="0" y="552" width="280" height="20" as="geometry" /></mxCell>
+
+        <!-- ===== MODELS ===== -->
+        <mxCell id="model-pkg" value="models (@Entity)" style="swimlane;startSize=25;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=12;fontStyle=1;arcSize=5;" vertex="1" parent="1">
+          <mxGeometry x="1370" y="80" width="200" height="760" as="geometry" />
+        </mxCell>
+        <mxCell id="m1" value="Account" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="model-pkg"><mxGeometry x="0" y="28" width="200" height="20" as="geometry" /></mxCell>
+        <mxCell id="m2" value="Role" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="model-pkg"><mxGeometry x="0" y="50" width="200" height="20" as="geometry" /></mxCell>
+        <mxCell id="m3" value="Customer / Dependent" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="model-pkg"><mxGeometry x="0" y="72" width="200" height="20" as="geometry" /></mxCell>
+        <mxCell id="m4" value="Employee" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="model-pkg"><mxGeometry x="0" y="94" width="200" height="20" as="geometry" /></mxCell>
+        <mxCell id="m5" value="Booking / BookingService (entity)" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="model-pkg"><mxGeometry x="0" y="116" width="200" height="20" as="geometry" /></mxCell>
+        <mxCell id="m6" value="Room / RoomCategory" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="model-pkg"><mxGeometry x="0" y="138" width="200" height="20" as="geometry" /></mxCell>
+        <mxCell id="m7" value="RoomBooking / RoomBookingDetail" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="model-pkg"><mxGeometry x="0" y="160" width="200" height="20" as="geometry" /></mxCell>
+        <mxCell id="m8" value="RoomGuest / RoomSurcharge" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="model-pkg"><mxGeometry x="0" y="182" width="200" height="20" as="geometry" /></mxCell>
+        <mxCell id="m9" value="FolioItem / ConsolidatedInvoice" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="model-pkg"><mxGeometry x="0" y="204" width="200" height="20" as="geometry" /></mxCell>
+        <mxCell id="m10" value="PaymentTransaction / RefundRequest" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="model-pkg"><mxGeometry x="0" y="226" width="200" height="20" as="geometry" /></mxCell>
+        <mxCell id="m11" value="Tour / TourSchedule / TourPrice" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="model-pkg"><mxGeometry x="0" y="248" width="200" height="20" as="geometry" /></mxCell>
+        <mxCell id="m12" value="TourBooking / TourAttendee" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="model-pkg"><mxGeometry x="0" y="270" width="200" height="20" as="geometry" /></mxCell>
+        <mxCell id="m13" value="TourItinerary / TourItineraryDetail" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="model-pkg"><mxGeometry x="0" y="292" width="200" height="20" as="geometry" /></mxCell>
+        <mxCell id="m14" value="TourStaffAssignment / TourLocation / TourImage" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="model-pkg"><mxGeometry x="0" y="314" width="200" height="20" as="geometry" /></mxCell>
+        <mxCell id="m15" value="RunItineraryStatus" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="model-pkg"><mxGeometry x="0" y="336" width="200" height="20" as="geometry" /></mxCell>
+        <mxCell id="m16" value="FoodOrder / FoodOrderDetail / MenuItem" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="model-pkg"><mxGeometry x="0" y="358" width="200" height="20" as="geometry" /></mxCell>
+        <mxCell id="m17" value="RestaurantTable / TableReservation" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="model-pkg"><mxGeometry x="0" y="380" width="200" height="20" as="geometry" /></mxCell>
+        <mxCell id="m18" value="FnBDailyReport" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="model-pkg"><mxGeometry x="0" y="402" width="200" height="20" as="geometry" /></mxCell>
+        <mxCell id="m19" value="HotelService / HotelOperation" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="model-pkg"><mxGeometry x="0" y="424" width="200" height="20" as="geometry" /></mxCell>
+        <mxCell id="m20" value="Promotion / MembershipTier" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="model-pkg"><mxGeometry x="0" y="446" width="200" height="20" as="geometry" /></mxCell>
+        <mxCell id="m21" value="DailyRate / DynamicPricing" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="model-pkg"><mxGeometry x="0" y="468" width="200" height="20" as="geometry" /></mxCell>
+        <mxCell id="m22" value="Review / AuditLog" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="model-pkg"><mxGeometry x="0" y="490" width="200" height="20" as="geometry" /></mxCell>
+        <mxCell id="m23" value="Workflow / SystemNotification" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="model-pkg"><mxGeometry x="0" y="512" width="200" height="20" as="geometry" /></mxCell>
+        <mxCell id="m24" value="Shift / StaffSchedule" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="model-pkg"><mxGeometry x="0" y="534" width="200" height="20" as="geometry" /></mxCell>
+        <mxCell id="m25" value="AuthorizedDevice / ExportHistory" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="model-pkg"><mxGeometry x="0" y="556" width="200" height="20" as="geometry" /></mxCell>
+        <mxCell id="m26" value="CustomRevisionEntity / CheckpointAttendance" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="model-pkg"><mxGeometry x="0" y="578" width="200" height="20" as="geometry" /></mxCell>
+        <mxCell id="m27" value="PaymentStatus (enum)" style="text;html=1;align=left;spacingLeft=8;fontSize=10;fontStyle=2;" vertex="1" parent="model-pkg"><mxGeometry x="0" y="600" width="200" height="20" as="geometry" /></mxCell>
+
+        <!-- ===== DTO ===== -->
+        <mxCell id="dto-pkg" value="dto" style="swimlane;startSize=25;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=12;fontStyle=1;arcSize=5;" vertex="1" parent="1">
+          <mxGeometry x="120" y="520" width="260" height="360" as="geometry" />
+        </mxCell>
+        <mxCell id="d1" value="BookingRequestDTO / BookingResponseDTO" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="dto-pkg"><mxGeometry x="0" y="28" width="260" height="20" as="geometry" /></mxCell>
+        <mxCell id="d2" value="BookingDetailResponseDTO / BookingApiResponse" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="dto-pkg"><mxGeometry x="0" y="50" width="260" height="20" as="geometry" /></mxCell>
+        <mxCell id="d3" value="RoomSearchRequestDTO / RoomSearchResponseDTO" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="dto-pkg"><mxGeometry x="0" y="72" width="260" height="20" as="geometry" /></mxCell>
+        <mxCell id="d4" value="RoomDashboardDTO / RoomSelectionDTO / RoomInfoDto" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="dto-pkg"><mxGeometry x="0" y="94" width="260" height="20" as="geometry" /></mxCell>
+        <mxCell id="d5" value="TourBookingRequest / TourSearchResult" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="dto-pkg"><mxGeometry x="0" y="116" width="260" height="20" as="geometry" /></mxCell>
+        <mxCell id="d6" value="CheckinSubmitFormDTO" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="dto-pkg"><mxGeometry x="0" y="138" width="260" height="20" as="geometry" /></mxCell>
+        <mxCell id="d7" value="DependentRegistrationDTO / DependentResponseDTO" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="dto-pkg"><mxGeometry x="0" y="160" width="260" height="20" as="geometry" /></mxCell>
+        <mxCell id="d8" value="SystemNotificationDTO" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="dto-pkg"><mxGeometry x="0" y="182" width="260" height="20" as="geometry" /></mxCell>
+        <mxCell id="d9" value="CancelBookingRequestDTO / CancelRequestDTO" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="dto-pkg"><mxGeometry x="0" y="204" width="260" height="20" as="geometry" /></mxCell>
+        <mxCell id="d10" value="CreateFoodOrderRequest / CartItemDto / OpenTableRequest" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="dto-pkg"><mxGeometry x="0" y="226" width="260" height="20" as="geometry" /></mxCell>
+        <mxCell id="d11" value="CreateEmployeeDTO / TableReservationRequest" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="dto-pkg"><mxGeometry x="0" y="248" width="260" height="20" as="geometry" /></mxCell>
+        <mxCell id="d12" value="WeatherInfo / BookingInfoDto" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="dto-pkg"><mxGeometry x="0" y="270" width="260" height="20" as="geometry" /></mxCell>
+        <mxCell id="d13" value="dto.fnb.* / dto.roomchange.* / dto.walkin.*" style="text;html=1;align=left;spacingLeft=8;fontSize=10;fontStyle=2;" vertex="1" parent="dto-pkg"><mxGeometry x="0" y="292" width="260" height="20" as="geometry" /></mxCell>
+
+        <!-- ===== EVENTS ===== -->
+        <mxCell id="ev-pkg" value="events" style="swimlane;startSize=25;fillColor=#f0e6ff;strokeColor=#9900cc;fontSize=12;fontStyle=1;arcSize=5;" vertex="1" parent="1">
+          <mxGeometry x="120" y="910" width="260" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="ev1" value="CustomerCheckedOutEvent" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="ev-pkg"><mxGeometry x="0" y="28" width="260" height="20" as="geometry" /></mxCell>
+        <mxCell id="ev2" value="ManagerApprovalEvent" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="ev-pkg"><mxGeometry x="0" y="50" width="260" height="20" as="geometry" /></mxCell>
+        <mxCell id="ev3" value="SystemEmailEvent" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="ev-pkg"><mxGeometry x="0" y="72" width="260" height="20" as="geometry" /></mxCell>
+        <mxCell id="ev4" value="CustomerCheckedOutEventListener" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="ev-pkg"><mxGeometry x="0" y="94" width="260" height="20" as="geometry" /></mxCell>
+
+        <!-- ===== LISTENERS ===== -->
+        <mxCell id="li-pkg" value="listeners" style="swimlane;startSize=25;fillColor=#f0e6ff;strokeColor=#9900cc;fontSize=12;fontStyle=1;arcSize=5;" vertex="1" parent="1">
+          <mxGeometry x="420" y="960" width="260" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="li1" value="ApprovalFinancialListener" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="li-pkg"><mxGeometry x="0" y="28" width="260" height="20" as="geometry" /></mxCell>
+        <mxCell id="li2" value="ApprovalInventoryListener" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="li-pkg"><mxGeometry x="0" y="50" width="260" height="20" as="geometry" /></mxCell>
+        <mxCell id="li3" value="SystemEmailEventListener" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="li-pkg"><mxGeometry x="0" y="72" width="260" height="20" as="geometry" /></mxCell>
+
+        <!-- ===== SCHEDULERS ===== -->
+        <mxCell id="sc-pkg" value="schedulers" style="swimlane;startSize=25;fillColor=#e6d0de;strokeColor=#ae4132;fontSize=12;fontStyle=1;arcSize=5;" vertex="1" parent="1">
+          <mxGeometry x="740" y="960" width="270" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="sc1" value="NightAuditJob" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="sc-pkg"><mxGeometry x="0" y="28" width="270" height="20" as="geometry" /></mxCell>
+        <mxCell id="sc2" value="AuditCleanupTask / ScheduleGeneratorService / ShiftService" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="sc-pkg"><mxGeometry x="0" y="50" width="270" height="18" as="geometry" /></mxCell>
+
+        <!-- ===== EXCEPTIONS ===== -->
+        <mxCell id="exc-pkg" value="exceptions" style="swimlane;startSize=25;fillColor=#f8cecc;strokeColor=#b85450;fontSize=12;fontStyle=1;arcSize=5;" vertex="1" parent="1">
+          <mxGeometry x="1050" y="700" width="280" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="ex1" value="BusinessException" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="exc-pkg"><mxGeometry x="0" y="28" width="280" height="20" as="geometry" /></mxCell>
+        <mxCell id="ex2" value="GlobalExceptionHandler (@ControllerAdvice)" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="exc-pkg"><mxGeometry x="0" y="50" width="280" height="20" as="geometry" /></mxCell>
+        <mxCell id="ex3" value="PaymentGatewayException / RoomNotAvailableException" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="exc-pkg"><mxGeometry x="0" y="72" width="280" height="20" as="geometry" /></mxCell>
+
+        <!-- ===== UTILS ===== -->
+        <mxCell id="utils-pkg" value="utils" style="swimlane;startSize=25;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=12;fontStyle=1;arcSize=5;" vertex="1" parent="1">
+          <mxGeometry x="1050" y="830" width="280" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="ut1" value="EncryptionUtils" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="utils-pkg"><mxGeometry x="0" y="28" width="280" height="20" as="geometry" /></mxCell>
+        <mxCell id="ut2" value="SecurityUtils" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="utils-pkg"><mxGeometry x="0" y="50" width="280" height="20" as="geometry" /></mxCell>
+        <mxCell id="ut3" value="ValidationUtils" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="utils-pkg"><mxGeometry x="0" y="72" width="280" height="20" as="geometry" /></mxCell>
+        <mxCell id="ut4" value="VnPayUtil / UploadPathResolver / LogActivity" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="utils-pkg"><mxGeometry x="0" y="94" width="280" height="18" as="geometry" /></mxCell>
+
+        <!-- ===== TEMPLATES (VIEW) ===== -->
+        <mxCell id="tmpl-pkg" value="templates (Thymeleaf Views)" style="swimlane;startSize=25;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=12;fontStyle=1;arcSize=5;" vertex="1" parent="1">
+          <mxGeometry x="1610" y="80" width="185" height="260" as="geometry" />
+        </mxCell>
+        <mxCell id="tp1" value="admin/*" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="tmpl-pkg"><mxGeometry x="0" y="28" width="185" height="20" as="geometry" /></mxCell>
+        <mxCell id="tp2" value="manager/*" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="tmpl-pkg"><mxGeometry x="0" y="50" width="185" height="20" as="geometry" /></mxCell>
+        <mxCell id="tp3" value="receptionist/*" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="tmpl-pkg"><mxGeometry x="0" y="72" width="185" height="20" as="geometry" /></mxCell>
+        <mxCell id="tp4" value="guest/*" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="tmpl-pkg"><mxGeometry x="0" y="94" width="185" height="20" as="geometry" /></mxCell>
+        <mxCell id="tp5" value="tour/* (Guide)" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="tmpl-pkg"><mxGeometry x="0" y="116" width="185" height="20" as="geometry" /></mxCell>
+        <mxCell id="tp6" value="housekeeping/*" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="tmpl-pkg"><mxGeometry x="0" y="138" width="185" height="20" as="geometry" /></mxCell>
+        <mxCell id="tp7" value="maintenance/*" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="tmpl-pkg"><mxGeometry x="0" y="160" width="185" height="20" as="geometry" /></mxCell>
+        <mxCell id="tp8" value="f&amp;bStaff/* / kitchenStaff/*" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="tmpl-pkg"><mxGeometry x="0" y="182" width="185" height="20" as="geometry" /></mxCell>
+        <mxCell id="tp9" value="email/* / error/*" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="tmpl-pkg"><mxGeometry x="0" y="204" width="185" height="20" as="geometry" /></mxCell>
+        <mxCell id="tp10" value="ops-login.html" style="text;html=1;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="tmpl-pkg"><mxGeometry x="0" y="226" width="185" height="20" as="geometry" /></mxCell>
+
+        <!-- ===== DEPENDENCY ARROWS ===== -->
+        <mxCell id="arr1" value="&lt;&lt;use&gt;&gt;" style="edgeStyle=orthogonalEdgeStyle;dashed=1;endArrow=open;endFill=0;strokeColor=#d79b00;fontSize=9;" edge="1" source="config-pkg" target="security-pkg" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="arr2" value="&lt;&lt;use&gt;&gt;" style="edgeStyle=orthogonalEdgeStyle;dashed=1;endArrow=open;endFill=0;strokeColor=#82b366;fontSize=9;" edge="1" source="cw-pkg" target="si-pkg" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="arr3" value="&lt;&lt;use&gt;&gt;" style="edgeStyle=orthogonalEdgeStyle;dashed=1;endArrow=open;endFill=0;strokeColor=#82b366;fontSize=9;" edge="1" source="ca-pkg" target="si-pkg" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="arr4" value="implements" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=0;strokeColor=#9673a6;fontSize=9;fontStyle=2;" edge="1" source="sim-pkg" target="si-pkg" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="arr5" value="&lt;&lt;use&gt;&gt;" style="edgeStyle=orthogonalEdgeStyle;dashed=1;endArrow=open;endFill=0;strokeColor=#d6b656;fontSize=9;" edge="1" source="si-pkg" target="repo-pkg" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="arr6" value="&lt;&lt;use&gt;&gt;" style="edgeStyle=orthogonalEdgeStyle;dashed=1;endArrow=open;endFill=0;strokeColor=#d79b00;fontSize=9;" edge="1" source="repo-pkg" target="model-pkg" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="arr7" value="renders" style="edgeStyle=orthogonalEdgeStyle;endArrow=open;endFill=0;strokeColor=#82b366;fontSize=9;" edge="1" source="cw-pkg" target="tmpl-pkg" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="arr8" value="&lt;&lt;use&gt;&gt;" style="edgeStyle=orthogonalEdgeStyle;dashed=1;endArrow=open;endFill=0;strokeColor=#b85450;fontSize=9;" edge="1" source="security-pkg" target="model-pkg" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="arr9" value="&lt;&lt;use&gt;&gt;" style="edgeStyle=orthogonalEdgeStyle;dashed=1;endArrow=open;endFill=0;strokeColor=#d79b00;fontSize=9;" edge="1" source="config-pkg" target="si-pkg" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="arr10" value="fires" style="edgeStyle=orthogonalEdgeStyle;endArrow=open;endFill=0;strokeColor=#9900cc;fontSize=9;" edge="1" source="ev-pkg" target="li-pkg" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="arr11" value="&lt;&lt;use&gt;&gt;" style="edgeStyle=orthogonalEdgeStyle;dashed=1;endArrow=open;endFill=0;strokeColor=#9900cc;fontSize=9;" edge="1" source="li-pkg" target="si-pkg" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="arr12" value="&lt;&lt;use&gt;&gt;" style="edgeStyle=orthogonalEdgeStyle;dashed=1;endArrow=open;endFill=0;strokeColor=#ae4132;fontSize=9;" edge="1" source="sc-pkg" target="sim-pkg" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="arr13" value="&lt;&lt;use&gt;&gt;" style="edgeStyle=orthogonalEdgeStyle;dashed=1;endArrow=open;endFill=0;strokeColor=#6c8ebf;fontSize=9;" edge="1" source="ca-pkg" target="dto-pkg" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="arr14" value="handles" style="edgeStyle=orthogonalEdgeStyle;dashed=1;endArrow=open;endFill=0;strokeColor=#b85450;fontSize=9;" edge="1" source="exc-pkg" target="ca-pkg" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="arr15" value="&lt;&lt;use&gt;&gt;" style="edgeStyle=orthogonalEdgeStyle;dashed=1;endArrow=open;endFill=0;strokeColor=#6c8ebf;fontSize=9;" edge="1" source="utils-pkg" target="sim-pkg" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="arr16" value="&lt;&lt;use&gt;&gt;" style="edgeStyle=orthogonalEdgeStyle;dashed=1;endArrow=open;endFill=0;strokeColor=#6c8ebf;fontSize=9;" edge="1" source="sim-pkg" target="dto-pkg" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

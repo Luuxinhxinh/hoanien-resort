@@ -19,6 +19,8 @@ import com.kawai.models.Room;
 import com.kawai.models.RoomBookingDetail;
 import com.kawai.repositories.ConsolidatedInvoiceRepository;
 import com.kawai.repositories.RoomRepository;
+import com.kawai.repositories.RoomCategoryRepository;
+import com.kawai.models.RoomCategory;
 import com.kawai.services.interfaces.EmailService;
 import com.kawai.services.interfaces.InvoicePdfService;
 import com.kawai.services.interfaces.PaymentService;
@@ -52,6 +54,7 @@ public class FolioRestController {
     private final com.kawai.repositories.HousekeepingTaskRepository housekeepingTaskRepo;
     private final com.kawai.repositories.EmployeeRepository employeeRepository;
     private final com.kawai.repositories.PaymentTransactionRepository paymentTransactionRepository;
+    private final RoomCategoryRepository roomCategoryRepository;
 
     @Autowired
     public FolioRestController(NightAuditService nightAuditService,
@@ -71,7 +74,8 @@ public class FolioRestController {
             com.kawai.services.interfaces.WorkflowEngineService workflowEngineService,
             com.kawai.repositories.HousekeepingTaskRepository housekeepingTaskRepo,
             com.kawai.repositories.EmployeeRepository employeeRepository,
-            com.kawai.repositories.PaymentTransactionRepository paymentTransactionRepository) {
+            com.kawai.repositories.PaymentTransactionRepository paymentTransactionRepository,
+            RoomCategoryRepository roomCategoryRepository) {
         this.nightAuditService = nightAuditService;
         this.folioItemRepository = folioItemRepository;
         this.roomBookingDetailRepository = roomBookingDetailRepository;
@@ -90,6 +94,7 @@ public class FolioRestController {
         this.workflowEngineService = workflowEngineService;
         this.housekeepingTaskRepo = housekeepingTaskRepo;
         this.employeeRepository = employeeRepository;
+        this.roomCategoryRepository = roomCategoryRepository;
     }
 
     /**
@@ -481,7 +486,28 @@ public class FolioRestController {
         response.put("roomNumber", roomNumber);
         response.put("checkInDate", checkInDate);
         response.put("checkOutDate", checkOutDate);
-        response.put("categoryName", detail.getCategory() != null ? detail.getCategory().getCategoryName() : "N/A");
+        String currentCategoryName = detail.getCategory() != null ? detail.getCategory().getCategoryName() : "N/A";
+        String originalCategoryName = currentCategoryName;
+        if (detail.getCategory() != null) {
+            if (detail.getRoomBooking() != null && detail.getRoomCharge() != null) {
+                long detailNights = java.time.temporal.ChronoUnit.DAYS.between(
+                        detail.getRoomBooking().getCheckInDate(),
+                        detail.getRoomBooking().getCheckOutDate()
+                );
+                if (detailNights <= 0) detailNights = 1;
+                BigDecimal pricePerNight = detail.getRoomCharge().divide(BigDecimal.valueOf(detailNights), 2, java.math.RoundingMode.HALF_UP);
+                
+                if (detail.getCategory().getBasePrice() != null && detail.getCategory().getBasePrice().compareTo(pricePerNight) != 0) {
+                    originalCategoryName = roomCategoryRepository.findAll().stream()
+                            .filter(cat -> cat.getBasePrice() != null && cat.getBasePrice().compareTo(pricePerNight) == 0)
+                            .map(RoomCategory::getCategoryName)
+                            .findFirst()
+                            .orElse(currentCategoryName);
+                }
+            }
+        }
+        response.put("categoryName", currentCategoryName);
+        response.put("originalCategoryName", originalCategoryName);
         response.put("roomCharge", detail.getRoomCharge());
         response.put("dailyRate", dailyRate);
         response.put("extraSurcharge", detail.getExtraSurcharge() != null ? detail.getExtraSurcharge() : BigDecimal.ZERO);
@@ -898,6 +924,7 @@ public class FolioRestController {
             // này là "Hoàn tất Checkout" tức là paymentAmount = 0)
             boolean isCheckoutAction = (!isVnPay
                     && (paymentAmount.compareTo(BigDecimal.ZERO) == 0 || paymentAmount.compareTo(minRequired) >= 0));
+            int roomsCheckedOutCount = 0;
             if (isCheckoutAction) {
                 if (isGroup) {
                     List<RoomBookingDetail> details = roomBookingDetailRepository.findByRoomBookingId(booking.getId());
@@ -912,6 +939,7 @@ public class FolioRestController {
                         if ("Checked_In".equalsIgnoreCase(d.getDetailStatus())) {
                             d.setDetailStatus("Checked_Out");
                             roomBookingDetailRepository.save(d);
+                            roomsCheckedOutCount++;
 
                             if (d.getRoomBooking() != null && d.getRoomBooking().getCustomer() != null) {
                                 eventPublisher.publishEvent(new com.kawai.events.CustomerCheckedOutEvent(this,
@@ -939,8 +967,11 @@ public class FolioRestController {
                                 "success", false,
                                 "message", "Không thể checkout cho phòng chưa được gán số phòng vật lý cụ thể."));
                     }
-                    detail.setDetailStatus("Checked_Out");
-                    roomBookingDetailRepository.save(detail);
+                    if ("Checked_In".equalsIgnoreCase(detail.getDetailStatus())) {
+                        detail.setDetailStatus("Checked_Out");
+                        roomBookingDetailRepository.save(detail);
+                        roomsCheckedOutCount++;
+                    }
 
                     if (detail.getRoomBooking() != null && detail.getRoomBooking().getCustomer() != null) {
                         eventPublisher.publishEvent(new com.kawai.events.CustomerCheckedOutEvent(this,
@@ -1074,16 +1105,32 @@ public class FolioRestController {
                         txnRef);
             }
 
-            // 5. Sinh file PDF hóa đơn và gửi email (Sử dụng Service) nếu đã thanh toán
-            if ("Paid".equalsIgnoreCase(invoice.getInvoiceStatus())) {
+            // 5. Sinh file PDF hóa đơn và gửi email (Sử dụng Service) nếu đã thanh toán thực sự (Checkout hoàn tất)
+            if (isCheckoutAction && roomsCheckedOutCount > 0 && ("Paid".equalsIgnoreCase(invoice.getInvoiceStatus()) || "Partial_Paid".equalsIgnoreCase(invoice.getInvoiceStatus()))) {
                 String pdfPath = invoicePdfService.generateInvoicePdf(invoice);
                 String customerEmail = detail.getRoomBooking().getCustomer().getEmail();
 
-                Map<String, Object> ctx = new java.util.HashMap<>();
-                ctx.put("invoice", invoice);
-                ctx.put("pdfPath", pdfPath);
-                eventPublisher.publishEvent(new com.kawai.events.SystemEmailEvent(this, customerEmail,
-                        "Hóa đơn điện tử - HOANIEN", "invoice", ctx));
+                boolean hasActiveWorkflow = workflowEngineService.hasActiveWorkflow("INVOICE_GENERATED");
+                if (hasActiveWorkflow) {
+                    // 5.0 Kích hoạt sự kiện Workflow INVOICE_GENERATED (để gửi mail tự động qua workflow nếu cấu hình)
+                    try {
+                        workflowEngineService.triggerEvent("INVOICE_GENERATED", Map.of(
+                                "booking_id", detail.getRoomBooking().getId(),
+                                "customer_email", customerEmail,
+                                "customer_name", detail.getRoomBooking().getCustomer().getFullName() != null ? detail.getRoomBooking().getCustomer().getFullName() : customerEmail,
+                                "invoice_number", invoice.getInvoiceNumber(),
+                                "total_amount", invoice.getTotalAmount()
+                        ));
+                    } catch (Exception e) {
+                        System.err.println("Failed to trigger INVOICE_GENERATED workflow event: " + e.getMessage());
+                    }
+                } else {
+                    Map<String, Object> ctx = new java.util.HashMap<>();
+                    ctx.put("invoice", invoice);
+                    ctx.put("pdfPath", pdfPath);
+                    eventPublisher.publishEvent(new com.kawai.events.SystemEmailEvent(this, customerEmail,
+                            "Hóa đơn điện tử - HOANIEN", "invoice", ctx));
+                }
 
                 // 5.1 Cộng điểm Loyalty (1 điểm = 10,000 VNĐ chi tiêu trên tổng hóa đơn)
                 if (invoice.getTotalAmount() != null && invoice.getTotalAmount().compareTo(BigDecimal.ZERO) > 0) {

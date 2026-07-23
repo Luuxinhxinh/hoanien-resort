@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Thông báo hủy tour</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@1,600&family=Inter:ital,wght@1,600&display=swap');
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif; background-color: #ffffff; color: #2d2926; }
+    .email-outer { background-color: #ffffff; padding: 40px 16px; min-height: 100vh; }
+    .wrapper { max-width: 600px; margin: 0 auto; border-radius: 4px; overflow: hidden; box-shadow: 0 4px 24px rgba(0, 0, 0, 0.05); border: 1px solid #d4c5b9; background: #ffffff; }
+    
+    .header { background: #fdfbf7; padding: 36px 40px 28px; text-align: center; border-bottom: 1px solid #d4c5b9; }
+    .header .brand, .header h1 { font-family: 'EB Garamond', Georgia, serif; font-size: 42px; font-weight: 400; color: #c5a059; margin-bottom: 4px; }
+    .header .logo-text, .header .tagline, .header .address, .invoice-title { font-family: 'EB Garamond', Georgia, serif; font-size: 16px; font-weight: 400; color: #70635c; letter-spacing: 2px; }
+    
+    .hero, .banner { background: #fdfbf7; padding: 40px 40px 36px; text-align: center; border-bottom: 1px solid #d4c5b9; }
+    .hero .icon, .banner .icon { font-size: 44px; margin-bottom: 16px; display: block; color: #d32f2f; }
+    .hero h1, .banner h1 { font-family: 'EB Garamond', Georgia, serif; font-size: 26px; font-weight: 400; color: #2d2926; margin-bottom: 10px; letter-spacing: 0.5px; }
+    .hero p, .banner p { font-size: 13px; font-weight: 300; color: #70635c; letter-spacing: 0.3px; line-height: 1.7; }
+    
+    .body, .invoice-container { background: transparent; padding: 40px; }
+    .greeting, p { font-size: 14px; font-weight: 400; color: #2d2926; margin-bottom: 20px; line-height: 1.9; }
+    .greeting strong, p strong { font-weight: 600; color: #c5a059; }
+    
+    .divider-line, .divider { height: 1px; background: #f2eee9; margin: 28px 0; border: none; }
+    
+    .section-label, .section-title { font-size: 10px; font-weight: 600; letter-spacing: 3px; text-transform: uppercase; color: #70635c; margin-bottom: 20px; display: block; }
+    
+    .booking-card, .info-box { background: #fdfbf7; border: 1px solid #d4c5b9; border-radius: 3px; overflow: hidden; margin-bottom: 28px; }
+    .booking-card-header { background: #f7f5f0; border-bottom: 1px solid #d4c5b9; padding: 14px 20px; display: flex; justify-content: space-between; align-items: center; }
+    .booking-card-header .card-title, .info-box-title { font-size: 10px; font-weight: 600; letter-spacing: 2.5px; text-transform: uppercase; color: #2d2926; margin-bottom:0; display: block; padding: 14px 20px; border-bottom: 1px solid #d4c5b9; background: #f7f5f0; }
+    .booking-card-header .booking-id { font-family: 'EB Garamond', Georgia, serif; font-size: 15px; color: #d32f2f; }
+    .booking-card-body, .info-table { padding: 6px 0; width: 100%; border-collapse: collapse; }
+    
+    .info-row, .info-table tr { padding: 11px 20px; border-bottom: 1px solid #f2eee9; font-size: 13px; }
+    .info-row:last-child, .info-table tr:last-child { border-bottom: none; }
+    .info-label { font-weight: 500; color: #70635c; display: inline-block; vertical-align: top; width: 180px; font-size: 13px; letter-spacing: 0.3px; }
+    .info-table td.info-label { width: 180px; }
+    .info-value { font-weight: 400; color: #2d2926; font-size: 13px; display: inline-block; vertical-align: top; width: 330px; }
+    .info-value.highlight { font-weight: 600; color: #c5a059; }
+    .info-value.error, .info-value.cancelled { color: #d32f2f; font-weight: 500; }
+    
+    .total-box, .totals-wrapper { background: #fdfbf7; border: 1px solid #d4c5b9; border-radius: 3px; padding: 28px 24px; margin: 28px 0; text-align: center; }
+    .total-box .total-label { font-size: 10px; font-weight: 600; letter-spacing: 3px; text-transform: uppercase; color: #70635c; margin-bottom: 10px; }
+    .total-box .total-amount { font-family: 'EB Garamond', Georgia, serif; font-size: 36px; font-weight: 400; color: #d32f2f; letter-spacing: 1px; }
+    .total-box .total-note { font-size: 11px; font-weight: 300; color: #70635c; margin-top: 8px; letter-spacing: 0.3px; }
+    
+    .note-box, .warning-box { border-left: 3px solid #d32f2f; padding: 16px 20px; margin-bottom: 28px; font-size: 13px; color: #2d2926; line-height: 1.85; background: #fdfbf7; text-align: left; }
+    .note-box .note-title, .warning-box .warning-title { display: block; margin-bottom: 10px; font-size: 10px; font-weight: 600; letter-spacing: 2.5px; text-transform: uppercase; color: #70635c; }
+    .note-box strong, .warning-box strong { color: #d32f2f; font-weight: 600; }
+    
+    .closing-text, .closing, .intro, p.info-box-title { font-size: 13px; font-weight: 400; color: #2d2926; line-height: 1.9; margin-bottom: 20px; }
+    .closing-text strong, .closing strong, .signoff strong { font-weight: 600; color: #c5a059; }
+    .closing-text em, .intro em { font-family: 'EB Garamond', Georgia, serif; font-style: normal; color: #c5a059; }
+    .signoff { font-size: 13px; color: #2d2926; line-height: 1.9; }
+    
+    .footer { background: #fdfbf7; padding: 28px 40px; text-align: center; border-top: 1px solid #d4c5b9; }
+    .footer .resort-name, .footer p { font-family: 'EB Garamond', Georgia, serif; font-size: 18px; color: #c5a059; margin-bottom: 10px; font-style: normal; }
+    .footer p, .footer .contact-info, .footer .copyright, .footer .contact, .footer .copy, .footer .footer-contact { color: #70635c; font-size: 11px; line-height: 1.9; font-weight: 300; font-family: 'Inter'; }
+    .footer a { color: #c5a059; text-decoration: none; }
+    .footer .footer-divider { height: 1px; background: #e5dfd8; margin: 14px 0; }
+    
+    .details-table, .items-table, table { width: 100%; border-collapse: collapse; margin-bottom: 28px; }
+    .details-table th, .details-table td, .items-table th, .items-table td, table th, table td { padding: 12px 16px; border: 1px solid #d4c5b9; text-align: left; font-size: 14px; color: #2d2926; }
+    .details-table th, .items-table th, table th { background: #fdfbf7; color: #c5a059; font-weight: 600; }
+    .items-table td, table td { border-color: #f2eee9; }
+    
+    .badge-wrap, .button-container { text-align: center; margin-bottom: 20px; }
+    .badge, .meal-badge { display: inline-block; padding: 6px 12px; background: #fdfbf7; border: 1px solid #d4c5b9; color: #c5a059; font-size: 10px; letter-spacing: 2px; border-radius: 20px; }
+    
+    /* Tour specific */
+    .activity-item { display: flex; align-items: flex-start; padding: 16px; border-bottom: 1px solid #f2eee9; }
+    .activity-time { width: 120px; font-weight: 600; color: #c5a059; font-size: 13px; }
+    .activity-content { flex: 1; text-align: left; }
+    .activity-title { font-size: 14px; font-weight: 600; color: #2d2926; margin-bottom: 4px; }
+    .activity-desc { font-size: 13px; color: #70635c; line-height: 1.6; margin-bottom: 8px; }
+    
+    @media (max-width: 480px) { .body, .header, .hero, .footer, .banner { padding: 28px 24px; } .info-label { width: auto; min-width: 100px; } .info-row { flex-direction: column; gap: 3px; } }
+  </style>
+</head>
+
+<body>
+  <div class="email-outer">
+    <div class="wrapper">
+
+      <!-- Header -->
+      <div class="header">
+        <div class="brand">Hòa Niên</div>
+        <div class="logo-text">Retreat Resort & Hub</div>
+      </div>
+
+      <!-- Hero -->
+      <div class="hero">
+        <span class="icon">✕</span>
+        <h1>Thông báo hủy tour</h1>
+        
+        <p>Hành trình của Quý khách đã bị hủy do thay đổi từ hệ thống</p>
+      </div>
+
+      <!-- Body -->
+      <div class="body">
+
+        <p class="greeting">
+          Kính gửi <strong>Nguyễn Xuân Lưu</strong>,<br /><br />
+          
+          <span>Rất tiếc vì sự bất tiện này, Hòa Niên buộc phải thông báo hủy chuyến đi của Quý khách vì lý do bất khả kháng. Chúng tôi đã tiến hành hoàn trả chi phí. Dưới đây là thông tin chi tiết.</span>
+        </p>
+
+        <div class="divider-line"></div>
+
+        <!-- Booking Info Card -->
+        <div class="section-label">Chi tiết chuyến đi đã hủy</div>
+        <div class="booking-card">
+          <div class="booking-card-header">
+            <span class="card-title">Thông tin tour</span>
+            <span class="booking-id">#10000</span>
+          </div>
+          <div class="booking-card-body">
+            <div class="info-row">
+              <span class="info-label">Tên tour:</span>
+              <span class="info-value highlight">Hành Trình Đoàn Tụ – Cố Đô Huế</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Ngày khởi hành:</span>
+              <span class="info-value">22/07/2026</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Giờ khởi hành:</span>
+              <span class="info-value">08:00</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Số người tham gia:</span>
+              <span class="info-value">1 người</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Trạng thái:</span>
+              <span class="info-value cancelled">Đã hủy ✕</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Phương thức thanh toán:</span>
+              
+              
+              <span class="info-value">Ghi nợ vào phòng nghỉ</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Phòng ghi nợ:</span>
+              <span class="info-value">Phòng 105</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Ngày đặt:</span>
+              <span class="info-value">21/07/2026</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tour Bill Breakdown (Hóa đơn chi tiết từng đầu tiền) -->
+        <div class="section-label">Hóa đơn tour ban đầu</div>
+        <div class="booking-card" style="margin-bottom: 28px;">
+          <div class="booking-card-body">
+            <div class="info-row">
+              <span class="info-label">Giá vé tour gốc:</span>
+              <span class="info-value">7.500.000 ₫ / khách</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Thành viên:</span>
+              <span class="info-value">1 Người lớn, 0 Trẻ em</span>
+            </div>
+            
+            
+            <div class="info-row">
+              <span class="info-label" style="font-weight: 600;">Tổng giá trị tour:</span>
+              <span class="info-value highlight" style="font-weight: 600;">7.500.000 ₫</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Total Refund -->
+        <div class="total-box">
+          <div class="total-label">Số tiền hoàn trả</div>
+          <div class="total-amount">7.500.000 ₫</div>
+          
+          <div class="total-note">
+            <span>Số tiền hoàn đã được cộng (ghi âm) trực tiếp vào Folio phòng nghỉ số 105 của Quý khách. Số tiền này sẽ được trừ trực tiếp khi Quý khách làm thủ tục thanh toán checkout phòng nghỉ.</span>
+          </div>
+          
+        </div>
+
+        <!-- Cancel Reason -->
+        <div class="note-box" style="border-left-color: #d32f2f; margin-bottom: 28px;">
+          <span class="note-title">Lý do hủy tour từ Resort</span>
+          <p style="margin-bottom: 0; font-style: italic;">hgdythdhh</p>
+        </div>
+
+        <div class="divider-line"></div>
+
+        <!-- Note -->
+        <div class="note-box">
+          <span class="note-title">Thông tin về chính sách hoàn tiền</span>
+          • <strong>Hủy do Resort:</strong> Quý khách được hoàn trả <strong>100%</strong> chi phí đặt cọc/thanh toán.<br />
+          • <strong>Khách tự hủy trước 24h:</strong> Quý khách được hoàn trả <strong>50%</strong> chi phí đặt cọc.<br />
+          • <strong>Khách tự hủy trong vòng 24h:</strong> Không áp dụng hoàn tiền.<br />
+          • <strong>Hỗ trợ:</strong> Liên hệ lễ tân hoặc gọi hotline <strong>1900 xxxx</strong> để được hỗ trợ.
+        </div>
+
+        <p class="closing-text">
+          Chúng tôi rất tiếc vì lỡ dở hành trình lần này. Rất mong được tiếp đón Quý khách tại <em>Hòa Niên</em> vào một dịp gần nhất.<br /><br />
+          Trân trọng,<br />
+          <strong>Đội ngũ Tour & Hospitality</strong><br />
+          <em>Hòa Niên Retreat Resort & Hub</em>
+        </p>
+
+      </div>
+
+      <!-- Footer -->
+      <div class="footer">
+        <div class="resort-name">Hòa Niên</div>
+        <p>
+          📞 <span>1900 xxxx</span> &nbsp;|&nbsp;
+          🌐 <a href="https://hoaniensorretreat.vn">https://hoaniensorretreat.vn</a>
+        </p>
+        <div class="footer-divider"></div>
+        <p>
+          Email này được gửi tự động — vui lòng không phản hồi.<br />
+          © 2026 Hòa Niên Retreat Resort & Hub. Bảo lưu mọi quyền.
+        </p>
+      </div>
+
+    </div>
+  </div>
+</body>
+
+</html>

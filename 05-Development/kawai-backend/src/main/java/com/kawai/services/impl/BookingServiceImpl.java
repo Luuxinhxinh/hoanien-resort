@@ -606,12 +606,12 @@ public class BookingServiceImpl implements BookingService {
                                         || r.equals("ROLE_RECEPTIONIST") || r.equals("ROLE_STAFF");
                             });
 
-                            if (!isStaff) {
-                                throw new IllegalArgumentException(
-                                        "Mã giảm giá vượt quá mức cho phép đối với khách tự đặt ("
-                                                + thresholdVal
-                                                + "%). Vui lòng liên hệ Quản lý (Manager) để được phê duyệt.");
-                            }
+                            // if (!isStaff) {
+                            // throw new IllegalArgumentException(
+                            // "Mã giảm giá vượt quá mức cho phép đối với khách tự đặt ("
+                            // + thresholdVal
+                            // + "%). Vui lòng liên hệ Lễ tân để được hỗ trợ đền bù.");
+                            // }
                             // Nếu là Staff -> Cho qua để hệ thống bắt vào luồng Workflow Treo chờ duyệt.
                         }
                     }
@@ -909,26 +909,6 @@ public class BookingServiceImpl implements BookingService {
             roomBookingRepository.save(roomBooking);
         } else if (generalBooking instanceof com.kawai.models.TourBooking) {
             tourBookingRepository.save((com.kawai.models.TourBooking) generalBooking);
-        } else {
-            bookingRepository.save(generalBooking);
-        }
-
-        // Gọi Workflow Engine để kiểm tra nếu áp dụng mã giảm giá vượt ngưỡng
-        try {
-            Promotion promo = promotion;
-            BigDecimal pct = "Percentage".equalsIgnoreCase(promo.getDiscountType())
-                    ? promo.getDiscountValue()
-                    : (totalBaseTotal.compareTo(BigDecimal.ZERO) > 0
-                            ? promo.getDiscountValue().multiply(new BigDecimal("100")).divide(totalBaseTotal, 2,
-                                    RoundingMode.HALF_UP)
-                            : BigDecimal.ZERO);
-
-            workflowEngineService.triggerEvent("PROMOTION_EXCEEDED", java.util.Map.of(
-                    "promo_id", promo.getId(),
-                    "input_discount_pct", pct.doubleValue(),
-                    "booking_id", generalBooking.getId()));
-        } catch (Exception e) {
-            log.error("Failed to trigger PROMOTION_EXCEEDED workflow in applyCoupon", e);
         }
 
         return discountAmount.setScale(0, RoundingMode.HALF_UP);
