@@ -205,6 +205,7 @@ class HousekeepingServiceUC13Test {
         void updateRoomToClean_OccupiedRoom_ShouldKeepOccupied() {
             // ARRANGE
             Long taskId = 100L;
+            sampleRoom.setRoomStatus("Occupied");
             sampleRoom.setCurrentBookingDetailId(555L); // Khách đã check-in
 
             when(housekeepingTaskRepo.findById(taskId)).thenReturn(Optional.of(sampleTask));

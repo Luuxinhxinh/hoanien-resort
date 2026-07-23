@@ -47,6 +47,11 @@ public class FolioServiceImpl implements FolioService {
         RoomBookingDetail detail = roomBookingDetailRepository.findById(bookingDetailId)
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy thông tin đặt phòng"));
 
+        // BR-FO-01: Chỉ phòng đang CHECKED_IN mới được ký nợ (Post-to-Room)
+        if ("CHECKED_OUT".equalsIgnoreCase(detail.getDetailStatus())) {
+            throw new IllegalStateException("FOLIO-002: Phòng đã Check-out, không thể thêm khoản phí mới");
+        }
+
         FolioItem item = new FolioItem();
         item.setBooking(detail.getRoomBooking());
         item.setRoomBookingDetail(detail);

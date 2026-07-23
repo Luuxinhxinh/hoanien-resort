@@ -117,6 +117,20 @@ class SearchRoomUC10Test {
                 cat2.setBasePrice(new BigDecimal("3500000"));
                 cat2.setCapacity(4);
 
+                // Cần mock cả roomRepository.findAll() với Room có category được gán đúnng
+                Room deluxeRoom = new Room();
+                deluxeRoom.setId(1L);
+                deluxeRoom.setRoomNumber("101");
+                deluxeRoom.setCategory(cat1);
+                deluxeRoom.setRoomStatus("Vacant_Clean");
+
+                Room suiteRoom = new Room();
+                suiteRoom.setId(2L);
+                suiteRoom.setRoomNumber("201");
+                suiteRoom.setCategory(cat2);
+                suiteRoom.setRoomStatus("Vacant_Clean");
+
+                when(roomRepository.findAll()).thenReturn(Arrays.asList(deluxeRoom, suiteRoom));
                 when(roomCategoryRepository.findAll()).thenReturn(Arrays.asList(cat1, cat2));
 
                 when(roomBookingRepository.countOverlappingBookingsByCategoryWithoutExclude(eq("Deluxe"), any(), any()))

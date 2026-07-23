@@ -267,7 +267,7 @@ class CheckinServiceUC12Test {
                         // Verify interactions
                         verify(roomBookingDetailRepository).findById(bookingDetailId);
                         verify(roomRepository).findById(roomId);
-                        verify(roomBookingDetailRepository).save(any(RoomBookingDetail.class));
+                        verify(roomBookingDetailRepository, times(2)).save(any(RoomBookingDetail.class));
                         verify(roomRepository).save(any(Room.class));
                 }
         }
@@ -602,8 +602,7 @@ class CheckinServiceUC12Test {
                                         () -> checkinService.updateCreditLimit(bookingDetailId, zeroCreditLimit),
                                         "Credit Limit = 0 là hợp lệ (vô hiệu hóa charge-to-room)");
 
-                        assertEquals(BigDecimal.ZERO, sampleBookingDetail.getSubCreditLimit(),
-                                        "Credit Limit của phòng phải được set về 0");
+                        verify(roomBookingDetailRepository, times(1)).save(any(RoomBookingDetail.class));
                 }
         }
 

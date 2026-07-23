@@ -75,6 +75,7 @@ public class GuestServicesIntegrationTest {
                 "Female",
                 "0911223344",
                 "123456789012",
+                "1990-01-01",
                 redirectAttributes);
 
         assertEquals("redirect:/profile", result);
@@ -102,6 +103,7 @@ public class GuestServicesIntegrationTest {
                 "Female",
                 "0911223344",
                 "********",
+                "1990-01-01",
                 redirectAttributes);
 
         assertEquals("redirect:/profile", result);

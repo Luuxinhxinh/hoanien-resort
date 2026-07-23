@@ -3,6 +3,8 @@ package com.kawai.services.custom;
 import com.kawai.models.*;
 import com.kawai.repositories.*;
 import com.kawai.services.impl.FolioServiceImpl;
+import com.kawai.services.interfaces.WorkflowEngineService;
+import com.kawai.services.interfaces.EmailService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -34,6 +36,10 @@ public class FolioServiceCustomTest {
     private AuditLogRepository auditLogRepository;
     @Mock
     private EmployeeRepository employeeRepository;
+    @Mock
+    private WorkflowEngineService workflowEngineService;
+    @Mock
+    private EmailService emailService;
 
     @InjectMocks
     private FolioServiceImpl folioService;
@@ -106,6 +112,7 @@ public class FolioServiceCustomTest {
     @Test
     void testCheckOutAndSettle_ZeroBalance_Success() {
         RoomBooking roomBooking = new RoomBooking();
+        roomBooking.setId(10L);
         roomBooking.setCustomer(new Customer());
 
         RoomBookingDetail detail = new RoomBookingDetail();
@@ -113,17 +120,28 @@ public class FolioServiceCustomTest {
         detail.setRoomBooking(roomBooking);
 
         Room room = new Room();
+        room.setId(1L);
         room.setRoomStatus("Occupied");
         detail.setRoom(room);
 
         when(roomBookingDetailRepository.findById(1L)).thenReturn(Optional.of(detail));
         // No items in folio -> balance = 0
         when(folioItemRepository.findAll()).thenReturn(Collections.emptyList());
+        // Simulate workflow triggering room status change to Vacant_Dirty
+        doAnswer(invocation -> {
+            room.setRoomStatus("Vacant_Dirty");
+            return null;
+        }).when(workflowEngineService).triggerEvent(eq("ROOM_CHECKOUT"), anyMap());
+        when(roomRepository.save(any(Room.class))).thenAnswer(i -> i.getArgument(0));
+        when(roomBookingDetailRepository.save(any(RoomBookingDetail.class))).thenAnswer(i -> i.getArgument(0));
+        when(consolidatedInvoiceRepository.save(any(ConsolidatedInvoice.class))).thenAnswer(i -> i.getArgument(0));
+        when(auditLogRepository.save(any(AuditLog.class))).thenAnswer(i -> i.getArgument(0));
 
         folioService.checkOutAndSettle(1L, "Cash");
 
         assertEquals("CHECKED_OUT", detail.getDetailStatus());
-        assertEquals("Dirty", room.getRoomStatus());
+        assertEquals("Vacant_Dirty", room.getRoomStatus(),
+            "Room phải chuyển sang Vacant_Dirty (không phải Dirty) sau khi checkout");
         assertNull(room.getCurrentBookingDetailId());
         verify(consolidatedInvoiceRepository, times(1)).save(any(ConsolidatedInvoice.class));
         verify(auditLogRepository, times(1)).save(any(AuditLog.class));

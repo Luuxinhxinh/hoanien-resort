@@ -18,6 +18,10 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.Collections;
 
+import com.kawai.repositories.EmployeeRepository;
+import com.kawai.repositories.WorkflowRepository;
+import org.springframework.context.ApplicationEventPublisher;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -30,6 +34,15 @@ public class AuthServiceUC02Test {
 
     @Mock
     private CustomerRepository customerRepository;
+    
+    @Mock
+    private EmployeeRepository employeeRepository;
+
+    @Mock
+    private WorkflowRepository workflowRepository;
+
+    @Mock
+    private ApplicationEventPublisher eventPublisher;
 
     @Mock
     private AuditLogRepository auditLogRepository;
@@ -50,6 +63,7 @@ public class AuthServiceUC02Test {
         mockCustomer.setAccount(mockAccount);
 
         when(customerRepository.findByEmail("test@gmail.com")).thenReturn(Optional.of(mockCustomer));
+        when(workflowRepository.findByTriggerEventAndIsActive(anyString(), anyBoolean())).thenReturn(Collections.emptyList());
 
         String token = authService.requestPasswordReset("test@gmail.com");
 
@@ -62,6 +76,7 @@ public class AuthServiceUC02Test {
     @DisplayName("TC-UC02-002 | Email not found")
     void requestReset_EmailNotFound() {
         when(customerRepository.findByEmail("notfound@gmail.com")).thenReturn(Optional.empty());
+        when(employeeRepository.findByEmail("notfound@gmail.com")).thenReturn(Optional.empty());
 
         assertThrows(IllegalArgumentException.class, () -> {
             authService.requestPasswordReset("notfound@gmail.com");
@@ -77,7 +92,7 @@ public class AuthServiceUC02Test {
         mockAccount.setResetPasswordExpiry(LocalDateTime.now().plusMinutes(10));
         mockAccount.setPasswordHash("oldHash");
 
-        when(accountRepository.findAll()).thenReturn(Collections.singletonList(mockAccount));
+        when(accountRepository.findByResetPasswordToken("valid-token")).thenReturn(Optional.of(mockAccount));
         when(passwordEncoder.matches("NewStrongPwd1!", "oldHash")).thenReturn(false);
         when(passwordEncoder.encode("NewStrongPwd1!")).thenReturn("newHash");
 
@@ -97,7 +112,7 @@ public class AuthServiceUC02Test {
         mockAccount.setResetPasswordToken("expired-token");
         mockAccount.setResetPasswordExpiry(LocalDateTime.now().minusMinutes(10));
 
-        when(accountRepository.findAll()).thenReturn(Collections.singletonList(mockAccount));
+        when(accountRepository.findByResetPasswordToken("expired-token")).thenReturn(Optional.of(mockAccount));
 
         assertThrows(IllegalStateException.class, () -> {
             authService.resetPassword("expired-token", "NewStrongPwd1!");
@@ -112,10 +127,58 @@ public class AuthServiceUC02Test {
         mockAccount.setResetPasswordToken("valid-token");
         mockAccount.setResetPasswordExpiry(LocalDateTime.now().plusMinutes(10));
 
-        when(accountRepository.findAll()).thenReturn(Collections.singletonList(mockAccount));
+        when(accountRepository.findByResetPasswordToken("valid-token")).thenReturn(Optional.of(mockAccount));
 
         assertThrows(IllegalArgumentException.class, () -> {
             authService.resetPassword("valid-token", "123");
         });
+    }
+
+    @Test
+    @DisplayName("TC-UC02-006 | Mật khẩu mới trùng với mật khẩu cũ -> Ném IllegalArgumentException")
+    void resetPassword_SameAsOldPassword() {
+        Account mockAccount = new Account();
+        mockAccount.setId(1L);
+        mockAccount.setResetPasswordToken("valid-token");
+        mockAccount.setResetPasswordExpiry(LocalDateTime.now().plusMinutes(10));
+        mockAccount.setPasswordHash("oldHash");
+
+        when(accountRepository.findByResetPasswordToken("valid-token")).thenReturn(Optional.of(mockAccount));
+        when(passwordEncoder.matches("OldPassword123!", "oldHash")).thenReturn(true);
+
+        assertThrows(IllegalArgumentException.class, () -> {
+            authService.resetPassword("valid-token", "OldPassword123!");
+        });
+        verify(accountRepository, never()).save(any());
+    }
+
+    @Test
+    @DisplayName("TC-UC02-007 | Token không hợp lệ / không tồn tại trong DB -> Ném IllegalArgumentException")
+    void resetPassword_InvalidToken() {
+        when(accountRepository.findByResetPasswordToken("invalid-token")).thenReturn(Optional.empty());
+
+        assertThrows(IllegalArgumentException.class, () -> {
+            authService.resetPassword("invalid-token", "NewStrongPwd1!");
+        });
+    }
+
+    @Test
+    @DisplayName("TC-UC02-008 | Yêu cầu reset password cho Employee (khi không tìm thấy Customer)")
+    void requestReset_EmployeeSuccess() {
+        com.kawai.models.Employee mockEmp = new com.kawai.models.Employee();
+        mockEmp.setEmail("staff@resort.com");
+        Account mockAccount = new Account();
+        mockAccount.setId(2L);
+        mockEmp.setAccount(mockAccount);
+
+        when(customerRepository.findByEmail("staff@resort.com")).thenReturn(Optional.empty());
+        when(employeeRepository.findByEmail("staff@resort.com")).thenReturn(Optional.of(mockEmp));
+        when(workflowRepository.findByTriggerEventAndIsActive(anyString(), anyBoolean())).thenReturn(Collections.emptyList());
+
+        String token = authService.requestPasswordReset("staff@resort.com");
+
+        assertNotNull(token, "Token không được null khi tạo thành công cho Employee");
+        assertNotNull(mockAccount.getResetPasswordToken());
+        verify(accountRepository, times(1)).save(mockAccount);
     }
 }

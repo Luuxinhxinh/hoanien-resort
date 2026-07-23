@@ -140,7 +140,11 @@ public class AuthServiceImpl implements AuthService {
     @Override
     @Transactional
     public boolean login(String username, String password) {
-        Optional<Account> optAcc = accountRepository.findByUsername(username);
+        if (username == null || username.trim().isEmpty() || password == null || password.isEmpty()) {
+            return false;
+        }
+        String cleanUsername = username.trim();
+        Optional<Account> optAcc = accountRepository.findByUsername(cleanUsername);
         if (optAcc.isEmpty()) {
             return false;
         }

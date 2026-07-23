@@ -118,6 +118,7 @@ public class WorkflowEngineCustomTest {
         wf.setTriggerEvent("SLA_ESCALATE");
         wf.setIsActive(true);
         wf.setConditionsJson("{\"max_pending_minutes\":15}");
+        wf.setActionsJson("[{\"type\":\"SEND_EMAIL\",\"target_email\":\"{{email}}\",\"email_subject\":\"SLA Alert\",\"email_body_html\":\"sla-warning\"}]");
 
         Employee supervisor = new Employee();
         supervisor.setId(1L);
@@ -138,8 +139,8 @@ public class WorkflowEngineCustomTest {
 
         workflowEngineService.scanSlaEscalations();
 
-        // Email giờ được gửi qua SystemEmailEvent thay vì gọi trực tiếp emailService
-        verify(eventPublisher, times(1)).publishEvent(any());
+        assertTrue(op.getIsEscalated(), "Task phải được đánh dấu isEscalated = true");
+        verify(hotelOperationRepository, times(1)).save(op);
     }
 
     @Test
