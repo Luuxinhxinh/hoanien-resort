@@ -87,7 +87,6 @@ public class PosWebFacadeServiceImpl implements PosWebFacadeService {
                     java.time.LocalDateTime resEndDT;
                     if (res.getEndTime() != null) {
                         resEndDT = java.time.LocalDateTime.of(today, res.getEndTime());
-                        if (resEndDT.isBefore(resStartDT)) resEndDT = resEndDT.plusDays(1);
                     } else {
                         resEndDT = resStartDT.plusHours(2);
                     }
