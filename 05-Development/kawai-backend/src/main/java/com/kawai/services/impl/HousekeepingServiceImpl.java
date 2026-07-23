@@ -107,9 +107,13 @@ public class HousekeepingServiceImpl implements HousekeepingService {
         Room room = task.getRoom();
         String currentStatus = room.getRoomStatus();
         boolean isOccupied = currentStatus != null && currentStatus.toLowerCase().contains("occupied");
+        boolean isFromMaintenance = currentStatus != null && currentStatus.equalsIgnoreCase("Maintenance");
 
         if (isOccupied) {
             room.setRoomStatus("Occupied");
+        } else if (isFromMaintenance) {
+            // BR-MT-03: Sau khi bảo trì xong, phòng phải về Vacant_Dirty để đội HK dọn lại trước khi đón khách
+            room.setRoomStatus("Vacant_Dirty");
         } else {
             room.setRoomStatus(STATUS_VACANT_CLEAN);
         }

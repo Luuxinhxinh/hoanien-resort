@@ -7,6 +7,8 @@ import com.kawai.services.interfaces.EmailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.context.event.EventListener;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -25,11 +27,15 @@ public class ScheduleNotificationJob {
     @Autowired
     private EmailService emailService;
 
+    // Lắng nghe sự kiện chạy ứng dụng lần đầu để demo/test
+    @EventListener(ApplicationReadyEvent.class)
+    @org.springframework.core.annotation.Order(2)
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
+
     // Chạy vào 8h sáng Chủ Nhật hàng tuần
     @Scheduled(cron = "0 0 8 * * SUN")
-    @org.springframework.transaction.annotation.Transactional(readOnly = true)
     public void sendWeeklySchedules() {
-        System.out.println("--- Bắt đầu gửi email Lịch làm việc hàng tuần cho toàn bộ nhân viên ---");
+        System.out.println("--- Bắt đầu quét và gửi Lịch làm việc hàng tuần ---");
 
         LocalDate today = LocalDate.now();
         // Lấy lịch làm việc từ hôm nay trở đi (ví dụ cho 7 ngày tới)
@@ -57,6 +63,16 @@ public class ScheduleNotificationJob {
             // Sắp xếp lịch theo ngày
             employeeSchedules.sort((s1, s2) -> s1.getWorkDate().compareTo(s2.getWorkDate()));
 
+            // Fix LazyInitializationException: Khởi tạo dữ liệu Shift trước khi truyền vào
+            // hàm @Async
+            for (StaffSchedule s : employeeSchedules) {
+                if (s.getShift() != null) {
+                    s.getShift().getShiftName();
+                    s.getShift().getStartTime();
+                    s.getShift().getEndTime();
+                }
+            }
+
             try {
                 emailService.sendWeeklyScheduleEmail(emp.getEmail(), emp.getFullName(), employeeSchedules);
                 System.out.println("Đã gửi email thông báo lịch làm việc cho: " + emp.getEmail());
@@ -67,14 +83,13 @@ public class ScheduleNotificationJob {
         System.out.println("--- Hoàn tất gửi email Lịch làm việc ---");
     }
 
-    // // Lắng nghe sự kiện chạy ứng dụng lần đầu để demo/test
-    // @EventListener(ApplicationReadyEvent.class)
-    // @org.springframework.core.annotation.Order(2)
-    // @org.springframework.transaction.annotation.Transactional(readOnly = true)
-    // public void onApplicationReady() {
-    // System.out.println("Application Ready: Triggering Schedule Notification
-    // (Demo)...");
-    // // Giả lập gửi lịch làm việc ngay khi khởi động server
-    // sendWeeklySchedules();
-    // }
+    // Lắng nghe sự kiện chạy ứng dụng lần đầu để demo/test
+    @EventListener(ApplicationReadyEvent.class)
+    @org.springframework.core.annotation.Order(2)
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
+    public void onApplicationReady() {
+        System.out.println("Application Ready: Triggering Schedule Notification (Demo)...");
+        // Giả lập gửi lịch làm việc ngay khi khởi động server
+        sendWeeklySchedules();
+    }
 }

@@ -3,6 +3,7 @@ package com.kawai.controllers.api;
 import com.kawai.models.Account;
 import com.kawai.models.Customer;
 import com.kawai.services.interfaces.AuthService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -12,12 +13,10 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/auth")
+@RequiredArgsConstructor
 public class AuthApiController {
 
-    @Autowired
-    private AuthService authService;
-
-
+    private final AuthService authService;
 
     @PostMapping("/register")
     public ResponseEntity<?> registerAjax(@RequestParam String username,

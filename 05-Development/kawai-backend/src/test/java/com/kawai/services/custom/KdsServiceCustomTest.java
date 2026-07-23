@@ -54,6 +54,7 @@ public class KdsServiceCustomTest {
         when(customerRepository.findById(1L)).thenReturn(Optional.of(cust));
         when(restaurantTableRepository.findById(2L)).thenReturn(Optional.of(table));
         when(tableReservationRepository.save(any(TableReservation.class))).thenAnswer(i -> i.getArguments()[0]);
+        when(restaurantTableRepository.save(any(RestaurantTable.class))).thenAnswer(i -> i.getArguments()[0]);
 
         TableReservation res = kdsService.createTableReservation(1L, 2L, LocalDate.now(), LocalTime.now(), BigDecimal.TEN);
 
@@ -74,6 +75,8 @@ public class KdsServiceCustomTest {
         res.setReserveTime(LocalTime.now().minusMinutes(45)); // expired (> 30 mins)
 
         when(tableReservationRepository.findAll()).thenReturn(Collections.singletonList(res));
+        when(tableReservationRepository.save(any(TableReservation.class))).thenAnswer(i -> i.getArguments()[0]);
+        when(restaurantTableRepository.save(any(RestaurantTable.class))).thenAnswer(i -> i.getArguments()[0]);
 
         kdsService.checkAndCancelExpiredReservations();
 

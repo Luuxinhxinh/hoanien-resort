@@ -155,7 +155,7 @@ public class CheckinServiceImpl implements CheckinService {
 
         private void validateRoomAvailableForCheckin(Room room) {
                 String status = room.getRoomStatus();
-                // Chỉ chặn Maintenance (phòng đang sửa chữa) và Occupied (đang có khách).
+                // Chặn Maintenance, Occupied, và Vacant_Dirty (phòng chưa dọn dẹp)
                 if (STATUS_MAINTENANCE.equalsIgnoreCase(status)) {
                         throw new IllegalStateException(
                                         "ROOM-001: Phòng đang MAINTENANCE, đang bảo trì. Không thể check-in. (BR-HK-03)");
@@ -163,6 +163,10 @@ public class CheckinServiceImpl implements CheckinService {
                 if (STATUS_OCCUPIED.equalsIgnoreCase(status)) {
                         throw new IllegalStateException(
                                         "ROOM-001: Phòng đang Occupied, không thể check-in. (MOD2-002)");
+                }
+                if (STATUS_DIRTY.equalsIgnoreCase(status) || "Dirty".equalsIgnoreCase(status)) {
+                        throw new IllegalStateException(
+                                        "ROOM-001: Phòng đang DIRTY, chưa dọn dẹp xong. Không thể check-in. (BR-FO-04)");
                 }
                 boolean hasPendingMaintenance = maintenanceRequestRepo.existsByRoomIdAndStatusInAndOperationalTypeIn(
                                 room.getId(),

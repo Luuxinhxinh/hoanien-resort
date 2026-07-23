@@ -321,6 +321,7 @@ public class ProfileController {
             @RequestParam(required = false) String gender,
             @RequestParam(required = false) String phone,
             @RequestParam(required = false) String cccd,
+            @RequestParam(required = false) String birthDate,
             RedirectAttributes redirectAttributes) {
         if (!com.kawai.utils.SecurityUtils.isCustomerLoggedIn(authentication)) {
             return "redirect:/booking";
@@ -351,6 +352,14 @@ public class ProfileController {
                     return "redirect:/profile";
                 }
                 customer.setCccdPassportEncrypted(EncryptionUtils.encrypt(cccd.trim()));
+            }
+            if (birthDate != null && !birthDate.trim().isEmpty()) {
+                try {
+                    customer.setBirthDate(java.time.LocalDate.parse(birthDate));
+                } catch (Exception e) {
+                    redirectAttributes.addFlashAttribute("error", "Ngày sinh không đúng định dạng!");
+                    return "redirect:/profile";
+                }
             }
             customerRepository.save(customer);
 
