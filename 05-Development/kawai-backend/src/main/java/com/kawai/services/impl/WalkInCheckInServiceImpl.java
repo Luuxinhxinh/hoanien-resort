@@ -203,8 +203,11 @@ public class WalkInCheckInServiceImpl implements com.kawai.services.interfaces.W
                 BigDecimal extraSurcharge = validateAndCalculateSurcharge(guestCount, room.getCategory(), childAges);
 
                 long nights = resolveNights(request.getCheckInDate(), request.getCheckOutDate());
-                BigDecimal roomTotalCharge = pricingService.calculateTotalRoomCharge(room.getCategory(), request.getCheckInDate(), request.getCheckOutDate());
-                BigDecimal avgRoomCharge = nights > 0 ? roomTotalCharge.divide(BigDecimal.valueOf(nights), 2, java.math.RoundingMode.HALF_UP) : BigDecimal.ZERO;
+                BigDecimal roomTotalCharge = pricingService.calculateTotalRoomCharge(room.getCategory(),
+                        request.getCheckInDate(), request.getCheckOutDate());
+                BigDecimal avgRoomCharge = nights > 0
+                        ? roomTotalCharge.divide(BigDecimal.valueOf(nights), 2, java.math.RoundingMode.HALF_UP)
+                        : BigDecimal.ZERO;
 
                 RoomBookingDetail detail = buildRoomBookingDetail(request, booking, room, room.getCategory(),
                         guestCount, extraSurcharge, avgRoomCharge);
@@ -319,7 +322,8 @@ public class WalkInCheckInServiceImpl implements com.kawai.services.interfaces.W
                     .orElseThrow(() -> new BusinessException("MOD2-UC14-004",
                             "Room not found for ID: " + selection.getRoomId()));
             RoomCategory category = room.getCategory();
-            BigDecimal roomTotalCharge = pricingService.calculateTotalRoomCharge(category, request.getCheckInDate(), request.getCheckOutDate());
+            BigDecimal roomTotalCharge = pricingService.calculateTotalRoomCharge(category, request.getCheckInDate(),
+                    request.getCheckOutDate());
             totalBaseRoomPrice = totalBaseRoomPrice.add(roomTotalCharge);
 
             List<DependentRegistrationDTO> companions = resolveCompanions(selection);
@@ -528,7 +532,8 @@ public class WalkInCheckInServiceImpl implements com.kawai.services.interfaces.W
                 surcharge = surcharge.add(
                         roomSurchargeRepository.findSurchargeForAge(category, childAges.get(i))
                                 .map(RoomSurcharge::getPriceModifier)
-                                .orElse(BigDecimal.ZERO));
+                                .orElse(category.getExtraChildSurcharge() != null ? category.getExtraChildSurcharge()
+                                        : BigDecimal.ZERO));
             }
         }
         return surcharge;
@@ -661,7 +666,8 @@ public class WalkInCheckInServiceImpl implements com.kawai.services.interfaces.W
      * Tạo RoomBookingDetail với trạng thái CHECKED_IN và extra surcharge đã tính.
      */
     private RoomBookingDetail buildRoomBookingDetail(WalkInCheckInRequest req, RoomBooking booking,
-            Room room, RoomCategory category, GuestCount guestCount, BigDecimal extraSurcharge, BigDecimal avgRoomCharge) {
+            Room room, RoomCategory category, GuestCount guestCount, BigDecimal extraSurcharge,
+            BigDecimal avgRoomCharge) {
         RoomBookingDetail detail = new RoomBookingDetail();
         detail.setRoomBooking(booking);
         detail.setRoom(room);

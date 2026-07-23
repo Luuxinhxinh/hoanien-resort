@@ -77,23 +77,24 @@ public class BookingApiController {
 
         try {
             Customer customer = resolveCurrentCustomer(principal);
-
-            // Gán customerId lấy từ user đang đăng nhập
             request.setCustomerId(customer.getId());
 
             BookingResponseDTO response = bookingService.createBooking(request);
-
-            java.time.LocalDateTime cancellationDeadlineLDT = response.getCancellationDeadline();
 
             BookingApiResponse apiResponse = new BookingApiResponse(
                     "success",
                     response.getBookingStatus(),
                     response.getBookingId(),
                     response.getDepositAmount(),
-                    cancellationDeadlineLDT,
+                    response.getCancellationDeadline(),
                     "Đặt phòng thành công!");
-            // Trả về tổng chính thức từ backend (bao gồm phụ thu + khuyến mãi)
             apiResponse.setDiscountedPrice(response.getDiscountedPrice());
+
+            if ("VNPAY".equalsIgnoreCase(request.getPaymentMethod())) {
+                String paymentUrl = vnPayService.createPaymentUrl(
+                        response.getBookingId(), httpRequest.getRemoteAddr());
+                apiResponse.setPaymentUrl(paymentUrl);
+            }
 
             return ResponseEntity.ok(apiResponse);
         } catch (BusinessException e) {
@@ -217,7 +218,8 @@ public class BookingApiController {
 
             // 2. Chốt booking: Xác nhận available, gắn thông tin khách, chuyển sang
             // Pending_Payment hoặc Confirmed
-            bookingService.confirmBooking(bookingId, customer.getId(), fullName, phone, email, cccd, dateOfBirth, null, notes,
+            bookingService.confirmBooking(bookingId, customer.getId(), fullName, phone, email, cccd, dateOfBirth, null,
+                    notes,
                     paymentMethod);
 
             Map<String, Object> response = new java.util.HashMap<>();
@@ -357,10 +359,10 @@ public class BookingApiController {
         }
     }
 
-
     /**
      * Validate và tính toán giá trị mã giảm giá từ bảng Promotions.
-     * Endpoint này được đặt dưới /api/bookings/** nên được truy cập bởi guest (không cần đăng nhập).
+     * Endpoint này được đặt dưới /api/bookings/** nên được truy cập bởi guest
+     * (không cần đăng nhập).
      *
      * @param code   Mã giảm giá cần kiểm tra
      * @param amount Số tiền gốc (VND) để tính toán giá trị giảm
@@ -371,14 +373,16 @@ public class BookingApiController {
             @org.springframework.web.bind.annotation.RequestParam java.math.BigDecimal amount,
             java.security.Principal principal) {
         try {
-            java.util.Optional<com.kawai.models.Promotion> optPromo = promotionRepository.findByPromoCode(code.toUpperCase().trim());
+            java.util.Optional<com.kawai.models.Promotion> optPromo = promotionRepository
+                    .findByPromoCode(code.toUpperCase().trim());
             if (optPromo.isEmpty()) {
                 return ResponseEntity.ok(Map.of("success", false, "message", "Mã giảm giá không tồn tại"));
             }
             if (principal != null) {
                 Customer customer = resolveCurrentCustomer(principal);
                 if (customer != null) {
-                    java.util.List<com.kawai.models.Booking> usedBookings = bookingRepository.findUsedPromoBookings(customer.getId(), code.toUpperCase().trim());
+                    java.util.List<com.kawai.models.Booking> usedBookings = bookingRepository
+                            .findUsedPromoBookings(customer.getId(), code.toUpperCase().trim());
                     if (!usedBookings.isEmpty()) {
                         com.kawai.models.Booking b = usedBookings.get(0);
                         String serviceName = "Dịch vụ của resort";
@@ -393,18 +397,21 @@ public class BookingApiController {
                             serviceName = "Đặt phòng nghỉ";
                         }
                         return ResponseEntity.ok(Map.of("success", false, "message",
-                            "Mã giảm giá \"" + code.toUpperCase().trim() + "\" đã được sử dụng tại dịch vụ \"" + serviceName + "\". Hãy nhập mã giảm giá mới."));
+                                "Mã giảm giá \"" + code.toUpperCase().trim() + "\" đã được sử dụng tại dịch vụ \""
+                                        + serviceName + "\". Hãy nhập mã giảm giá mới."));
                     }
                 }
             }
             com.kawai.models.Promotion promo = optPromo.get();
             if (!Boolean.TRUE.equals(promo.getIsActive())
                     || (promo.getValidTo() != null && promo.getValidTo().isBefore(java.time.LocalDate.now()))) {
-                return ResponseEntity.ok(Map.of("success", false, "message", "Mã giảm giá đã hết hạn hoặc không hoạt động"));
+                return ResponseEntity
+                        .ok(Map.of("success", false, "message", "Mã giảm giá đã hết hạn hoặc không hoạt động"));
             }
             java.math.BigDecimal discountRate = promo.getDiscountValue();
             java.math.BigDecimal discountAmount;
-            // Heuristic: giá trị >= 100 được coi là FIXED_AMOUNT (VND), còn lại là PERCENTAGE
+            // Heuristic: giá trị >= 100 được coi là FIXED_AMOUNT (VND), còn lại là
+            // PERCENTAGE
             boolean isFixed = "FIXED_AMOUNT".equalsIgnoreCase(promo.getDiscountType())
                     || discountRate.compareTo(new java.math.BigDecimal("100")) >= 0;
             if (isFixed) {
@@ -413,7 +420,8 @@ public class BookingApiController {
                 discountAmount = amount.multiply(discountRate)
                         .divide(new java.math.BigDecimal("100"), 0, java.math.RoundingMode.HALF_UP);
             }
-            if (discountAmount.compareTo(amount) > 0) discountAmount = amount;
+            if (discountAmount.compareTo(amount) > 0)
+                discountAmount = amount;
             java.math.BigDecimal newAmount = amount.subtract(discountAmount);
             return ResponseEntity.ok(Map.of(
                     "success", true,
