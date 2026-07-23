@@ -605,6 +605,24 @@ public class CheckinServiceImpl implements CheckinService {
                         }
                 }
 
+                // Gửi email xác nhận Check-in cho Khách đặt phòng chính (Sử dụng template walkin-checkin-existing)
+                if (emailService != null && customer != null && roomBooking != null) {
+                        try {
+                                com.kawai.models.RoomBookingDetail mailDetail = null;
+                                if (form.getAssignedRoomNumbers() != null && !form.getAssignedRoomNumbers().isEmpty()) {
+                                        Long fId = roomNumberToDetailIdMap.get(form.getAssignedRoomNumbers().get(0));
+                                        if (fId != null) {
+                                                mailDetail = roomBookingDetailRepo.findById(fId).orElse(null);
+                                        }
+                                }
+                                if (mailDetail != null) {
+                                        emailService.sendWalkInCheckInEmail(roomBooking, mailDetail, customer, false, null, null);
+                                }
+                        } catch (Exception e) {
+                                log.error("Lỗi gửi email xác nhận Check-in Booking Online: ", e);
+                        }
+                }
+
         }
 
         // UC12.3: Đổi phòng

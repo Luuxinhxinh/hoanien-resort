@@ -26,14 +26,14 @@ import static org.mockito.Mockito.*;
 
 /**
  * ═══════════════════════════════════════════════════════════════════════════
- * JUnit Test — UC09: Tìm kiếm phòng trống thời gian thực
+ * JUnit Test — UC10: Tìm kiếm phòng trống thời gian thực
  * MODULE 2: Quản lý Phòng & Lễ tân
  * ═══════════════════════════════════════════════════════════════════════════
  *
  * Standard : ISO/IEC/IEEE 29119-3:2021
  * TDD Phase : 🔴 RED — Toàn bộ test phải FAIL trước khi implement.
  *
- * Ánh xạ test case (TC_MASTER_TABLE.md — MOD2, UC09):
+ * Ánh xạ test case (TC_MASTER_TABLE.md — MOD2, UC10):
  * ┌──────────────┬─────────────────────────────────────────────────────────┬──────────┐
  * │ TC ID │ Kịch bản │ RED Why │
  * ├──────────────┼─────────────────────────────────────────────────────────┼──────────┤
@@ -43,8 +43,8 @@ import static org.mockito.Mockito.*;
  * └──────────────┴─────────────────────────────────────────────────────────┴──────────┘
  */
 @ExtendWith(MockitoExtension.class)
-@DisplayName("UC09 — Tìm kiếm phòng trống (RoomService) | TDD 🔴 RED")
-class RoomServiceUC09Test {
+@DisplayName("UC10 — Tìm kiếm phòng trống (RoomService) | TDD 🔴 RED")
+class SearchRoomUC10Test {
 
         // ── SUT ───────────────────────────────────────────────────────────────────
         @InjectMocks
