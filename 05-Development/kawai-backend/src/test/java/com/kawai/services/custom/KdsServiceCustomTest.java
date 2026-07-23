@@ -56,7 +56,8 @@ public class KdsServiceCustomTest {
         when(tableReservationRepository.save(any(TableReservation.class))).thenAnswer(i -> i.getArguments()[0]);
         when(restaurantTableRepository.save(any(RestaurantTable.class))).thenAnswer(i -> i.getArguments()[0]);
 
-        TableReservation res = kdsService.createTableReservation(1L, 2L, LocalDate.now(), LocalTime.now(), BigDecimal.TEN);
+        TableReservation res = kdsService.createTableReservation(1L, 2L, LocalDate.now(), LocalTime.now(),
+                BigDecimal.TEN);
 
         assertNotNull(res);
         assertEquals("Reserved", table.getTableStatus());
@@ -95,7 +96,7 @@ public class KdsServiceCustomTest {
         detail.setId(10L);
         detail.setRoom(room);
         detail.setSubCreditLimit(new BigDecimal("1000000"));
-        
+
         RoomBooking roomBooking = new RoomBooking();
         roomBooking.setCustomer(new Customer());
         detail.setRoomBooking(roomBooking);
@@ -131,7 +132,7 @@ public class KdsServiceCustomTest {
         detail.setId(10L);
         detail.setRoom(room);
         detail.setSubCreditLimit(new BigDecimal("100")); // very low limit
-        
+
         RoomBooking roomBooking = new RoomBooking();
         roomBooking.setCustomer(new Customer());
         detail.setRoomBooking(roomBooking);
@@ -153,18 +154,6 @@ public class KdsServiceCustomTest {
 
         assertThrows(IllegalStateException.class, () -> {
             kdsService.createFoodOrder(10L, null, "RoomService", Collections.singletonList(od), 1L);
-        });
-    }
-
-    @Test
-    void testCancelFoodOrderDetail_Preparing_Failed() {
-        FoodOrderDetail detail = new FoodOrderDetail();
-        detail.setKotStatus("Preparing");
-
-        when(foodOrderDetailRepository.findById(1L)).thenReturn(Optional.of(detail));
-
-        assertThrows(IllegalStateException.class, () -> {
-            kdsService.cancelFoodOrderDetail(1L, "Client requested", 2L);
         });
     }
 }

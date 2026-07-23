@@ -15,5 +15,4 @@ public interface KdsService {
     FoodOrder createFoodOrder(Long bookingDetailId, Long tableId, String orderType, List<FoodOrderDetail> items, Long staffId);
     void updateKitchenStatus(Long detailId, String status);
     void markItemUnavailable(Long itemId);
-    void cancelFoodOrderDetail(Long detailId, String reason, Long staffId);
 }

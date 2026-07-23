@@ -370,11 +370,17 @@ if (rmSubmit) {
     let startMins = timeToMinutes(startTime);
     let endMins = timeToMinutes(endTime);
     if (endMins <= startMins) {
-      endMins += 24 * 60;
+      tmShowToast('error', 'Sai giờ', 'Giờ kết thúc phải lớn hơn giờ bắt đầu');
+      return;
     }
 
-    if (endMins - startMins > 12 * 60) {
-      tmShowToast('error', 'Sai giờ', 'Thời gian đặt bàn quá dài hoặc giờ kết thúc không hợp lệ');
+    if (endMins > 23 * 60) {
+      tmShowToast('error', 'Sai giờ', 'Nhà hàng đóng cửa lúc 23:00, vui lòng chọn giờ kết thúc sớm hơn');
+      return;
+    }
+
+    if (endMins - startMins < 30) {
+      tmShowToast('error', 'Sai giờ', 'Thời gian đặt bàn tối thiểu là 30 phút');
       return;
     }
 
