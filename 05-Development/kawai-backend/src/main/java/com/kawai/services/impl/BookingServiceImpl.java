@@ -185,7 +185,9 @@ public class BookingServiceImpl implements BookingService {
         holdBooking.setCustomer(customer);
         holdBooking.setBookingDate(LocalDate.now());
         holdBooking.setTotalPrice(BigDecimal.ZERO);
-        holdBooking.setBookingStatus("Pending");
+        // Tạo thẳng Pending_Payment — giữ chỗ phòng ngay khi bấm Thanh toán
+        holdBooking.setBookingStatus("Pending_Payment");
+        holdBooking.setHoldExpiresAt(LocalDateTime.now().plusMinutes(2));
         holdBooking.setBookingSource("Direct_Web");
         holdBooking.setCheckInDate(checkIn);
         holdBooking.setCheckOutDate(checkOut);
@@ -245,7 +247,7 @@ public class BookingServiceImpl implements BookingService {
             String catName = entry.getKey();
             java.util.List<com.kawai.dto.RoomSelectionDTO> selections = entry.getValue();
             int requestedQty = selections.size();
-            com.kawai.models.RoomCategory category = roomCategoryRepository.findByCategoryName(catName)
+            com.kawai.models.RoomCategory category = roomCategoryRepository.findByCategoryNameWithLock(catName)
                     .orElseThrow(() -> new BusinessException("CATEGORY_NOT_FOUND", "Category not found: " + catName));
 
             // Tính toán số phòng không bị trùng
@@ -276,7 +278,6 @@ public class BookingServiceImpl implements BookingService {
 
                 int baseAdults = category.getBaseAdults() != null ? category.getBaseAdults() : 0;
                 int baseChildren = category.getBaseChildren() != null ? category.getBaseChildren() : 0;
-
                 int extraAdults = Math.max(0, reqAdults - baseAdults);
 
                 // Child surcharge calculation using exact ages
@@ -292,7 +293,8 @@ public class BookingServiceImpl implements BookingService {
                     int childAge = ages.get(idx);
                     BigDecimal surcharge = roomSurchargeRepository.findSurchargeForAge(category, childAge)
                             .map(com.kawai.models.RoomSurcharge::getPriceModifier)
-                            .orElse(BigDecimal.ZERO);
+                            .orElse(category.getExtraChildSurcharge() != null ? category.getExtraChildSurcharge()
+                                    : BigDecimal.ZERO);
                     childSurchargeTotal = childSurchargeTotal.add(surcharge);
                 }
 
@@ -333,8 +335,34 @@ public class BookingServiceImpl implements BookingService {
         // Phòng chưa bị trừ — chỉ trừ khi confirmBooking() chuyển sang HOLD
         savedHold.setTotalPrice(discountedPrice.setScale(0, RoundingMode.HALF_UP));
         savedHold.setDepositAmount(depositVal);
-        savedHold.setBookingStatus("Pending");
+        savedHold.setBookingStatus("Pending_Payment");
+        savedHold.setHoldExpiresAt(LocalDateTime.now().plusMinutes(2));
         RoomBooking savedBooking = roomBookingRepository.save(savedHold);
+
+        // Cập nhật thông tin khách hàng nếu chưa có trong profile (chỉ ghi khi trống)
+        updateCustomerProfileIfBlank(customer, request);
+
+        // Gọi Workflow Engine để kiểm tra nếu áp dụng mã giảm giá vượt ngưỡng
+        if (promoCode != null && !promoCode.isBlank()) {
+            try {
+                Promotion promo = promotionRepository.findByPromoCode(promoCode).orElse(null);
+                if (promo != null) {
+                    BigDecimal pct = "Percentage".equalsIgnoreCase(promo.getDiscountType())
+                            ? promo.getDiscountValue()
+                            : (totalBaseTotal.compareTo(BigDecimal.ZERO) > 0
+                                    ? promo.getDiscountValue().multiply(new BigDecimal("100")).divide(totalBaseTotal, 2,
+                                            RoundingMode.HALF_UP)
+                                    : BigDecimal.ZERO);
+
+                    workflowEngineService.triggerEvent("PROMOTION_EXCEEDED", java.util.Map.of(
+                            "promo_id", promo.getId(),
+                            "input_discount_pct", pct.doubleValue(),
+                            "booking_id", savedBooking.getId()));
+                }
+            } catch (Exception e) {
+                log.error("Failed to trigger PROMOTION_EXCEEDED workflow in createBooking", e);
+            }
+        }
 
         log.info("HOLD updated with details: bookingId={}", savedBooking.getId());
 
@@ -347,13 +375,13 @@ public class BookingServiceImpl implements BookingService {
 
             RoomBookingDetail detail = new RoomBookingDetail();
             detail.setRoomBooking(savedBooking);
-            detail.setRoom(null); // Không chốt cứng phòng, để trống cho lễ tân tự chia
+            detail.setRoom(null);
             detail.setCategory(category);
             detail.setRoomCharge(roomCharge);
             detail.setExtraSurcharge(extraSurcharge);
             detail.setNumberOfAdults(reqAdults);
             detail.setNumberOfChildren(reqChildren);
-            detail.setDetailStatus("Pending");
+            detail.setDetailStatus("Pending_Payment");
             detail.setCustomer(customer);
 
             // Mỗi phòng hưởng trọn hạn mức của hạng khách hàng đặt phòng (hoặc mặc định
@@ -411,14 +439,52 @@ public class BookingServiceImpl implements BookingService {
 
         BookingResponseDTO response = new BookingResponseDTO();
         response.setBookingId(savedBooking.getId());
-        response.setBookingStatus("Pending");
+        response.setBookingStatus("Pending_Payment");
         response.setDepositAmount(depositVal);
         response.setDiscountedPrice(discountedPrice.setScale(0, RoundingMode.HALF_UP));
         response.setCheckInDate(checkIn);
         response.setCheckOutDate(checkOut);
         response.setCancellationDeadline(checkIn.atTime(14, 0).minusHours(48));
 
+        log.info("createBooking → Pending_Payment: bookingId={}, customer={}, {}→{}, holdExpires={}",
+                savedBooking.getId(), customer.getId(), checkIn, checkOut, savedBooking.getHoldExpiresAt());
+
         return response;
+    }
+
+    /**
+     * Cập nhật các trường profile của Customer chỉ khi trường đó đang trống/null.
+     * Tránh ghi đè dữ liệu đã có từ trước.
+     */
+    private void updateCustomerProfileIfBlank(Customer customer, BookingRequestDTO request) {
+        boolean dirty = false;
+        if (isBlank(customer.getFullName()) && !isBlank(request.getFullName())) {
+            customer.setFullName(request.getFullName().trim());
+            dirty = true;
+        }
+        if (isBlank(customer.getPhone()) && !isBlank(request.getPhone())) {
+            customer.setPhone(request.getPhone().trim());
+            dirty = true;
+        }
+        if (isBlank(customer.getEmail()) && !isBlank(request.getEmail())) {
+            customer.setEmail(request.getEmail().trim());
+            dirty = true;
+        }
+        if (customer.getBirthDate() == null && !isBlank(request.getDateOfBirth())) {
+            try {
+                customer.setBirthDate(LocalDate.parse(request.getDateOfBirth()));
+                dirty = true;
+            } catch (Exception ignored) {
+                log.warn("Invalid dateOfBirth format from request: {}", request.getDateOfBirth());
+            }
+        }
+        if (dirty) {
+            customerRepository.save(customer);
+        }
+    }
+
+    private static boolean isBlank(String s) {
+        return s == null || s.isBlank();
     }
 
     /**
@@ -433,16 +499,10 @@ public class BookingServiceImpl implements BookingService {
         if (!staleHolds.isEmpty()) {
             staleHolds.forEach(h -> {
                 try {
-                    // Chuyển trạng thái sang Cancelled_Payment để giải phóng phòng thay vì xóa
-                    h.setBookingStatus("Cancelled_Payment");
-                    h.setHoldExpiresAt(null);
                     List<com.kawai.models.RoomBookingDetail> details = roomBookingDetailRepository
                             .findByRoomBookingId(h.getId());
-                    for (com.kawai.models.RoomBookingDetail detail : details) {
-                        detail.setDetailStatus("Cancelled_Payment");
-                        roomBookingDetailRepository.save(detail);
-                    }
-                    roomBookingRepository.save(h);
+                    roomBookingDetailRepository.deleteAll(details);
+                    roomBookingRepository.delete(h);
 
                     if (h.getCustomer() != null) {
                         try {

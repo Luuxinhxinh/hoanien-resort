@@ -349,18 +349,30 @@
                             </div>
                         </div>
 
-                        <div class="space-y-1.5">
-                            <label
-                                class="text-xs uppercase tracking-wider opacity-70 font-semibold flex items-center justify-between">
-                                <span>CCCD / Hộ chiếu (Mã hóa AES-256)</span>
-                                <span class="material-symbols-outlined text-green-600 text-sm"
-                                    title="Dữ liệu được bảo mật an toàn">enhanced_encryption</span>
-                            </label>
-                            <input type="text" name="cccd" placeholder="Nhập số CCCD/Passport..."
-                                class="w-full bg-transparent border-b border-hoanien-text/20 pb-2 focus:border-hoanien-text focus:outline-none transition-colors text-sm"
-                                th:value="${customer != null and customer.cccdPassportEncrypted != null ? '********' : ''}">
-                            <p class="text-[10px] opacity-50 mt-1 italic">* Thông tin định danh của bạn được mã hóa hoàn
-                                toàn theo tiêu chuẩn AES-256 tại cơ sở dữ liệu Hoanien.</p>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="space-y-1.5">
+                                <label
+                                    class="text-xs uppercase tracking-wider opacity-70 font-semibold flex items-center justify-between">
+                                    <span>Ngày sinh</span>
+                                </label>
+                                <input type="date" name="birthDate"
+                                    class="w-full bg-transparent border-b border-hoanien-text/20 pb-2 focus:border-hoanien-text focus:outline-none transition-colors text-sm"
+                                    th:value="${customer != null ? customer.birthDate : ''}"
+                                    th:max="${#temporals.format(#temporals.createNow(), 'yyyy-MM-dd')}">
+                            </div>
+                            <div class="space-y-1.5">
+                                <label
+                                    class="text-xs uppercase tracking-wider opacity-70 font-semibold flex items-center justify-between">
+                                    <span>CCCD / Hộ chiếu (Mã hóa AES-256)</span>
+                                    <span class="material-symbols-outlined text-green-600 text-sm"
+                                        title="Dữ liệu được bảo mật an toàn">enhanced_encryption</span>
+                                </label>
+                                <input type="text" name="cccd" placeholder="Nhập số CCCD/Passport..."
+                                    class="w-full bg-transparent border-b border-hoanien-text/20 pb-2 focus:border-hoanien-text focus:outline-none transition-colors text-sm"
+                                    th:value="${customer != null and customer.cccdPassportEncrypted != null ? '********' : ''}">
+                                <p class="text-[10px] opacity-50 mt-1 italic">* Thông tin định danh của bạn được mã hóa hoàn
+                                    toàn theo tiêu chuẩn AES-256 tại cơ sở dữ liệu Hoanien.</p>
+                            </div>
                         </div>
 
                         <div class="pt-4 flex justify-end">
@@ -977,8 +989,6 @@
                             </div>
                         </details>
                     </div>
-                </div>
-            </div>
 
             <!-- 3. FOOD ORDERS SECTION -->
             <!-- 3. FOOD ORDERS SECTION -->

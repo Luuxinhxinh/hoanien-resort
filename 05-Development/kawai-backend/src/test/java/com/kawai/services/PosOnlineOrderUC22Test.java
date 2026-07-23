@@ -78,6 +78,7 @@ class PosOnlineOrderUC22Test {
         mockBooking.setBookingStatus("Checked_In");
 
         when(accountRepository.findByUsername(userIdentifier)).thenReturn(Optional.of(mockAccount));
+        when(customerRepository.findByAccount_Username(userIdentifier)).thenReturn(Optional.of(mockCustomer));
         when(roomBookingRepository.findByCustomerOrderByBookingDateDesc(mockCustomer))
                 .thenReturn(Collections.singletonList(mockBooking));
         when(foodOrderRepository.save(any(FoodOrder.class))).thenAnswer(i -> i.getArgument(0));

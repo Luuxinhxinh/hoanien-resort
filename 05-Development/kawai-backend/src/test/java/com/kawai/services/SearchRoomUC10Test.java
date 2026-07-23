@@ -26,14 +26,14 @@ import static org.mockito.Mockito.*;
 
 /**
  * ═══════════════════════════════════════════════════════════════════════════
- * JUnit Test — UC09: Tìm kiếm phòng trống thời gian thực
+ * JUnit Test — UC10: Tìm kiếm phòng trống thời gian thực
  * MODULE 2: Quản lý Phòng & Lễ tân
  * ═══════════════════════════════════════════════════════════════════════════
  *
  * Standard : ISO/IEC/IEEE 29119-3:2021
  * TDD Phase : 🔴 RED — Toàn bộ test phải FAIL trước khi implement.
  *
- * Ánh xạ test case (TC_MASTER_TABLE.md — MOD2, UC09):
+ * Ánh xạ test case (TC_MASTER_TABLE.md — MOD2, UC10):
  * ┌──────────────┬─────────────────────────────────────────────────────────┬──────────┐
  * │ TC ID │ Kịch bản │ RED Why │
  * ├──────────────┼─────────────────────────────────────────────────────────┼──────────┤
@@ -43,8 +43,8 @@ import static org.mockito.Mockito.*;
  * └──────────────┴─────────────────────────────────────────────────────────┴──────────┘
  */
 @ExtendWith(MockitoExtension.class)
-@DisplayName("UC09 — Tìm kiếm phòng trống (RoomService) | TDD 🔴 RED")
-class RoomServiceUC09Test {
+@DisplayName("UC10 — Tìm kiếm phòng trống (RoomService) | TDD 🔴 RED")
+class SearchRoomUC10Test {
 
         // ── SUT ───────────────────────────────────────────────────────────────────
         @InjectMocks
@@ -117,6 +117,20 @@ class RoomServiceUC09Test {
                 cat2.setBasePrice(new BigDecimal("3500000"));
                 cat2.setCapacity(4);
 
+                // Cần mock cả roomRepository.findAll() với Room có category được gán đúnng
+                Room deluxeRoom = new Room();
+                deluxeRoom.setId(1L);
+                deluxeRoom.setRoomNumber("101");
+                deluxeRoom.setCategory(cat1);
+                deluxeRoom.setRoomStatus("Vacant_Clean");
+
+                Room suiteRoom = new Room();
+                suiteRoom.setId(2L);
+                suiteRoom.setRoomNumber("201");
+                suiteRoom.setCategory(cat2);
+                suiteRoom.setRoomStatus("Vacant_Clean");
+
+                when(roomRepository.findAll()).thenReturn(Arrays.asList(deluxeRoom, suiteRoom));
                 when(roomCategoryRepository.findAll()).thenReturn(Arrays.asList(cat1, cat2));
 
                 when(roomBookingRepository.countOverlappingBookingsByCategoryWithoutExclude(eq("Deluxe"), any(), any()))

@@ -28,19 +28,19 @@ import static org.mockito.Mockito.*;
  * ═══════════════════════════════════════════════════════════════════════════
  *
  * Standard : ISO/IEC/IEEE 29119-3:2021
- * TDD Phase : 🔴 RED — Toàn bộ test phải FAIL trước khi implement đúng.
+ * TDD Phase : 🟢 GREEN — Toàn bộ test đã PASS sau khi implement đúng.
  *
  * Ánh xạ test case (TC_MASTER_TABLE.md — MOD2, UC11):
  * ┌──────────────┬─────────────────────────────────────────────────────────┬───────────┐
- * │ TC ID │ Kịch bản │ RED Why │
+ * │ TC ID │ Kịch bản │ Status │
  * ├──────────────┼─────────────────────────────────────────────────────────┼───────────┤
- * │ TC-M2-010a │ Dashboard có phòng → trả đúng danh sách + status │ OK (thành │
- * │ TC-M2-010b │ Dashboard rỗng → trả empty list (không null) │ FAIL/null │
+ * │ TC-M2-010a │ Dashboard có phòng → trả đúng danh sách + status │ PASS │
+ * │ TC-M2-010b │ Dashboard rỗng → trả empty list (không null) │ PASS │
  * └──────────────┴─────────────────────────────────────────────────────────┴───────────┘
  */
 @ExtendWith(MockitoExtension.class)
-@DisplayName("UC11 — Front Desk Dashboard (RoomService) | TDD 🔴 RED")
-class RoomServiceUC11Test {
+@DisplayName("UC11 — Front Desk Dashboard (RoomService) | TDD 🟢 GREEN")
+class RoomServiceDashboardTest {
 
         @InjectMocks
         private RoomServiceImpl roomService;
@@ -82,7 +82,7 @@ class RoomServiceUC11Test {
          * - Trạng thái phòng phải khớp với giá trị trong DB (Vacant_Clean, Occupied,
          * Dirty...)
          *
-         * 🔴 RED — PASS (logic hiện tại xử lý đúng khi danh sách không rỗng).
+         * 🟢 GREEN — PASS (logic hiện tại xử lý đúng khi danh sách không rỗng).
          */
         @Test
         @DisplayName("TC-M2-010a | HIGH | Dashboard có phòng — trả đúng danh sách + trạng thái")
@@ -132,12 +132,8 @@ class RoomServiceUC11Test {
         /**
          * TC-M2-010b — Dashboard khi hệ thống chưa có phòng nào → trả danh sách rỗng.
          *
-         * 🔴 RED — FAIL:
-         * Implementation hiện tại trả về null khi allRooms.isEmpty().
-         * → assertNotNull sẽ FAIL.
-         *
-         * Fix cần làm:
-         * Thay return null bằng return Collections.emptyList() hoặc new ArrayList<>().
+         * 🟢 GREEN — PASS:
+         * Implementation hiện tại đã trả về empty list khi allRooms.isEmpty().
          */
         @Test
         @DisplayName("TC-M2-010b | MEDIUM | Dashboard rỗng — trả empty list, không null")
@@ -148,7 +144,7 @@ class RoomServiceUC11Test {
                 // Act
                 List<RoomDashboardDTO> result = roomService.getRoomDashboard();
 
-                // Assert — 🔴 FAIL: trả về null thay vì empty list
+                // Assert — 🟢 PASS: trả về empty list
                 assertNotNull(result, "Kết quả không được null — phải trả empty list");
                 assertTrue(result.isEmpty(), "Danh sách phải rỗng khi hệ thống chưa có phòng");
         }
