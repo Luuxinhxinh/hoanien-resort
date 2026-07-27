@@ -1,0 +1,1002 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Order Detail — F&amp;B Staff | Hoanien Resort</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap"
+    rel="stylesheet" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap"
+    rel="stylesheet" />
+
+  <link rel="stylesheet" th:href="@{/f&amp;bStaff/css/pos-dashboard.css}"
+    href="../../statics/f&bStaff/css/pos-dashboard.css" />
+  <link rel="stylesheet" th:href="@{/f&amp;bStaff/css/order-detail.css}"
+    href="../../statics/f&bStaff/css/order-detail.css" />
+  <link rel="stylesheet" th:href="@{/f&amp;bStaff/css/refund-modal.css}"
+    href="../../statics/f&bStaff/css/refund-modal.css" />
+</head>
+
+<body>
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <div class="brand-name">HOANIEN</div>
+      <div class="brand-sub">Resort &amp; Tour Hub</div>
+      <div class="staff-badge">
+        <span class="material-symbols-outlined" style="font-size:0.7rem;">restaurant</span> Nhân viên F&amp;B
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Operations</div>
+
+      <a href="/fbStaff/dashboard" th:href="@{/fbStaff/dashboard}" class="nav-item active">
+        <span class="material-symbols-outlined">dashboard</span>
+        <span>POS Dashboard</span>
+      </a>
+      <a href="/fbStaff/create-food-order" th:href="@{/fbStaff/create-food-order}" class="nav-item"
+        sec:authorize="hasAnyAuthority('OP_FNB_ORDER', 'OP_FNB', 'ROLE_ADMIN', 'ROLE_MANAGER')">
+        <span class="material-symbols-outlined">add_circle</span>
+        <span>New Order</span>
+      </a>
+      <a href="/fbStaff/table-management" th:href="@{/fbStaff/table-management}" class="nav-item"
+        sec:authorize="hasAnyAuthority('OP_FNB_TABLE', 'OP_FNB', 'ROLE_ADMIN', 'ROLE_MANAGER')">
+        <span class="material-symbols-outlined">table_restaurant</span>
+        <span>Table Management</span>
+      </a>
+      <a href="/fbStaff/room-service" th:href="@{/fbStaff/room-service}" class="nav-item"
+        sec:authorize="hasAnyAuthority('OP_FNB_ROOM_SERVICE', 'OP_FNB', 'ROLE_ADMIN', 'ROLE_MANAGER')">
+        <span class="material-symbols-outlined">room_service</span>
+        <span>Room Service</span>
+      </a>
+
+      <div class="nav-section-label">Finance</div>
+
+      <a href="/fbStaff/shift-report" th:href="@{/fbStaff/shift-report}" class="nav-item">
+        <span class="material-symbols-outlined">bar_chart</span>
+        <span>Shift Report</span>
+      </a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="staff-profile">
+        <div class="staff-avatar">TP</div>
+        <div>
+          <div class="staff-name" th:text="${staffName != null ? staffName : 'Trần Phương'}">Trần Phương</div>
+          <div class="staff-role">F&amp;B POS</div>
+        </div>
+        <button class="logout-btn" title="Đăng xuất" onclick="location.href='/auth/logout'">
+          <span class="material-symbols-outlined" style="font-size:1.05rem;">logout</span>
+        </button>
+      </div>
+    </div>
+  </aside>
+
+  <div id="tableReleaseModal" class="addon-modal-overlay"
+    style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:9999; justify-content:center; align-items:center;">
+    <div class="addon-modal-content"
+      style="background:#fff; width:90%; max-width:400px; border-radius:8px; display:flex; flex-direction:column; overflow:hidden; position:relative; padding:20px; box-shadow:0 4px 15px rgba(0,0,0,0.2);">
+      <div class="addon-modal-header" style="margin-bottom:15px;">
+        <h3 style="margin:0; font-family:'Playfair Display', serif; color:var(--text-primary);">Giải phóng bàn</h3>
+      </div>
+      <div class="addon-modal-body" style="font-size:0.95rem; color:var(--text-primary); line-height:1.8;">
+        Khách hàng có tiếp tục sử dụng bàn này không?
+        <ul style="margin-top:12px; margin-left:20px; color:var(--text-secondary);">
+          <li style="margin-bottom:8px;">Chọn <b>Có</b> để giữ chỗ</li>
+          <li>Chọn <b>Không</b> để giải phóng bàn</li>
+        </ul>
+      </div>
+      <div class="addon-modal-footer" style="gap:10px; justify-content:flex-end; margin-top:5px;">
+        <button class="btn btn-outline" id="btnReleaseCancel" style="border-color:#ccc; color:#555;">Không</button>
+        <button class="btn btn-primary" id="btnReleaseOk">Có</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAPPING JAVASCRIPT VARS -->
+  <div class="main-content">
+    <header class="topbar">
+      <div>
+        <div class="topbar-title">Chi tiết Đơn hàng</div>
+        <div class="topbar-subtitle">Thông tin, trạng thái &amp; hóa đơn</div>
+      </div>
+      <div class="topbar-right">
+        <button class="btn btn-outline" onclick="location.href='/fbStaff/dashboard'">
+          <span class="material-symbols-outlined">arrow_back</span>
+          Quay lại
+        </button>
+      </div>
+    </header>
+
+    <div class="dashboard-body detail-wrapper">
+
+
+
+      <div class="detail-card">
+
+        <!-- HEADER -->
+        <div class="detail-header" th:if="${foodOrder != null || tableOrder != null}">
+          <div class="dh-left">
+            <h2 id="order-id" th:text="${foodOrder != null ? 'ORD-' + foodOrder.id : 'RES-' + tableOrder.id}">ORD-000
+            </h2>
+            <div class="dh-meta">
+              <span id="order-type-badge" class="type-badge"
+                th:text="${foodOrder != null ? foodOrder.orderType : 'Table Reservation'}">Food Order</span>
+              <span id="order-date"><span class="material-symbols-outlined">calendar_today</span> <span id="val-date"
+                  th:text="${tableOrder != null ? tableOrder.reserveDate : 'Mới tạo'}">Mới tạo</span></span>
+            </div>
+          </div>
+          <div class="dh-right">
+            <span id="order-status-chip" class="order-status-chip"
+              th:with="status=${foodOrder != null ? foodOrder.orderStatus : tableOrder.status}"
+              th:classappend="${status == 'Pending' || status == 'pending' ? 'chip-pending' : (status == 'Serving' || status == 'serving' || status == 'Preparing' || status == 'preparing' ? 'chip-cooking' : 'chip-ready')}"
+              style="font-size:0.8rem; padding:6px 14px;">
+              <span class="dot"></span><span
+                th:text="${status == 'Preparing' || status == 'preparing' ? 'Processing' : (status == 'Ready' || status == 'ready' ? 'Complete' : (status != null ? #strings.capitalize(status) : 'Pending'))}">Processing</span>
+            </span>
+          </div>
+        </div>
+
+        <!-- STATUS TRACKER -->
+        <div class="status-tracker" id="status-tracker" th:if="${foodOrder != null || tableOrder != null}">
+          <div class="step completed" id="step-1">
+            <div class="step-icon"><span class="material-symbols-outlined">receipt_long</span></div>
+            <div class="step-label">Created</div>
+          </div>
+          <div class="step"
+            th:classappend="${foodOrder != null ? (foodOrder.orderStatus == 'Preparing' || foodOrder.orderStatus == 'preparing' || foodOrder.orderStatus == 'Ready' || foodOrder.orderStatus == 'ready' || foodOrder.orderStatus == 'Delivering' || foodOrder.orderStatus == 'delivering' || foodOrder.orderStatus == 'Served' || foodOrder.orderStatus == 'served' ? 'completed' : '') : 'completed'}"
+            id="step-2">
+            <div class="step-icon"><span class="material-symbols-outlined">skillet</span></div>
+            <div class="step-label" id="lbl-step-2">Processing</div>
+          </div>
+          <div class="step" th:if="${foodOrder != null}"
+            th:classappend="${foodOrder.orderStatus == 'Ready' || foodOrder.orderStatus == 'ready' || foodOrder.orderStatus == 'Delivering' || foodOrder.orderStatus == 'delivering' || foodOrder.orderStatus == 'Served' || foodOrder.orderStatus == 'served' ? 'completed' : ''}"
+            id="step-3">
+            <div class="step-icon"><span class="material-symbols-outlined">check_circle</span></div>
+            <div class="step-label">Complete</div>
+          </div>
+          <div class="step"
+            th:classappend="${(foodOrder != null && (foodOrder.orderStatus == 'Served' || foodOrder.orderStatus == 'served')) || (tableOrder != null && (tableOrder.status == 'Completed' || tableOrder.status == 'completed')) ? 'completed' : ''}"
+            th:id="${foodOrder != null ? 'step-4' : 'step-3'}">
+            <div class="step-icon"><span class="material-symbols-outlined" id="icon-step-4"
+                th:text="${tableOrder != null ? 'done_all' : 'room_service'}">room_service</span></div>
+            <div class="step-label" id="lbl-step-4" th:text="${tableOrder != null ? 'Completed' : 'Served'}">Served
+            </div>
+          </div>
+        </div>
+
+        <!-- INFO GRID -->
+        <div class="info-grid" th:if="${foodOrder != null || tableOrder != null}">
+          <div class="info-box">
+            <div class="info-label">Khách hàng / NV tạo</div>
+            <div class="info-value" id="info-customer">
+              <span
+                th:text="${foodOrder != null ? 
+                             ((foodOrder.orderType == 'Room Service' || foodOrder.orderType == 'RoomService') && foodOrder.booking != null && foodOrder.booking.customer != null ? foodOrder.booking.customer.fullName : 
+                              (extractedGuestName != null && !extractedGuestName.isEmpty() ? extractedGuestName : 'Khách lẻ')) 
+                           : (tableOrder != null && tableOrder.customer != null ? tableOrder.customer.fullName : 'Khách lẻ')}">Khách
+                lẻ</span>
+              <span th:if="${foodOrder != null && foodOrder.createdByStaff != null}"
+                th:text="' / NV: ' + ${foodOrder.createdByStaff.fullName}"
+                style="color:var(--text-muted);font-size:0.85em;"> / NV: Trần Phương</span>
+            </div>
+          </div>
+          <div class="info-box" id="box-service-type">
+            <div class="info-label">Hình thức</div>
+            <div class="info-value" id="info-service" th:text="${foodOrder != null ? foodOrder.orderType : 'Dine-In'}">
+              Dine-In</div>
+          </div>
+          <div class="info-box" id="box-location">
+            <div class="info-label" id="lbl-location">Bàn / Phòng</div>
+            <div class="info-value" id="info-location"
+              th:text="${foodOrder != null ? (foodOrder.orderType == 'Room Service' ? 'Room Service' : 'Bàn ' + (foodOrder.table != null ? foodOrder.table.tableNumber : '?')) : 'Bàn ' + (tableOrder.table != null ? tableOrder.table.tableNumber : '?')}">
+              Bàn 05</div>
+          </div>
+          <div class="info-box">
+            <div class="info-label" id="lbl-pax">Thanh toán / Pax</div>
+            <div class="info-value" id="info-pax"
+              th:text="${foodOrder != null ? (foodOrder.isPaidInPos || (foodOrder.paymentType != null && foodOrder.paymentType.equalsIgnoreCase('CHARGE_TO_ROOM')) ? 'Đã thanh toán (' + (foodOrder.paymentType != null ? foodOrder.paymentType : '') + ')' : 'Chưa (' + (foodOrder.paymentType != null ? foodOrder.paymentType : 'N/A') + ')') : tableOrder.pax + ' người'}">
+            </div>
+          </div>
+        </div>
+
+        <!-- DYNAMIC BODY: FOOD ORDER -->
+        <div id="body-food-order" th:if="${foodOrder != null}">
+          <h3 class="section-heading">Danh sách món ăn</h3>
+          <table class="detail-table">
+            <thead>
+              <tr>
+                <th style="width:60px; text-align:center;">SL</th>
+                <th>Món ăn</th>
+                <th style="text-align:right;">Đơn giá</th>
+                <th style="text-align:right;">Trạng thái</th>
+              </tr>
+            </thead>
+            <tbody id="food-items-tbody">
+              <tr th:each="detail : ${foodOrder.details}">
+                <td style="text-align:center; font-weight:600;" th:text="${detail.quantity}">1</td>
+                <td th:text="${detail.menuItem != null ? detail.menuItem.itemName : 'Món ăn'}">Món ăn</td>
+                <td style="text-align:right;"
+                  th:text="${#numbers.formatDecimal(detail.priceAtOrder, 0, 'COMMA', 0, 'POINT')} + '₫'">0₫</td>
+                <td style="text-align:right; font-weight:600;">
+                  <span
+                    th:text="${detail.kotStatus == 'Preparing' ? 'Processing' : (detail.kotStatus == 'Ready' ? 'Complete' : detail.kotStatus)}"
+                    th:style="${detail.kotStatus == 'Served' ? 'color: var(--status-ready-text);' : ''}">Chờ</span>
+                  <span th:if="${detail.kotStatus == 'Served'}" class="material-symbols-outlined"
+                    style="color: var(--status-ready-text); font-size: 1.1rem; vertical-align: bottom; margin-left: 2px;">check</span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="order-summary">
+            <div class="summary-row total">
+              <span>Tổng số món:</span>
+              <span id="food-total" th:text="${#lists.size(foodOrder.details.?[kotStatus != 'Cancelled'])}">0</span>
+            </div>
+            <div class="summary-row total" style="margin-top: 10px; font-size: 1.2rem; color: var(--text-dark);">
+              <span>Tổng cộng:</span>
+              <span id="food-total-amount"
+                th:text="${#numbers.formatDecimal(foodOrder.totalAmount, 0, 'COMMA', 0, 'POINT')} + '₫'">0₫</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- DYNAMIC BODY: TABLE RESERVATION -->
+        <div id="body-table-order" th:if="${tableOrder != null}">
+          <h3 class="section-heading">Chi tiết đặt bàn</h3>
+          <div class="table-res-details">
+            <div class="trd-row">
+              <span class="trd-label">Mã đặt bàn (ID):</span>
+              <span class="trd-value" th:text="${'RES-' + tableOrder.id}">RES-1</span>
+            </div>
+            <div class="trd-row">
+              <span class="trd-label">Tên khách hàng:</span>
+              <span class="trd-value"
+                th:text="${tableOrder.customer != null ? tableOrder.customer.fullName : 'N/A'}">Tên khách hàng</span>
+            </div>
+            <div class="trd-row">
+              <span class="trd-label">Bàn đã đặt:</span>
+              <span class="trd-value" id="tbl-numbers"
+                th:text="${tableOrder.table != null ? 'Bàn ' + tableOrder.table.tableNumber : 'Bàn'}">Bàn 01</span>
+            </div>
+            <div class="trd-row">
+              <span class="trd-label">Số lượng người tham gia:</span>
+              <span class="trd-value" th:text="${tableOrder.pax + ' người'}">4 người</span>
+            </div>
+            <div class="trd-row">
+              <span class="trd-label">Thời gian sử dụng:</span>
+              <span class="trd-value" th:text="${tableOrder.reserveTime}">19:30</span>
+            </div>
+            <div class="trd-row">
+              <span class="trd-label">Ngày sử dụng:</span>
+              <span class="trd-value" th:text="${tableOrder.reserveDate}">Hôm nay</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- COMMON NOTES -->
+        <div class="order-notes" id="order-notes"
+          th:style="${foodOrder != null && foodOrder.note != null && !foodOrder.note.isEmpty() ? 'display:block;' : 'display:none;'}">
+          <strong>Yêu cầu đặc biệt:</strong> <span id="note-content"
+            th:text="${foodOrder != null ? foodOrder.note : ''}"></span>
+        </div>
+
+        <!-- ACTION BUTTONS -->
+        <div class="detail-actions" th:if="${foodOrder != null || tableOrder != null}">
+          <button class="btn btn-outline btn-danger" id="btn-cancel"
+            th:if="${foodOrder != null && (foodOrder.orderStatus == 'Pending' || foodOrder.orderStatus == 'pending')}"
+            th:data-id="${foodOrder.id}" th:data-payment="${foodOrder.paymentType}"
+            th:data-type="${foodOrder.orderType}" th:data-table="${foodOrder.table != null ? foodOrder.table.id : ''}"
+            onclick="cancelOrder(this.getAttribute('data-id'), this.getAttribute('data-payment'), this.getAttribute('data-type'), this.getAttribute('data-table'))">
+            <span class="material-symbols-outlined">close</span> Hủy đơn
+          </button>
+          <div style="margin-left:auto; display:flex; gap:10px;">
+            <button class="btn btn-primary" id="btn-addon"
+              th:if="${foodOrder != null && foodOrder.orderStatus != 'PAID' && foodOrder.orderStatus != 'Cancelled' && foodOrder.orderStatus != 'Refunded' && !foodOrder.isPaidInPos && foodOrder.orderType != 'Room Service' && foodOrder.orderType != 'RoomService'}"
+              onclick="openAddonModal()" style="background-color: #ff9800; border-color: #ff9800; color: white;"><span
+                class="material-symbols-outlined">add</span> Gọi thêm món</button>
+            <button class="btn btn-primary" id="btn-pay"
+              th:if="${foodOrder != null && !foodOrder.isPaidInPos && foodOrder.orderStatus != 'PAID' && foodOrder.orderStatus != 'Cancelled' && foodOrder.orderStatus != 'Refunded' && foodOrder.orderType != 'Room Service' && foodOrder.orderType != 'RoomService'}"
+              style="background-color: var(--status-ready-text); border-color: var(--status-ready-text);"
+              th:onclick="|openPaymentModal(${foodOrder.id}, ${foodOrder.table != null ? foodOrder.table.id : 'null'})|"><span
+                class="material-symbols-outlined">payments</span> Thanh toán</button>
+            <button class="btn btn-outline" id="btn-print" onclick="window.print()"><span
+                class="material-symbols-outlined">print</span> In hóa đơn</button>
+            <!-- NÚT CHO ĐƠN DINE-IN (ĂN TẠI BÀN) -->
+            <!-- Chuyển trạng thái từ Ready/Completed sang Served (Chỉ có 1 bước) -->
+            <button class="btn btn-primary" id="btn-action-food-dinein"
+              th:if="${foodOrder != null && foodOrder.orderType != 'Room Service' && foodOrder.orderType != 'RoomService' && foodOrder.orderStatus != 'Served' && foodOrder.orderStatus != 'served' && foodOrder.orderStatus != 'PAID' && foodOrder.orderStatus != 'Cancelled' && foodOrder.orderStatus != 'Refunded'}"
+              th:disabled="${foodOrder.orderStatus != 'Ready' && foodOrder.orderStatus != 'ready' && foodOrder.orderStatus != 'Completed' && foodOrder.orderStatus != 'completed'}"
+              th:style="${foodOrder.orderStatus != 'Ready' && foodOrder.orderStatus != 'ready' && foodOrder.orderStatus != 'Completed' && foodOrder.orderStatus != 'completed' ? 'opacity: 0.5; cursor: not-allowed;' : ''}"
+              th:data-id="${foodOrder.id}"
+              onclick="if(this.hasAttribute('disabled')) return false; updateOrderStatus(this.getAttribute('data-id'), 'Served')">
+              <span class="material-symbols-outlined">check</span>
+              <span>Xác nhận phục vụ</span>
+            </button>
+
+            <!-- NÚT CHO ĐƠN ROOM SERVICE (GIAO TẠI PHÒNG) -->
+            <!-- Luồng 2 bước: Từ Ready -> Delivering (Bắt đầu đi giao) -> Served (Đã giao khách) -->
+            <button class="btn btn-primary" id="btn-action-food-rs-deliver"
+              th:if="${foodOrder != null && (foodOrder.orderType == 'Room Service' || foodOrder.orderType == 'RoomService') && (foodOrder.orderStatus == 'Ready' || foodOrder.orderStatus == 'ready' || foodOrder.orderStatus == 'Completed' || foodOrder.orderStatus == 'completed')}"
+              th:data-id="${foodOrder.id}" onclick="updateOrderStatus(this.getAttribute('data-id'), 'Delivering')">
+              <span class="material-symbols-outlined">local_shipping</span>
+              <span>Bắt đầu đi giao</span>
+            </button>
+            <button class="btn btn-primary" id="btn-action-food-rs-served"
+              th:if="${foodOrder != null && (foodOrder.orderType == 'Room Service' || foodOrder.orderType == 'RoomService') && (foodOrder.orderStatus == 'Delivering' || foodOrder.orderStatus == 'delivering')}"
+              style="background-color: var(--status-ready-text); border-color: var(--status-ready-text);"
+              th:data-id="${foodOrder.id}" onclick="updateOrderStatus(this.getAttribute('data-id'), 'Served')">
+              <span class="material-symbols-outlined">check_circle</span>
+              <span>Xác nhận giao</span>
+            </button>
+            <button class="btn btn-primary" id="btn-action-table"
+              th:if="${tableOrder != null && tableOrder.status != 'Completed' && tableOrder.status != 'Cancelled'}"
+              th:onclick="|confirmTable(${tableOrder.id})|">
+              <span class="material-symbols-outlined">check</span>
+              <span>Xác nhận khách đến</span>
+            </button>
+          </div>
+        </div>
+
+        <div th:if="${foodOrder == null && tableOrder == null}">
+          <p style="text-align:center; padding: 40px; color: var(--text-muted);">Không tìm thấy thông tin đơn hàng. Vui
+            lòng quay lại màn hình Dashboard.</p>
+        </div>
+
+      </div><!-- / detail-card -->
+    </div><!-- / detail-wrapper -->
+  </div>
+
+  <!-- ADD-ON MODAL -->
+  <div id="addonModal" class="modal-overlay"
+    style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:999; justify-content:center; align-items:center;">
+    <div class="modal-content"
+      style="background:#fff; width:90%; max-width:800px; height:80vh; border-radius:12px; display:flex; flex-direction:column; overflow:hidden;">
+      <div class="modal-header"
+        style="padding:15px 20px; border-bottom:1px solid #ddd; display:flex; justify-content:space-between; align-items:center; background:#fbfbfb;">
+        <h3 style="margin:0; font-family:'Playfair Display', serif;">Gọi thêm món (Add-on)</h3>
+        <button onclick="closeAddonModal()"
+          style="background:none; border:none; font-size:1.5rem; cursor:pointer;">&times;</button>
+      </div>
+      <div class="modal-body" style="display:flex; flex:1; overflow:hidden;">
+        <!-- Left: Menu Grid -->
+        <div style="flex:2; padding:20px; overflow-y:auto; border-right:1px solid #ddd;">
+          <div class="food-grid" id="addon-food-grid"
+            style="display:grid; grid-template-columns:repeat(auto-fill, minmax(140px, 1fr)); gap:15px;"></div>
+        </div>
+        <!-- Right: Cart Summary -->
+        <div style="flex:1; padding:20px; display:flex; flex-direction:column; background:#f9f9f9;">
+          <h4 style="margin-top:0;">Giỏ hàng tạm</h4>
+          <div id="addon-cart-items" style="flex:1; overflow-y:auto; margin-bottom:15px;">
+            <!-- Items go here -->
+          </div>
+          <div style="border-top:1px solid #ddd; padding-top:10px;">
+            <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+              <span>Tổng cộng:</span>
+              <strong id="addon-total" style="color:var(--status-ready-text);">0₫</strong>
+            </div>
+            <button class="btn btn-primary" style="width:100%; justify-content:center;" onclick="submitAddonOrder()"
+              id="btn-submit-addon">Gửi Nhà Bếp</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PAYMENT MODAL -->
+  <div id="paymentModal" class="modal-overlay"
+    style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:999; justify-content:center; align-items:center;">
+    <div class="modal-content"
+      style="background:#fff; width:90%; max-width:400px; border-radius:12px; display:flex; flex-direction:column; overflow:hidden; padding:20px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px;">
+        <h3 style="margin:0; font-family:'Playfair Display', serif;">Chọn hình thức thanh toán</h3>
+        <button onclick="closePaymentModal()"
+          style="background:none; border:none; font-size:1.5rem; cursor:pointer;">&times;</button>
+      </div>
+      <div style="display:flex; flex-direction:column; gap: 15px;">
+        <label style="display:flex; align-items:center; gap: 10px; cursor:pointer;">
+          <input type="radio" name="paymentType" value="Pay_Now" checked onchange="toggleRoomInput()">
+          <span style="font-weight: 500;">Thanh toán ngay (Tiền mặt/Thẻ)</span>
+        </label>
+        <label style="display:flex; align-items:center; gap: 10px; cursor:pointer;">
+          <input type="radio" name="paymentType" value="CHARGE_TO_ROOM" onchange="toggleRoomInput()">
+          <span style="font-weight: 500;">Tính vào hóa đơn phòng (Charge to Room)</span>
+        </label>
+
+        <div id="roomInputContainer" style="display:none; margin-top: 10px; margin-left: 25px;">
+          <label style="font-size: 0.9rem; color: var(--text-secondary); display:block; margin-bottom: 5px;">Số phòng
+            (nếu là khách đang lưu trú):</label>
+          <div style="display:flex; gap: 8px;">
+            <input type="text" id="paymentRoomNumber" placeholder="Nhập số phòng, VD: 101"
+              style="width:100%; padding: 8px 12px; border: 1px solid #ddd; border-radius: 4px;"
+              oninput="onRoomNumberChange()">
+            <button type="button" class="btn btn-outline"
+              style="white-space: nowrap; padding: 0 12px; display:flex; align-items:center;"
+              onclick="verifyRoom()">Kiểm tra</button>
+          </div>
+          <div id="roomVerifyResult"
+            style="margin-top: 10px; font-size: 0.9rem; display: none; padding: 10px; background: #f5f5f5; border-radius: 4px; border-left: 3px solid #10B981;">
+            <!-- verify result goes here -->
+          </div>
+        </div>
+      </div>
+      <div style="margin-top: 25px; display:flex; justify-content:flex-end; gap: 10px;">
+        <button class="btn btn-outline" onclick="closePaymentModal()">Hủy</button>
+        <button class="btn btn-primary" id="btn-submit-payment" onclick="submitPayment()">Thanh toán</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- REFUND MODAL FRAGMENT -->
+  <div th:replace="~{f&amp;bStaff/refund-modal :: #refundModal}"></div>
+
+  <script th:src="@{/f&amp;bStaff/js/order-detail.js}" src="../../statics/f&bStaff/js/order-detail.js"></script>
+  <script th:src="@{/f&amp;bStaff/js/refund-modal.js}" src="../../statics/f&bStaff/js/refund-modal.js"></script>
+  <script th:inline="javascript">
+    window.SERVER_MENU_ITEMS = /*[[${menuItems}]]*/[];
+    window.CURRENT_ORDER_ID = /*[[${foodOrder != null ? foodOrder.id : null}]]*/ null;
+
+    function showTableReleaseModal(tableId) {
+      const modal = document.getElementById('tableReleaseModal');
+      modal.style.display = 'flex';
+
+      document.getElementById('btnReleaseOk').onclick = function () {
+        modal.style.display = 'none';
+        window.location.reload();
+      };
+
+      document.getElementById('btnReleaseCancel').onclick = function () {
+        modal.style.display = 'none';
+        fetch('/api/v1/tables/' + tableId + '/status?status=Available', { method: 'PUT' })
+          .then(() => window.location.href = '/fbStaff/dashboard')
+          .catch(() => window.location.reload());
+      };
+    }
+
+    let addonCart = [];
+
+    function openAddonModal() {
+      document.getElementById('addonModal').style.display = 'flex';
+      renderAddonMenu();
+      renderAddonCart();
+    }
+
+    function closeAddonModal() {
+      document.getElementById('addonModal').style.display = 'none';
+    }
+
+    function renderAddonMenu() {
+      const grid = document.getElementById('addon-food-grid');
+      grid.innerHTML = '';
+      if (!window.SERVER_MENU_ITEMS) return;
+      window.SERVER_MENU_ITEMS.forEach(item => {
+        const isOut = item.status === 'out-of-stock';
+        const card = document.createElement('div');
+        card.className = 'food-card';
+
+        if (isOut) {
+          card.style.cssText = `background: ${item.bgFrom}; border-radius: 8px; padding: 10px; text-align: center; border: 1px solid #eee; opacity: 0.5; cursor: not-allowed; position: relative; filter: grayscale(1);`;
+          card.onclick = () => { /* do nothing */ };
+        } else {
+          card.style.cssText = `background: ${item.bgFrom}; border-radius: 8px; padding: 10px; cursor: pointer; text-align: center; border: 1px solid #eee; position: relative;`;
+          card.onclick = () => addToAddonCart(item);
+        }
+
+        card.innerHTML = `
+                <div style="font-size:2rem; color:${item.iconColor}; margin-bottom:10px;">
+                    <span class="material-symbols-outlined">${item.icon}</span>
+                </div>
+                <div style="font-weight:600; font-size:0.9rem; margin-bottom:5px;">${item.name}</div>
+                <div style="color:var(--text-muted); font-size:0.85rem;">${item.price.toLocaleString('vi-VN')}₫</div>
+                ${isOut ? '<div style="position:absolute; top:5px; right:5px; background:#dc3545; color:white; font-size:0.65rem; padding:2px 6px; border-radius:10px; font-weight:bold;">Hết món</div>' : ''}
+            `;
+        grid.appendChild(card);
+      });
+    }
+
+    function addToAddonCart(item) {
+      const existing = addonCart.find(x => x.id === item.id);
+      if (existing) {
+        existing.qty++;
+      } else {
+        addonCart.push({ id: item.id, name: item.name, price: item.price, qty: 1 });
+      }
+      renderAddonCart();
+    }
+
+    function updateAddonQty(id, delta) {
+      const item = addonCart.find(x => x.id === id);
+      if (item) {
+        item.qty += delta;
+        if (item.qty <= 0) {
+          addonCart = addonCart.filter(x => x.id !== id);
+        }
+        renderAddonCart();
+      }
+    }
+
+    function renderAddonCart() {
+      const container = document.getElementById('addon-cart-items');
+      container.innerHTML = '';
+      let total = 0;
+
+      if (addonCart.length === 0) {
+        container.innerHTML = '<div style="color:#888; text-align:center; margin-top:20px;">Chưa chọn món</div>';
+      } else {
+        addonCart.forEach(item => {
+          total += item.price * item.qty;
+          const row = document.createElement('div');
+          row.style.cssText = 'display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; font-size:0.85rem; background:#fff; padding:8px; border-radius:4px; box-shadow:0 1px 2px rgba(0,0,0,0.05);';
+          row.innerHTML = `
+                    <div style="flex:1; overflow:hidden;">
+                        <div style="font-weight:600; white-space:nowrap; text-overflow:ellipsis; overflow:hidden;">${item.name}</div>
+                        <div style="color:#888;">${item.price.toLocaleString('vi-VN')}₫</div>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:5px; margin-left:10px;">
+                        <button onclick="updateAddonQty(${item.id}, -1)" style="width:24px; height:24px; border:1px solid #ddd; background:#fff; cursor:pointer;">-</button>
+                        <span style="width:20px; text-align:center;">${item.qty}</span>
+                        <button onclick="updateAddonQty(${item.id}, 1)" style="width:24px; height:24px; border:1px solid #ddd; background:#fff; cursor:pointer;">+</button>
+                    </div>
+                `;
+          container.appendChild(row);
+        });
+      }
+      document.getElementById('addon-total').innerText = total.toLocaleString('vi-VN') + '₫';
+      document.getElementById('btn-submit-addon').disabled = addonCart.length === 0;
+    }
+
+    function submitAddonOrder() {
+      if (addonCart.length === 0) return;
+      if (!confirm("Xác nhận gọi thêm các món này xuống bếp?")) return;
+
+      const btn = document.getElementById('btn-submit-addon');
+      btn.disabled = true;
+      btn.innerText = 'Đang xử lý...';
+
+      const payload = addonCart.map(i => ({ id: i.id, qty: i.qty, price: i.price }));
+
+      fetch('/api/pos/orders/' + window.CURRENT_ORDER_ID + '/add-items', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      })
+        .then(res => {
+          if (!res.ok) return res.json().then(e => { throw new Error(e.message) });
+          return res.json();
+        })
+        .then(data => {
+          alert('Đã gọi thêm món thành công!');
+          window.location.reload();
+        })
+        .catch(err => {
+          alert('Lỗi: ' + err.message);
+          btn.disabled = false;
+          btn.innerText = 'Gửi Nhà Bếp';
+        });
+    }
+
+    function cancelOrder(id, paymentType, orderType, tableId) {
+      if (paymentType && (paymentType.includes('Ví') || paymentType.includes('Thẻ') || paymentType.includes('Online') || paymentType.includes('thẻ') || paymentType.includes('ví') || paymentType.includes('Thanh toán trực tuyến') || paymentType.toUpperCase().includes('VNPAY'))) {
+        openRefundModal(id);
+        return;
+      }
+
+      if (!confirm('Bạn có chắc chắn muốn hủy đơn hàng này không? Hành động này không thể hoàn tác.')) return;
+
+      const btn = document.getElementById('btn-cancel');
+      if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = 'Đang xử lý...';
+      }
+
+      fetch('/api/pos/orders/' + id + '/cancel', {
+        method: 'POST'
+      })
+        .then(res => {
+          if (!res.ok) return res.json().then(e => { throw new Error(e.message) });
+          return res.json();
+        })
+        .then(data => {
+          alert('Hủy đơn thành công!');
+          if (orderType && !orderType.includes('Room') && tableId) {
+            showTableReleaseModal(tableId);
+          } else {
+            window.location.reload();
+          }
+        })
+        .catch(err => {
+          alert('Lỗi khi hủy đơn: ' + err.message);
+          if (btn) {
+            btn.disabled = false;
+            btn.innerHTML = '<span class="material-symbols-outlined">close</span> Hủy đơn';
+          }
+        });
+    }
+
+    function updateOrderStatus(id, newStatus) {
+      if (!confirm(`Xác nhận chuyển trạng thái sang ${newStatus}?`)) return;
+
+      fetch('/api/pos/orders/' + id + '/status?status=' + newStatus, {
+        method: 'PUT'
+      })
+        .then(res => {
+          if (!res.ok) return res.json().then(e => { throw new Error(e.message) });
+          return res.json();
+        })
+        .then(data => {
+          alert('Đã cập nhật trạng thái thành ' + newStatus + '!');
+          window.location.reload();
+        })
+        .catch(err => {
+          alert('Lỗi: ' + err.message);
+        });
+    }
+
+    function confirmTable(id) {
+      alert("Chức năng xác nhận khách đến bàn đang được phát triển.");
+    }
+
+    let currentPayOrderId = null;
+    let currentPayTableId = null;
+    let isRoomVerified = false;
+
+    function openPaymentModal(id, tableId) {
+      currentPayOrderId = id;
+      currentPayTableId = tableId;
+      document.getElementById('paymentModal').style.display = 'flex';
+
+      // Reset state
+      document.querySelector('input[name="paymentType"][value="Pay_Now"]').checked = true;
+      document.getElementById('paymentRoomNumber').value = '';
+      isRoomVerified = false;
+      document.getElementById('roomVerifyResult').style.display = 'none';
+      document.getElementById('btn-submit-payment').disabled = false;
+      toggleRoomInput();
+    }
+
+    function closePaymentModal() {
+      document.getElementById('paymentModal').style.display = 'none';
+      currentPayOrderId = null;
+      currentPayTableId = null;
+    }
+
+    function toggleRoomInput() {
+      const selectedType = document.querySelector('input[name="paymentType"]:checked').value;
+      const roomContainer = document.getElementById('roomInputContainer');
+      const submitBtn = document.getElementById('btn-submit-payment');
+
+      if (selectedType === 'CHARGE_TO_ROOM') {
+        roomContainer.style.display = 'block';
+        submitBtn.disabled = !isRoomVerified;
+      } else {
+        roomContainer.style.display = 'none';
+        submitBtn.disabled = false;
+      }
+    }
+
+    function onRoomNumberChange() {
+      isRoomVerified = false;
+      document.getElementById('roomVerifyResult').style.display = 'none';
+      if (document.querySelector('input[name="paymentType"]:checked').value === 'CHARGE_TO_ROOM') {
+        document.getElementById('btn-submit-payment').disabled = true;
+      }
+    }
+
+    function verifyRoom() {
+      const roomNumber = document.getElementById('paymentRoomNumber').value.trim();
+      if (!roomNumber) {
+        alert("Vui lòng nhập số phòng");
+        return;
+      }
+      const resDiv = document.getElementById('roomVerifyResult');
+      resDiv.style.display = 'block';
+      resDiv.style.borderLeftColor = '#3B82F6';
+      resDiv.innerHTML = 'Đang kiểm tra...';
+
+      fetch('/api/pos/orders/charge-to-room/verify?roomNumber=' + encodeURIComponent(roomNumber))
+        .then(res => {
+          if (!res.ok) return res.json().then(e => { throw new Error(e.message); });
+          return res.json();
+        })
+        .then(data => {
+          isRoomVerified = true;
+          resDiv.style.borderLeftColor = '#10B981';
+          resDiv.innerHTML = `
+            <div style="font-weight: 600; color: #10B981; margin-bottom: 4px;">✔ Xác thực thành công</div>
+            <div>Khách hàng: <b>${data.guestName}</b></div>
+            <div>CCCD/Passport: <b>${data.idCard}</b></div>
+          `;
+          document.getElementById('btn-submit-payment').disabled = false;
+        })
+        .catch(err => {
+          isRoomVerified = false;
+          resDiv.style.borderLeftColor = '#EF4444';
+          resDiv.innerHTML = `<div style="color: #EF4444; font-weight: 500;">❌ ${err.message}</div>`;
+          document.getElementById('btn-submit-payment').disabled = true;
+        });
+    }
+
+    function submitPayment() {
+      if (!confirm("Bạn có chắc chắn muốn thanh toán đơn hàng này?")) return;
+
+      const selectedType = document.querySelector('input[name="paymentType"]:checked').value;
+      let roomNumber = '';
+      if (selectedType === 'CHARGE_TO_ROOM') {
+        roomNumber = document.getElementById('paymentRoomNumber').value.trim();
+        if (!roomNumber) {
+          alert('Vui lòng nhập số phòng!');
+          return;
+        }
+        if (!isRoomVerified) {
+          alert('Vui lòng ấn "Kiểm tra" để xác thực thông tin khách trước khi thanh toán!');
+          return;
+        }
+      }
+
+      const btn = document.getElementById('btn-submit-payment');
+      if (btn) { btn.disabled = true; btn.innerHTML = 'Đang xử lý...'; }
+
+      let url = '/api/pos/orders/' + currentPayOrderId + '/pay?paymentType=' + selectedType;
+      if (roomNumber) {
+        url += '&roomNumber=' + encodeURIComponent(roomNumber);
+      }
+
+      fetch(url, {
+        method: 'POST'
+      }).then(res => {
+        if (!res.ok) {
+          return res.json().then(e => { throw new Error(e.message || 'Lỗi hệ thống'); });
+        }
+        return res.json();
+      }).then(data => {
+        if (currentPayTableId && currentPayTableId !== 'null' && currentPayTableId !== null) {
+          alert("Thanh toán thành công! Bàn đã tự động chuyển sang trạng thái Đang Dọn Dẹp (Cleaning).");
+          window.location.reload();
+          return;
+        }
+        alert("Thanh toán thành công! Trạng thái đã chuyển sang PAID.");
+        window.location.reload();
+      }).catch(err => {
+        alert("Lỗi thanh toán: " + err.message);
+        if (btn) { btn.disabled = false; btn.innerHTML = 'Thanh toán'; }
+      });
+    }
+
+    function payOrder(id, tableId) {
+      openPaymentModal(id, tableId);
+    }
+
+    // Reload ngầm (Background refresh) mỗi 15 giây
+    setInterval(function () {
+      // Tạm dừng refresh nếu đang mở popup gọi món (tránh mất dữ liệu đang chọn)
+      const modal = document.getElementById('addonModal');
+      if (modal && modal.style.display !== 'none') return;
+
+      fetch(location.href)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const doc = parser.parseFromString(html, 'text/html');
+          const newWrapper = doc.querySelector('.detail-wrapper');
+          if (newWrapper) {
+            document.querySelector('.detail-wrapper').innerHTML = newWrapper.innerHTML;
+          }
+        })
+        .catch(err => console.error('Background refresh failed:', err));
+    }, 15000);
+  </script>
+
+  <!-- PRINT RECEIPT SECTION (HIDDEN BY DEFAULT) -->
+  <div id="print-receipt-section" class="receipt-wrapper" style="display:none;" th:if="${foodOrder != null}">
+    <div class="receipt-header">
+      <h2>HOANIEN RESORT</h2>
+      <p>Khu Nghỉ Dưỡng &amp; Sinh Thái</p>
+      <p>123 Đường Ven Biển, TP. XYZ</p>
+    </div>
+
+    <div class="receipt-title">
+      HÓA ĐƠN THANH TOÁN
+    </div>
+
+    <div class="receipt-meta">
+      <p><span>Số Order:</span> <strong th:text="${'ORD-' + foodOrder.id}">ORD-000</strong></p>
+      <p><span>Ngày/Giờ:</span> <span th:text="${#dates.format(#dates.createNow(), 'dd/MM/yyyy HH:mm')}">01/01/2026
+          12:00</span></p>
+      <p><span>Thu ngân:</span> <span th:text="${staffName != null ? staffName : 'NV'}">Thu ngân</span></p>
+      <p th:if="${foodOrder.orderType != 'Room Service' && foodOrder.orderType != 'RoomService'}">
+        <span>Bàn:</span> <strong th:text="${foodOrder.table != null ? foodOrder.table.tableNumber : '?'}">01</strong>
+      </p>
+      <p th:if="${foodOrder.orderType == 'Room Service' || foodOrder.orderType == 'RoomService'}">
+        <span>Phòng/Khách:</span>
+        <strong
+          th:text="${foodOrder.booking != null && foodOrder.booking.customer != null ? foodOrder.booking.customer.fullName : (extractedGuestName != null && !extractedGuestName.isEmpty() ? extractedGuestName : 'Khách')}">Khách</strong>
+      </p>
+    </div>
+
+    <div class="receipt-table">
+      <div class="receipt-item" th:each="detail : ${foodOrder.details}" th:if="${detail.kotStatus != 'Cancelled'}">
+        <div class="receipt-item-name" th:text="${detail.menuItem != null ? detail.menuItem.itemName : 'Món ăn'}">Tên
+          món</div>
+        <div class="receipt-item-qty" th:text="${detail.quantity}">1</div>
+        <div class="receipt-item-price"
+          th:text="${#numbers.formatDecimal(detail.priceAtOrder * detail.quantity, 0, 'COMMA', 0, 'POINT')}">0</div>
+      </div>
+    </div>
+
+    <div class="receipt-totals">
+      <p><span>Tổng số lượng:</span> <span th:text="${#lists.size(foodOrder.details.?[kotStatus != 'Cancelled'])}">0</span></p>
+      <p class="receipt-total-bold"><span>TỔNG CỘNG:</span> <span
+          th:text="${#numbers.formatDecimal(foodOrder.totalAmount, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'">0 VNĐ</span></p>
+    </div>
+
+    <!-- Hiển thị phương thức thanh toán -->
+    <div style="text-align: right; font-size: 0.85rem; margin-top: 5px; margin-bottom: 15px;">
+      Phương thức TT:
+      <strong
+        th:text="${(foodOrder.orderType == 'Room Service' || foodOrder.orderType == 'RoomService') ? foodOrder.paymentType : 'Thanh toán tại quầy'}">Thanh
+        toán tại quầy</strong>
+    </div>
+
+    <!-- Status: PAID -->
+    <div th:if="${foodOrder.isPaidInPos || foodOrder.orderStatus == 'PAID'}" class="receipt-paid-stamp">
+      ĐÃ THANH TOÁN
+    </div>
+
+    <!-- Status: UNPAID (Room Service requires Signature) -->
+    <div
+      th:if="${!foodOrder.isPaidInPos && foodOrder.orderStatus != 'PAID' && (foodOrder.orderType == 'Room Service' || foodOrder.orderType == 'RoomService')}"
+      class="receipt-signature">
+      <p>Chữ ký khách hàng<br />(Guest Signature)</p>
+      <div class="sign-line"></div>
+    </div>
+
+    <div
+      th:if="${!foodOrder.isPaidInPos && foodOrder.orderStatus != 'PAID' && foodOrder.orderType != 'Room Service' && foodOrder.orderType != 'RoomService'}"
+      style="text-align:center; font-weight:bold; margin-top:10px;">
+      CHƯA THANH TOÁN
+    </div>
+
+    <div class="receipt-footer">
+      <p>Cảm ơn quý khách và hẹn gặp lại!</p>
+      <p>Hotline: 1900 xxxx</p>
+    </div>
+  </div>
+
+
+  <!-- FNB PROFILE MODAL -->
+  <div id="fnbProfileModal" class="modal-overlay"
+    style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999; justify-content: center; align-items: center;">
+    <div class="modal-content"
+      style="background: white; padding: 24px; border-radius: 8px; width: 600px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); font-family: 'Inter', sans-serif;">
+      <h2
+        style="margin-top: 0; border-bottom: 1px solid #e5e7eb; padding-bottom: 12px; color: #111827; font-size: 1.25rem; font-weight: 600;">
+        Hồ sơ Cá nhân</h2>
+
+      <div style="display: flex; gap: 24px; margin-top: 16px;">
+        <!-- Left col: Info -->
+        <div style="flex: 1;">
+          <div style="display: flex; align-items: center; margin-bottom: 16px;">
+            <div class="staff-avatar"
+              style="width: 64px; height: 64px; border-radius: 50%; background: #f97316; color: white; display: flex; align-items: center; justify-content: center; font-size: 24px; margin-right: 16px; font-weight: bold;"
+              th:text="${staffName != null && staffName.length() >= 2 ? staffName.substring(0, 2).toUpperCase() : 'NV'}">
+              NV</div>
+            <div>
+              <h3 style="margin: 0; font-size: 18px; color: #111827;"
+                th:text="${staffName != null ? staffName : 'Nhân viên'}">Nhân viên</h3>
+              <p style="margin: 4px 0 0 0; color: #6b7280; font-size: 14px;"
+                th:text="${staffRole != null ? staffRole : 'F&B Staff'}">F&B Staff</p>
+            </div>
+          </div>
+          <div style="font-size: 14px; line-height: 1.6; color: #374151;">
+            <p style="margin: 4px 0;"><strong>Email:</strong> <span
+                th:text="${currentEmployee != null ? currentEmployee.email : 'Chưa cập nhật'}"></span></p>
+            <p style="margin: 4px 0;"><strong>SĐT:</strong> <span
+                th:text="${currentEmployee != null ? currentEmployee.phone : 'Chưa cập nhật'}"></span></p>
+            <p style="margin: 4px 0;"><strong>Giới tính:</strong> <span
+                th:text="${currentEmployee != null ? currentEmployee.gender : 'Chưa cập nhật'}"></span></p>
+            <p style="margin: 4px 0;"><strong>CCCD:</strong> <span
+                th:text="${currentEmployee != null ? currentEmployee.cccd : 'Chưa cập nhật'}"></span></p>
+          </div>
+        </div>
+
+        <!-- Right col: Password -->
+        <div style="flex: 1; border-left: 1px solid #e5e7eb; padding-left: 24px;">
+          <h3 style="margin-top: 0; font-size: 16px; color: #111827;">Đổi mật khẩu</h3>
+          <div style="margin-top: 12px;">
+            <label style="display: block; font-size: 13px; color: #4b5563; margin-bottom: 4px;">Mật khẩu mới</label>
+            <input type="password" id="fnbNewPassword" placeholder="Nhập mật khẩu mới"
+              style="width: 100%; padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 4px; box-sizing: border-box; font-size: 14px; margin-bottom: 8px;">
+            <button id="fnbSavePasswordBtn"
+              style="padding: 8px 16px; background: #f97316; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 500; font-size: 14px; width: 100%;">Cập
+              nhật ngay</button>
+            <div id="fnbPasswordMsg" style="margin-top: 8px; font-size: 13px; display: none;"></div>
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-top: 24px; text-align: right; border-top: 1px solid #e5e7eb; padding-top: 16px;">
+        <button onclick="document.getElementById('fnbProfileModal').style.display='none'"
+          style="padding: 8px 16px; background: white; color: #374151; border: 1px solid #d1d5db; border-radius: 4px; cursor: pointer; font-weight: 500;">Đóng</button>
+      </div>
+    </div>
+  </div>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const avatars = document.querySelectorAll('.staff-avatar, [title="Tài khoản"]');
+      avatars.forEach(avatar => {
+        avatar.style.cursor = 'pointer';
+        avatar.addEventListener('click', function (e) {
+          e.preventDefault();
+          e.stopPropagation();
+          document.getElementById('fnbProfileModal').style.display = 'flex';
+          document.getElementById('fnbNewPassword').value = '';
+          document.getElementById('fnbPasswordMsg').style.display = 'none';
+        });
+      });
+
+      const modal = document.getElementById('fnbProfileModal');
+      if (modal) {
+        modal.addEventListener('click', function (e) {
+          if (e.target === modal) {
+            modal.style.display = 'none';
+          }
+        });
+      }
+
+      const saveBtn = document.getElementById('fnbSavePasswordBtn');
+      if (saveBtn) {
+        saveBtn.addEventListener('click', function () {
+          const newPwd = document.getElementById('fnbNewPassword').value;
+          const msg = document.getElementById('fnbPasswordMsg');
+
+          if (!newPwd || newPwd.trim() === '') {
+            msg.style.display = 'block';
+            msg.style.color = '#dc2626';
+            msg.innerText = 'Vui lòng nhập mật khẩu mới';
+            return;
+          }
+
+          saveBtn.disabled = true;
+          saveBtn.innerText = 'Đang lưu...';
+
+          fetch('/api/staff/change-password', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ newPassword: newPwd })
+          })
+            .then(res => res.json())
+            .then(data => {
+              saveBtn.disabled = false;
+              saveBtn.innerText = 'Cập nhật ngay';
+              msg.style.display = 'block';
+              if (data.success) {
+                msg.style.color = '#16a34a';
+                msg.innerText = 'Đổi mật khẩu thành công!';
+                document.getElementById('fnbNewPassword').value = '';
+              } else {
+                msg.style.color = '#dc2626';
+                msg.innerText = data.message || 'Có lỗi xảy ra';
+              }
+            })
+            .catch(err => {
+              saveBtn.disabled = false;
+              saveBtn.innerText = 'Cập nhật ngay';
+              msg.style.display = 'block';
+              msg.style.color = '#dc2626';
+              msg.innerText = 'Lỗi kết nối mạng';
+            });
+        });
+      }
+    });
+  </script>
+</body>
+
+</html>

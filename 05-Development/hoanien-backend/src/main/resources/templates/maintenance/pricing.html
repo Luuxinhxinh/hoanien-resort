@@ -1,0 +1,1040 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Định giá hỏng hóc - Hoanien Retreat</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --primary: #8C6A41;
+            --primary-light: #C6B5A2;
+            --secondary: #0F172A;
+            --bg-color: #F8FAFC;
+            --surface: #FFFFFF;
+            --surface-hover: #F1F5F9;
+            --text-primary: #0F172A;
+            --text-secondary: #334155;
+            --text-tertiary: #64748B;
+            --border-color: #CBD5E1;
+
+            --success: #15803D;
+            --success-light: #DCFCE7;
+            --warning: #B45309;
+            --warning-light: #FEF3C7;
+            --danger: #991B1B;
+            --danger-light: #FEE2E2;
+            --info: #0369A1;
+            --info-light: #E0F2FE;
+
+            --font-serif: 'Playfair Display', serif;
+            --font-sans: 'Inter', sans-serif;
+            --radius-md: 10px;
+            --radius-lg: 16px;
+            --shadow-sm: 0 4px 12px rgba(15, 23, 42, 0.05), 0 1px 3px rgba(15, 23, 42, 0.04);
+            --shadow-md: 0 12px 24px -4px rgba(15, 23, 42, 0.09), 0 4px 8px -2px rgba(15, 23, 42, 0.04);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: var(--font-sans);
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Top Navigation */
+        .top-nav {
+            background: var(--surface);
+            color: var(--text-primary);
+            padding: 16px 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .brand-logo {
+            width: 32px;
+            height: 32px;
+            background: var(--primary-light);
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 14px;
+        }
+
+        .brand-title {
+            font-family: var(--font-serif);
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--secondary);
+        }
+
+        .brand-subtitle {
+            font-size: 11px;
+            color: var(--text-tertiary);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-top: 2px;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .module-switcher select {
+            padding: 8px 32px 8px 16px;
+            border-radius: 8px;
+            background: var(--surface-hover);
+            color: var(--text-secondary);
+            border: 1px solid var(--border-color);
+            font-size: 13px;
+            outline: none;
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%235E504F' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            background-size: 14px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding-left: 16px;
+            border-left: 1px solid var(--border-color);
+        }
+
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--primary-light);
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 13px;
+        }
+
+        .user-details h4 {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .user-details p {
+            font-size: 11px;
+            color: var(--text-tertiary);
+        }
+
+        .logout-btn {
+            color: var(--danger);
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 600;
+            margin-left: 16px;
+            padding: 6px 12px;
+            border-radius: 6px;
+            transition: background 0.2s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid var(--border-color);
+        }
+
+        .logout-btn:hover {
+            background: var(--surface-hover);
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 32px;
+        }
+
+        .page-header {
+            margin-bottom: 24px;
+        }
+
+        .page-title h1 {
+            font-family: var(--font-serif);
+            font-size: 32px;
+            margin-bottom: 8px;
+        }
+
+        .page-title p {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        /* Navigation Tabs */
+        .section-tabs {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 24px;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 12px;
+        }
+
+        .tab-btn {
+            text-decoration: none;
+            padding: 8px 20px;
+            background: #FFFFFF;
+            border: 1px solid #CBD5E1;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #475569;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .tab-btn.active {
+            background: #0F172A;
+            border-color: #0F172A;
+            color: #FFFFFF;
+            box-shadow: 0 2px 6px rgba(15, 23, 42, 0.15);
+        }
+
+        .tab-btn:hover:not(.active) {
+            background: var(--surface-hover);
+            color: var(--text-primary);
+        }
+
+        /* Task Cards Structuring */
+        .task-card {
+            background: var(--surface);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+        }
+
+        .task-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-md);
+            border-color: #94A3B8;
+        }
+
+        .task-card-header {
+            padding: 16px 20px 12px 20px;
+            border-bottom: 1px solid var(--surface-hover);
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .task-card-header:hover {
+            background-color: var(--surface-hover);
+        }
+
+        .task-card-body {
+            padding: 20px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .task-card-footer {
+            padding: 16px 20px 20px 20px;
+            background: #FAF8F5;
+            border-top: 1px solid var(--border-color);
+            margin-top: auto;
+        }
+
+        .task-location {
+            font-family: var(--font-sans);
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .task-location i {
+            color: var(--primary-light);
+            font-size: 16px;
+        }
+
+        .task-desc {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+            line-height: 1.5;
+            min-height: 40px;
+        }
+
+        .task-meta {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 11px;
+            color: var(--text-tertiary);
+            margin-bottom: 0px;
+            padding-bottom: 0px;
+            border-bottom: none;
+        }
+
+        .task-meta div {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .btn {
+            padding: 10px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            border: none;
+            transition: background 0.2s;
+        }
+
+        .btn-primary {
+            background: #3B2D24;
+            color: #fff;
+        }
+
+        .btn-primary:hover {
+            background: #635547;
+        }
+
+        /* Alerts */
+        .alert {
+            padding: 16px 20px;
+            border-radius: var(--radius-md);
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .alert-success {
+            background: var(--success-light);
+            color: var(--success);
+            border-left: 4px solid var(--success);
+        }
+
+        .alert-error {
+            background: var(--danger-light);
+            color: var(--danger);
+            border-left: 4px solid var(--danger);
+        }
+
+        /* Detail Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+            opacity: 1;
+        }
+
+        .modal-content {
+            background: var(--surface);
+            width: 100%;
+            max-width: 500px;
+            border-radius: var(--radius-lg);
+            padding: 24px 32px 32px 32px;
+            box-shadow: 0 24px 48px rgba(0, 0, 0, 0.1);
+            transform: translateY(20px);
+            transition: transform 0.3s;
+            max-height: 90vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .modal-overlay.active .modal-content {
+            transform: translateY(0);
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-family: var(--font-serif);
+            margin-bottom: 0;
+        }
+
+        .modal-body {
+            overflow-y: auto;
+            padding-right: 4px;
+            margin-bottom: 20px;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .badge-urgent {
+            background: var(--danger-light);
+            color: var(--danger);
+        }
+
+        .badge-normal {
+            background: var(--info-light);
+            color: var(--info);
+        }
+
+        .badge-pending {
+            background: var(--warning-light);
+            color: var(--warning);
+        }
+
+        .badge-priced {
+            background: var(--success-light);
+            color: var(--success);
+        }
+    </style>
+</head>
+
+<body>
+
+    <header class="top-nav">
+        <div class="brand">
+            <div class="brand-logo"><i class="fa-solid fa-wrench"></i></div>
+            <div>
+                <div class="brand-title">Hoanien Retreat</div>
+                <div class="brand-subtitle">Maintenance</div>
+            </div>
+        </div>
+
+        <div class="user-profile">
+            <div class="module-switcher" sec:authorize="hasAnyAuthority('ROLE_ADMIN', 'ROLE_MANAGER')">
+                <select onchange="if(this.value) window.location.href=this.value">
+                    <option value="" disabled>-- Chuyển phân hệ --</option>
+                    <option value="/admin/dashboard">Core Operations (Admin)</option>
+                    <option value="/receptionist/dashboard">Receptionist (Lễ tân)</option>
+                    <option value="/housekeeping/dashboard">Housekeeping (Buồng phòng)</option>
+                    <option value="/maintenance/dashboard">Maintenance (Bảo trì)</option>
+                    <option value="/tourguide/tour">Tour Guide (Điểm danh Tour)</option>
+                </select>
+            </div>
+
+            <div class="user-info" style="cursor: pointer;" 
+                 th:data-name="${currentStaff != null ? currentStaff.fullName : (#authentication != null ? #authentication.name : 'Nhân viên')}"
+                 th:data-email="${currentStaff != null ? currentStaff.email : 'Chưa cập nhật'}"
+                 th:data-phone="${currentStaff != null ? currentStaff.phone : 'Chưa cập nhật'}"
+                 th:data-role="'Bảo trì'"
+                 onclick="showUserInfo(this.getAttribute('data-name'), this.getAttribute('data-email'), this.getAttribute('data-phone'), this.getAttribute('data-role'))">
+                <div class="user-avatar"
+                    th:text="${#authentication != null ? #strings.substring(#authentication.name, 0, 2).toUpperCase() : 'MT'}">
+                    MT</div>
+                <div class="user-details">
+                    <h4 th:text="${currentStaff != null ? currentStaff.fullName : (#authentication != null ? #authentication.name : 'Kỹ thuật viên')}">Kỹ thuật viên</h4>
+                    <p>Bộ phận Bảo trì</p>
+                </div>
+                <a href="/logout" class="logout-btn" onclick="event.stopPropagation();">Đăng xuất</a>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- Alerts -->
+        <div th:if="${successMessage}" class="alert alert-success">
+            <i class="fa-solid fa-circle-check"></i> <span th:text="${successMessage}"></span>
+        </div>
+        <div th:if="${errorMessage}" class="alert alert-error">
+            <i class="fa-solid fa-circle-exclamation"></i> <span th:text="${errorMessage}"></span>
+        </div>
+
+        <div class="page-header">
+            <div class="page-title">
+                <h1>Định giá hỏng hóc</h1>
+                <p>Xem hình ảnh từ Buồng phòng gửi lên và thiết lập giá trị hỏng hóc để tính phí checkout.</p>
+            </div>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <div class="section-tabs">
+            <a href="/maintenance/dashboard" class="tab-btn">Bảng công việc</a>
+            <a href="/maintenance/pricing" class="tab-btn active">Định giá hỏng hóc</a>
+        </div>
+
+        <!-- Subtabs for pricing status -->
+        <div class="pricing-tabs" style="display: flex; gap: 12px; margin-bottom: 24px;">
+            <button class="pricing-tab-btn" onclick="switchPricingTab('unpriced', this)"
+                style="padding: 8px 20px; background: var(--primary); border: 1px solid var(--primary); border-radius: 20px; font-size: 13px; font-weight: 600; color: #fff; cursor: pointer; transition: all 0.2s; outline: none;">Chưa
+                định giá (<span th:text="${unpricedTasks != null ? unpricedTasks.size() : 0}">0</span>)</button>
+            <button class="pricing-tab-btn" onclick="switchPricingTab('priced', this)"
+                style="padding: 8px 20px; background: var(--surface); border: 1px solid var(--border-color); border-radius: 20px; font-size: 13px; font-weight: 600; color: var(--text-secondary); cursor: pointer; transition: all 0.2s; border-color: var(--border-color); outline: none;">Đã
+                định giá (<span th:text="${pricedTasks != null ? pricedTasks.size() : 0}">0</span>)</button>
+        </div>
+
+        <!-- Unpriced Grid -->
+        <div id="unpriced-section" class="pricing-grid"
+            style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 24px;">
+            <div th:each="t : ${unpricedTasks}" class="task-card">
+                <!-- Header -->
+                <div class="task-card-header" th:data-room-number="${t.room != null ? t.room.roomNumber : ''}"
+                    th:data-room-type="${t.room != null and t.room.category != null ? t.room.category.categoryName : ''}"
+                    th:data-staff-name="${t.staff != null ? t.staff.fullName : 'Chưa xác định'}"
+                    th:data-created-at="${t.createdAt != null ? #temporals.format(t.createdAt, 'dd/MM/yyyy HH:mm') : 'Chưa cập nhật'}"
+                    th:data-priority="${t.priority}" data-status="Pending" onclick="openDetailModal(this)">
+                    <div class="task-location">
+                        <i class="fa-solid fa-hotel"></i>
+                        <span th:text="${t.room != null ? 'Phòng ' + t.room.roomNumber : 'Không xác định'}">Phòng 101</span>
+                        <span style="font-size: 12px; font-weight: 400; color: var(--text-tertiary); margin-left: 6px;"
+                            th:text="${t.room != null and t.room.category != null ? t.room.category.categoryName : ''}">Room Type</span>
+                    </div>
+                </div>
+
+                <!-- Body -->
+                <div class="task-card-body">
+                    <!-- Damage Image Gallery -->
+                    <div th:if="${t.imageUrl != null and t.imageUrl != ''}" th:with="imgList=${#strings.arraySplit(t.imageUrl, ',')}">
+                        <div style="position: relative; overflow: hidden; border-radius: 8px; background: #e9ecef; border: 1px solid var(--border-color);">
+                            <img th:src="${imgList[0]}" alt="Ảnh hỏng hóc" th:data-img="${imgList[0]}" onclick="openLightbox(this.getAttribute('data-img'))"
+                                style="width: 100%; height: 180px; object-fit: cover; cursor: pointer; transition: transform 0.3s; display: block;"
+                                onmouseover="this.style.transform='scale(1.05)'"
+                                onmouseout="this.style.transform='scale(1.0)'">
+                            <span style="position: absolute; bottom: 8px; right: 8px; background: rgba(0,0,0,0.65); color: #fff; padding: 3px 8px; border-radius: 4px; font-size: 11px; pointer-events: none;">
+                                <i class="fa-solid fa-camera"></i> <span th:text="${#arrays.length(imgList)} + ' ảnh'">1 ảnh</span>
+                            </span>
+                        </div>
+                        <div th:if="${#arrays.length(imgList) > 1}" style="display: flex; gap: 6px; margin-top: 8px; overflow-x: auto; padding-bottom: 4px;">
+                            <img th:each="imgUrl : ${imgList}" th:src="${imgUrl}" th:data-img="${imgUrl}" onclick="openLightbox(this.getAttribute('data-img'))"
+                                style="width: 52px; height: 52px; object-fit: cover; border-radius: 6px; cursor: pointer; border: 1px solid var(--border-color); flex-shrink: 0; transition: opacity 0.2s;"
+                                onmouseover="this.style.opacity='0.8'" onmouseout="this.style.opacity='1'">
+                        </div>
+                    </div>
+
+                    <!-- Placeholder if no image -->
+                    <div th:if="${t.imageUrl == null or t.imageUrl == ''}"
+                        style="border-radius: 8px; margin-bottom: 16px; background: #f1f3f5; border: 1px dashed var(--border-color); height: 180px; display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--text-tertiary);">
+                        <i class="fa-regular fa-image" style="font-size: 36px; margin-bottom: 8px;"></i>
+                        <span style="font-size: 13px;">Không có hình ảnh đính kèm</span>
+                    </div>
+
+                    <div class="task-desc" th:text="${t.notes != null ? t.notes : 'Không có mô tả sự cố.'}">Mô tả sự
+                        cố...</div>
+
+                    <div class="task-meta">
+                        <div><i class="fa-regular fa-clock"></i> <span
+                                th:text="${t.createdAt != null ? #temporals.format(t.createdAt, 'dd/MM/yyyy HH:mm') : 'Chưa cập nhật'}">Time</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Footer -->
+                <div class="task-card-footer">
+                    <!-- Input Price Form -->
+                    <form th:action="@{/maintenance/pricing/{id}/submit(id=${t.id})}" method="post"
+                        style="display: flex; gap: 8px;">
+                        <input type="number" name="price" min="0" step="1000" class="form-control"
+                            placeholder="Nhập phí đền bù (VNĐ)..." required
+                            style="margin: 0; padding: 10px 12px; font-size: 13px; flex: 1; border: 1px solid var(--border-color); border-radius: 8px; outline: none; background: var(--surface);">
+                        <button type="submit" class="btn btn-primary" style="flex: 0 0 auto; border-radius: 8px;"><i
+                                class="fa-solid fa-circle-check"></i> Lưu</button>
+                    </form>
+                </div>
+            </div>
+
+            <div th:if="${#lists.isEmpty(unpricedTasks)}"
+                style="grid-column: 1/-1; text-align: center; padding: 48px; background: var(--surface); border-radius: var(--radius-lg); border: 1px solid var(--border-color);">
+                <i class="fa-regular fa-thumbs-up"
+                    style="font-size: 48px; color: var(--success); margin-bottom: 16px;"></i>
+                <h3 style="font-family: var(--font-serif); font-size: 20px; color: var(--primary); margin-bottom: 8px;">
+                    Tuyệt vời!</h3>
+                <p style="color: var(--text-secondary); font-size: 14px;">Không có yêu cầu hỏng hóc nào cần định giá
+                    hiện tại.</p>
+            </div>
+        </div>
+
+        <!-- Priced Grid -->
+        <div id="priced-section" class="pricing-grid"
+            style="display: none; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 24px;">
+            <div th:each="t : ${pricedTasks}" class="task-card">
+                <!-- Header -->
+                <div class="task-card-header" th:data-room-number="${t.room != null ? t.room.roomNumber : ''}"
+                    th:data-room-type="${t.room != null and t.room.category != null ? t.room.category.categoryName : ''}"
+                    th:data-staff-name="${t.staff != null ? t.staff.fullName : 'Chưa xác định'}"
+                    th:data-created-at="${t.createdAt != null ? #temporals.format(t.createdAt, 'dd/MM/yyyy HH:mm') : 'Chưa cập nhật'}"
+                    th:data-priority="${t.priority}" th:data-damage-price="${t.damagePrice}" data-status="Priced"
+                    onclick="openDetailModal(this)">
+                    <div class="task-location">
+                        <i class="fa-solid fa-hotel"></i>
+                        <span th:text="${t.room != null ? 'Phòng ' + t.room.roomNumber : 'Không xác định'}">Phòng 101</span>
+                        <span style="font-size: 12px; font-weight: 400; color: var(--text-tertiary); margin-left: 6px;"
+                            th:text="${t.room != null and t.room.category != null ? t.room.category.categoryName : ''}">Room Type</span>
+                    </div>
+                </div>
+
+                <!-- Body -->
+                <div class="task-card-body">
+                    <!-- Damage Image Gallery -->
+                    <div th:if="${t.imageUrl != null and t.imageUrl != ''}" th:with="imgList=${#strings.arraySplit(t.imageUrl, ',')}">
+                        <div style="position: relative; overflow: hidden; border-radius: 8px; background: #e9ecef; border: 1px solid var(--border-color);">
+                            <img th:src="${imgList[0]}" alt="Ảnh hỏng hóc" th:data-img="${imgList[0]}" onclick="openLightbox(this.getAttribute('data-img'))"
+                                style="width: 100%; height: 180px; object-fit: cover; cursor: pointer; transition: transform 0.3s; display: block;"
+                                onmouseover="this.style.transform='scale(1.05)'"
+                                onmouseout="this.style.transform='scale(1.0)'">
+                            <span style="position: absolute; bottom: 8px; right: 8px; background: rgba(0,0,0,0.65); color: #fff; padding: 3px 8px; border-radius: 4px; font-size: 11px; pointer-events: none;">
+                                <i class="fa-solid fa-camera"></i> <span th:text="${#arrays.length(imgList)} + ' ảnh'">1 ảnh</span>
+                            </span>
+                        </div>
+                        <div th:if="${#arrays.length(imgList) > 1}" style="display: flex; gap: 6px; margin-top: 8px; overflow-x: auto; padding-bottom: 4px;">
+                            <img th:each="imgUrl : ${imgList}" th:src="${imgUrl}" th:data-img="${imgUrl}" onclick="openLightbox(this.getAttribute('data-img'))"
+                                style="width: 52px; height: 52px; object-fit: cover; border-radius: 6px; cursor: pointer; border: 1px solid var(--border-color); flex-shrink: 0; transition: opacity 0.2s;"
+                                onmouseover="this.style.opacity='0.8'" onmouseout="this.style.opacity='1'">
+                        </div>
+                    </div>
+
+                    <!-- Placeholder if no image -->
+                    <div th:if="${t.imageUrl == null or t.imageUrl == ''}"
+                        style="border-radius: 8px; margin-bottom: 16px; background: #f1f3f5; border: 1px dashed var(--border-color); height: 180px; display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--text-tertiary);">
+                        <i class="fa-regular fa-image" style="font-size: 36px; margin-bottom: 8px;"></i>
+                        <span style="font-size: 13px;">Không có hình ảnh đính kèm</span>
+                    </div>
+
+                    <div class="task-desc" th:text="${t.notes != null ? t.notes : 'Không có mô tả sự cố.'}">Mô tả sự
+                        cố...</div>
+
+                    <div class="task-meta">
+                        <div><i class="fa-regular fa-clock"></i> <span
+                                th:text="${t.createdAt != null ? #temporals.format(t.createdAt, 'dd/MM/yyyy HH:mm') : 'Chưa cập nhật'}">Time</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Footer -->
+                <div class="task-card-footer" style="background: #EBFBEE; border-top-color: rgba(43,138,62,0.15);">
+                    <!-- Price Badge -->
+                    <div
+                        style="font-size: 14px; font-weight: 700; color: var(--success); padding: 10px 16px; border-radius: 8px; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                        <i class="fa-solid fa-tag"></i> Giá định mức: <span
+                            th:text="${t.damagePrice != null ? #numbers.formatDecimal(t.damagePrice, 0, 'COMMA', 0, 'POINT') + ' VNĐ' : '0 VNĐ'}">150,000
+                            VNĐ</span>
+                    </div>
+                </div>
+            </div>
+
+            <div th:if="${#lists.isEmpty(pricedTasks)}"
+                style="grid-column: 1/-1; text-align: center; padding: 48px; background: var(--surface); border-radius: var(--radius-lg); border: 1px solid var(--border-color);">
+                <i class="fa-regular fa-folder-open"
+                    style="font-size: 48px; color: var(--text-tertiary); margin-bottom: 16px;"></i>
+                <h3 style="font-family: var(--font-serif); font-size: 20px; color: var(--primary); margin-bottom: 8px;">
+                    Trống</h3>
+                <p style="color: var(--text-secondary); font-size: 14px;">Chưa có yêu cầu nào được định giá hôm nay.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Detail Modal -->
+    <div class="modal-overlay" id="detailModal" onclick="if(event.target === this) closeDetailModal()">
+        <div class="modal-content" style="max-width: 500px;">
+            <div
+                style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid var(--border-color); padding-bottom: 12px;">
+                <h3 class="modal-title" style="margin: 0; color: var(--primary);"><i
+                        class="fa-solid fa-circle-info"></i> Chi tiết sự cố</h3>
+                <button onclick="closeDetailModal()"
+                    style="background: none; border: none; font-size: 20px; cursor: pointer; color: var(--text-tertiary);">&times;</button>
+            </div>
+
+            <div class="modal-body" style="font-size: 14px; color: var(--text-secondary);">
+                <!-- Room and Type -->
+                <div style="margin-bottom: 16px; display: flex; align-items: baseline; gap: 8px;">
+                    <span id="detail-room" style="font-size: 20px; font-weight: 700; color: var(--primary);">Phòng
+                        101</span>
+                    <span id="detail-room-type" style="font-size: 13px; color: var(--text-tertiary);">Room Type</span>
+                </div>
+
+                <!-- Info Grid -->
+                <div
+                    style="display: grid; grid-template-columns: 140px 1fr; gap: 12px; margin-bottom: 20px; padding: 16px; background: var(--bg-color); border-radius: 8px;">
+                    <div style="font-weight: 600; color: var(--text-secondary);"><i class="fa-solid fa-user"
+                            style="width: 18px;"></i> Người phát hiện:</div>
+                    <div id="detail-reporter" style="color: var(--text-primary);">Tên nhân viên</div>
+
+                    <div style="font-weight: 600; color: var(--text-secondary);"><i class="fa-regular fa-clock"
+                            style="width: 18px;"></i> Thời gian báo:</div>
+                    <div id="detail-time" style="color: var(--text-primary);">Thời gian</div>
+
+                    <div style="font-weight: 600; color: var(--text-secondary);"><i
+                            class="fa-solid fa-triangle-exclamation" style="width: 18px;"></i> Độ ưu tiên:</div>
+                    <div><span id="detail-priority" class="badge">Bình thường</span></div>
+
+                    <div style="font-weight: 600; color: var(--text-secondary);"><i class="fa-solid fa-circle-check"
+                            style="width: 18px;"></i> Trạng thái:</div>
+                    <div><span id="detail-status" class="badge">Chờ xử lý</span></div>
+
+                    <div id="detail-price-row-label"
+                        style="font-weight: 600; color: var(--text-secondary); display: none;"><i
+                            class="fa-solid fa-tag" style="width: 18px;"></i> Phí đền bù:</div>
+                    <div id="detail-price-row-value" style="color: var(--success); font-weight: 700; display: none;">0
+                        VNĐ</div>
+                </div>
+
+                <!-- Notes -->
+                <div style="margin-bottom: 20px;">
+                    <h4 style="font-size: 13px; font-weight: 600; color: var(--text-secondary); margin-bottom: 8px;">Mô
+                        tả chi tiết từ buồng phòng:</h4>
+                    <div id="detail-notes"
+                        style="padding: 12px; background: #FFF9DB; border-left: 3px solid #FAB005; border-radius: 4px; font-size: 13px; line-height: 1.5; color: #5C5429; word-break: break-word; white-space: pre-line;">
+                        Mô tả...</div>
+                </div>
+
+                <!-- Image -->
+                <div style="margin-bottom: 8px;">
+                    <h4 style="font-size: 13px; font-weight: 600; color: var(--text-secondary); margin-bottom: 8px;">
+                        Hình ảnh sự cố:</h4>
+                    <div id="detail-image-container"
+                        style="border: 1px solid var(--border-color); border-radius: 8px; overflow: hidden; background: #e9ecef;">
+                        <img id="detail-image" src="" alt="Ảnh hỏng hóc"
+                            style="width: 100%; max-height: 200px; object-fit: cover; cursor: pointer; transition: transform 0.3s; display: block;"
+                            onmouseover="this.style.transform='scale(1.03)'"
+                            onmouseout="this.style.transform='scale(1.0)'">
+                    </div>
+                    <div id="detail-no-image"
+                        style="display: none; padding: 24px; border: 1px dashed var(--border-color); border-radius: 8px; text-align: center; color: var(--text-tertiary); background: #f8f9fa;">
+                        <i class="fa-regular fa-image" style="font-size: 28px; margin-bottom: 8px; display: block;"></i>
+                        Không có hình ảnh đính kèm
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer"
+                style="display: flex; justify-content: flex-end; gap: 8px; border-top: 1px solid var(--border-color); padding-top: 16px; margin-top: auto;">
+                <button onclick="closeDetailModal()" class="btn"
+                    style="background: var(--surface-hover); color: var(--text-secondary); min-width: 100px;">Đóng</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lightbox for Image Zoom -->
+    <div id="lightbox" onclick="closeLightbox()"
+        style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); display: none; align-items: center; justify-content: center; z-index: 2000; cursor: zoom-out; transition: opacity 0.3s ease;">
+        <img id="lightbox-img" src="" alt="Ảnh phóng to"
+            style="max-width: 90%; max-height: 90%; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); object-fit: contain;">
+        <span
+            style="position: absolute; top: 20px; right: 30px; color: #fff; font-size: 30px; font-weight: 700; cursor: pointer;">&times;</span>
+    </div>
+
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        function openDetailModal(el) {
+            const roomNo = el.getAttribute('data-room-number');
+            const roomType = el.getAttribute('data-room-type');
+            const reporter = el.getAttribute('data-staff-name');
+            const time = el.getAttribute('data-created-at');
+            const priority = el.getAttribute('data-priority');
+            const status = el.getAttribute('data-status');
+            const price = el.getAttribute('data-damage-price');
+
+            // Read notes and imageUrl from DOM siblings (inside the same .task-card)
+            const card = el.closest('.task-card');
+            const notesEl = card ? card.querySelector('.task-desc') : null;
+            const imgEl = card ? card.querySelector('img') : null;
+            const notes = notesEl ? notesEl.innerText : 'Không có mô tả sự cố.';
+            const imageUrl = imgEl ? imgEl.getAttribute('src') : null;
+
+            // Populate room fields
+            document.getElementById('detail-room').innerText = 'Phòng ' + roomNo;
+            document.getElementById('detail-room-type').innerText = roomType;
+
+            // Populate metadata
+            document.getElementById('detail-reporter').innerText = reporter;
+            document.getElementById('detail-time').innerText = time;
+
+            // Priority styling
+            const priorityEl = document.getElementById('detail-priority');
+            priorityEl.className = 'badge';
+            if (priority === 'Urgent' || priority === 'High') {
+                priorityEl.innerText = 'Khẩn cấp';
+                priorityEl.classList.add('badge-urgent');
+            } else {
+                priorityEl.innerText = 'Bình thường';
+                priorityEl.classList.add('badge-normal');
+            }
+
+            // Status styling
+            const statusEl = document.getElementById('detail-status');
+            statusEl.className = 'badge';
+            if (status === 'Priced' || status === 'Completed') {
+                statusEl.innerText = 'Đã định giá';
+                statusEl.classList.add('badge-priced');
+            } else {
+                statusEl.innerText = 'Chờ định giá';
+                statusEl.classList.add('badge-pending');
+            }
+
+            // Price visibility
+            const priceLabel = document.getElementById('detail-price-row-label');
+            const priceValue = document.getElementById('detail-price-row-value');
+            if (price && price !== 'null' && price !== '') {
+                const formattedPrice = Number(price).toLocaleString('en-US').replace(/,/g, '.') + ' VNĐ';
+                priceValue.innerText = formattedPrice;
+                priceLabel.style.display = 'block';
+                priceValue.style.display = 'block';
+            } else {
+                priceLabel.style.display = 'none';
+                priceValue.style.display = 'none';
+            }
+
+            // Notes
+            document.getElementById('detail-notes').innerText = notes;
+
+            // Image
+            const imgContainer = document.getElementById('detail-image-container');
+            const modalImgEl = document.getElementById('detail-image');
+            const noImgEl = document.getElementById('detail-no-image');
+
+            if (imageUrl && imageUrl !== 'null' && imageUrl !== '') {
+                modalImgEl.src = imageUrl;
+                modalImgEl.onclick = function () { openLightbox(imageUrl); };
+                imgContainer.style.display = 'block';
+                if (noImgEl) noImgEl.style.display = 'none';
+            } else {
+                imgContainer.style.display = 'none';
+                if (noImgEl) noImgEl.style.display = 'block';
+            }
+
+            // Open modal
+            const detailModal = document.getElementById('detailModal');
+            detailModal.style.display = 'flex';
+            detailModal.style.opacity = '0';
+            setTimeout(() => detailModal.style.opacity = '1', 10);
+            detailModal.classList.add('active');
+        }
+
+        function closeDetailModal() {
+            const detailModal = document.getElementById('detailModal');
+            detailModal.style.opacity = '0';
+            setTimeout(() => {
+                detailModal.style.display = 'none';
+                detailModal.classList.remove('active');
+            }, 300);
+        }
+
+        function switchPricingTab(tab, btn) {
+            const tabs = document.querySelectorAll('.pricing-tab-btn');
+            tabs.forEach(t => {
+                t.style.background = 'var(--surface)';
+                t.style.color = 'var(--text-secondary)';
+                t.style.borderColor = 'var(--border-color)';
+            });
+
+            btn.style.background = 'var(--primary)';
+            btn.style.color = '#fff';
+            btn.style.borderColor = 'var(--primary)';
+
+            if (tab === 'unpriced') {
+                document.getElementById('unpriced-section').style.display = 'grid';
+                document.getElementById('priced-section').style.display = 'none';
+            } else {
+                document.getElementById('unpriced-section').style.display = 'none';
+                document.getElementById('priced-section').style.display = 'grid';
+            }
+        }
+
+        function openLightbox(src) {
+            const lightbox = document.getElementById('lightbox');
+            const img = document.getElementById('lightbox-img');
+            img.src = src;
+            lightbox.style.display = 'flex';
+            lightbox.style.opacity = '0';
+            setTimeout(() => lightbox.style.opacity = '1', 10);
+        }
+
+        function closeLightbox() {
+            const lightbox = document.getElementById('lightbox');
+            lightbox.style.opacity = '0';
+            setTimeout(() => lightbox.style.display = 'none', 300);
+        }
+        /*]]>*/
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        function showUserInfo(name, email, phone, role) {
+            const modal = document.getElementById('maintenanceProfileModal');
+            if (modal) {
+                modal.style.display = 'flex';
+                const pwdInput = document.getElementById('maintenanceNewPassword');
+                if (pwdInput) pwdInput.value = '';
+                const msg = document.getElementById('maintenancePasswordMsg');
+                if (msg) msg.style.display = 'none';
+            }
+        }
+    </script>
+
+<!-- MAINTENANCE PROFILE MODAL -->
+<div id="maintenanceProfileModal" class="modal-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999; justify-content: center; align-items: center;">
+    <div class="modal-content" style="background: white; padding: 24px; border-radius: 8px; width: 600px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); font-family: 'Inter', sans-serif;">
+        <h2 style="margin-top: 0; border-bottom: 1px solid #e5e7eb; padding-bottom: 12px; color: #111827; font-size: 1.25rem; font-weight: 600;">Hồ sơ Cá nhân</h2>
+        
+        <div style="display: flex; gap: 24px; margin-top: 16px;">
+            <!-- Left col: Info -->
+            <div style="flex: 1;">
+                <div style="display: flex; align-items: center; margin-bottom: 16px;">
+                    <div class="user-avatar" style="width: 64px; height: 64px; border-radius: 50%; background: #f59e0b; color: white; display: flex; align-items: center; justify-content: center; font-size: 24px; margin-right: 16px; font-weight: bold;" th:text="${staffName != null && staffName.length() >= 2 ? staffName.substring(0, 2).toUpperCase() : 'NV'}">NV</div>
+                    <div>
+                        <h3 style="margin: 0; font-size: 18px; color: #111827;" th:text="${staffName != null ? staffName : 'Nhân viên'}">Nhân viên</h3>
+                        <p style="margin: 4px 0 0 0; color: #6b7280; font-size: 14px;" th:text="${staffRole != null ? staffRole : 'Maintenance'}">Maintenance</p>
+                    </div>
+                </div>
+                <div style="font-size: 14px; line-height: 1.6; color: #374151;">
+                    <p style="margin: 4px 0;"><strong>Họ và tên:</strong> <span th:text="${currentStaff != null ? currentStaff.fullName : (#authentication != null ? #authentication.name : 'Nhân viên')}">Nhân viên</span></p>
+                    <p style="margin: 4px 0;"><strong>Email:</strong> <span th:text="${currentStaff != null ? currentStaff.email : 'Chưa cập nhật'}">Chưa cập nhật</span></p>
+                    <p style="margin: 4px 0;"><strong>SĐT:</strong> <span th:text="${currentStaff != null ? currentStaff.phone : 'Chưa cập nhật'}">Chưa cập nhật</span></p>
+                    <p style="margin: 4px 0;"><strong>Giới tính:</strong> <span th:text="${currentStaff != null ? currentStaff.gender : 'Chưa cập nhật'}">Chưa cập nhật</span></p>
+                    <p style="margin: 4px 0;"><strong>CCCD:</strong> <span th:text="${currentStaff != null ? currentStaff.cccd : 'Chưa cập nhật'}">Chưa cập nhật</span></p>
+                </div>
+            </div>
+
+            <!-- Right col: Password -->
+            <div style="flex: 1; border-left: 1px solid #e5e7eb; padding-left: 24px;">
+                <h3 style="margin-top: 0; font-size: 16px; color: #111827;">Đổi mật khẩu</h3>
+                <div style="margin-top: 12px;">
+                    <label style="display: block; font-size: 13px; color: #4b5563; margin-bottom: 4px;">Mật khẩu mới</label>
+                    <input type="password" id="maintenanceNewPassword" placeholder="Nhập mật khẩu mới" style="width: 100%; padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 4px; box-sizing: border-box; font-size: 14px; margin-bottom: 8px;">
+                    <button id="maintenanceSavePasswordBtn" style="padding: 8px 16px; background: #f59e0b; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 500; font-size: 14px; width: 100%;">Cập nhật ngay</button>
+                    <div id="maintenancePasswordMsg" style="margin-top: 8px; font-size: 13px; display: none;"></div>
+                </div>
+            </div>
+        </div>
+
+        <div style="margin-top: 24px; text-align: right; border-top: 1px solid #e5e7eb; padding-top: 16px;">
+            <button onclick="document.getElementById('maintenanceProfileModal').style.display='none'" style="padding: 8px 16px; background: white; color: #374151; border: 1px solid #d1d5db; border-radius: 4px; cursor: pointer; font-weight: 500;">Đóng</button>
+        </div>
+    </div>
+</div>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const avatars = document.querySelectorAll('.sidebar-user, .user-profile-btn');
+        avatars.forEach(avatar => {
+            avatar.style.cursor = 'pointer';
+            avatar.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                document.getElementById('maintenanceProfileModal').style.display = 'flex';
+                document.getElementById('maintenanceNewPassword').value = '';
+                document.getElementById('maintenancePasswordMsg').style.display = 'none';
+            });
+        });
+        
+        const modal = document.getElementById('maintenanceProfileModal');
+        if(modal) {
+            modal.addEventListener('click', function(e) {
+                if (e.target === modal) {
+                    modal.style.display = 'none';
+                }
+            });
+        }
+
+        const saveBtn = document.getElementById('maintenanceSavePasswordBtn');
+        if (saveBtn) {
+            saveBtn.addEventListener('click', function() {
+                const newPwd = document.getElementById('maintenanceNewPassword').value;
+                const msg = document.getElementById('maintenancePasswordMsg');
+                
+                if (!newPwd || newPwd.trim() === '') {
+                    msg.style.display = 'block';
+                    msg.style.color = '#dc2626';
+                    msg.innerText = 'Vui lòng nhập mật khẩu mới';
+                    return;
+                }
+
+                saveBtn.disabled = true;
+                saveBtn.innerText = 'Đang lưu...';
+
+                fetch('/api/staff/change-password', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ newPassword: newPwd })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    saveBtn.disabled = false;
+                    saveBtn.innerText = 'Cập nhật ngay';
+                    msg.style.display = 'block';
+                    if (data.success) {
+                        msg.style.color = '#16a34a';
+                        msg.innerText = 'Đổi mật khẩu thành công!';
+                        document.getElementById('maintenanceNewPassword').value = '';
+                    } else {
+                        msg.style.color = '#dc2626';
+                        msg.innerText = data.message || 'Có lỗi xảy ra';
+                    }
+                })
+                .catch(err => {
+                    saveBtn.disabled = false;
+                    saveBtn.innerText = 'Cập nhật ngay';
+                    msg.style.display = 'block';
+                    msg.style.color = '#dc2626';
+                    msg.innerText = 'Lỗi kết nối mạng';
+                });
+            });
+        }
+    });
+</script>
+</body>
+
+
+</html>

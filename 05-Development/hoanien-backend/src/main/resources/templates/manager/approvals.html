@@ -1,0 +1,969 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Duyệt yêu cầu Khuyến mãi — Kawai Retreat Manager Portal</title>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" th:href="@{/manager/css/dashboard.css}" href="../../static/manager/css/dashboard.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0"
+        rel="stylesheet">
+    <style>
+        .badge-pending {
+            background: #fff3e0;
+            color: #e65100;
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.75rem;
+        }
+
+        .badge-completed {
+            background: #e8f5e9;
+            color: #2e7d32;
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.75rem;
+        }
+
+        .badge-rejected {
+            background: #ffebee;
+            color: #c62828;
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.75rem;
+        }
+
+        .btn-action {
+            background: #fff;
+            border: 1px solid var(--border-light);
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.8rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            font-family: var(--font-sans);
+            color: var(--foreground);
+            font-weight: 500;
+        }
+
+        .btn-action:hover {
+            opacity: 0.9;
+            background: #f0f0f0;
+        }
+
+        .btn-approve {
+            background: #333333;
+            color: #fff;
+            border: none;
+        }
+
+        .btn-approve:hover {
+            background: #222222;
+        }
+
+        .btn-approve .material-symbols-outlined {
+            color: #ffffff !important;
+        }
+
+        .btn-approve .material-symbols-outlined {
+            color: #ffffff !important;
+        }
+
+        .btn-reject {
+            background: transparent;
+            color: #7a7a7a;
+            border: 1px solid #d1d1d1;
+        }
+
+        .btn-reject:hover {
+            background: #f9f9f9;
+            color: #555555;
+            border-color: #b3b3b3;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #333;
+            color: #fff;
+            padding: 12px 24px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            display: none;
+            z-index: 2000;
+            font-size: 0.9rem;
+            font-family: var(--font-sans);
+        }
+
+        /* Tút tát layout table */
+        .mgr-table th {
+            white-space: nowrap;
+            padding: 12px 16px;
+            font-size: 0.8rem;
+        }
+
+        .mgr-table td {
+            vertical-align: middle;
+            padding: 12px 16px;
+        }
+
+        .badge-type {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 0;
+            font-size: 0.75rem;
+            font-weight: 700;
+            white-space: nowrap;
+            background: transparent !important;
+        }
+
+        .badge-type::before {
+            content: "";
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        .type-discount {
+            color: #726245;
+        }
+
+        .type-discount::before {
+            background: #726245;
+        }
+
+        .type-late {
+            color: #303d4b;
+        }
+
+        .type-late::before {
+            background: #293745;
+        }
+
+        .type-cancel {
+            color: #681212;
+        }
+
+        .type-cancel::before {
+            background: #681212;
+        }
+
+        .type-downgrade {
+            color: #3f5140;
+        }
+
+        .type-downgrade::before {
+            background: #3f5140;
+        }
+
+        .td-notes {
+            max-width: 200px;
+        }
+
+        .note-text {
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: normal;
+            word-break: break-word;
+            line-height: 1.4;
+        }
+
+        .btn-readmore {
+            background: none;
+            border: none;
+            color: var(--primary, #C9A96E);
+            cursor: pointer;
+            font-size: 0.75rem;
+            padding: 4px 0 0 0;
+            font-weight: 600;
+            font-family: inherit;
+        }
+
+        .btn-readmore:hover {
+            text-decoration: underline;
+        }
+
+        /* Request type dynamic styling */
+        tr:has(.type-discount) .promo-code-badge {
+            color: #726245 !important;
+            background: rgba(114, 98, 69, 0.1) !important;
+        }
+
+        tr:has(.type-late) .promo-code-badge {
+            color: #303d4b !important;
+            background: rgba(48, 61, 75, 0.1) !important;
+        }
+
+        tr:has(.type-cancel) .promo-code-badge {
+            color: #681212 !important;
+            background: rgba(104, 18, 18, 0.1) !important;
+        }
+
+        tr:has(.type-downgrade) .promo-code-badge {
+            color: #3f5140 !important;
+            background: rgba(63, 81, 64, 0.1) !important;
+        }
+
+        tr:has(.type-discount) .btn-readmore {
+            color: #726245 !important;
+        }
+
+        tr:has(.type-late) .btn-readmore {
+            color: #303d4b !important;
+        }
+
+        tr:has(.type-cancel) .btn-readmore {
+            color: #681212 !important;
+        }
+
+        tr:has(.type-downgrade) .btn-readmore {
+            color: #3f5140 !important;
+        }
+
+        /* Note Modal */
+        .note-modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.4);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(2px);
+        }
+
+        .note-modal {
+            background: #fff;
+            padding: 24px;
+            border-radius: 12px;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            position: relative;
+            font-family: var(--font-sans);
+            line-height: 1.5;
+        }
+
+        .note-modal-close {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: #f0f0f0;
+            border: none;
+            border-radius: 50%;
+            width: 28px;
+            height: 28px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #333;
+            transition: 0.2s;
+        }
+
+        .note-modal-close:hover {
+            background: #e0e0e0;
+        }
+
+        .note-modal-title {
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #333;
+            font-size: 1.1rem;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- SIDEBAR -->
+    <aside class="mgr-sidebar">
+        <div class="mgr-sidebar-logo">
+            <div class="mgr-logo-brand">
+                <span class="mgr-logo-label">Hoa Nien Retreat</span>
+            </div>
+            <h1 class="mgr-portal-title">Manager Portal</h1>
+        </div>
+        <nav class="mgr-nav">
+            <!-- Tổng quan -->
+            <div class="mgr-nav-item">
+                <a href="/manager/dashboard" class="mgr-nav-link">
+                    <svg class="mgr-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect width="7" height="9" x="3" y="3" rx="1" />
+                        <rect width="7" height="5" x="14" y="3" rx="1" />
+                        <rect width="7" height="9" x="14" y="12" rx="1" />
+                        <rect width="7" height="5" x="3" y="16" rx="1" />
+                    </svg>
+                    <span style="flex:1">Tổng quan</span>
+                </a>
+            </div>
+            <!-- Lịch trực Nhân sự -->
+            <div class="mgr-nav-item">
+                <a href="/manager/schedules" class="mgr-nav-link">
+                    <svg class="mgr-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect width="18" height="18" x="3" y="4" rx="2" />
+                        <line x1="16" x2="16" y1="2" y2="6" />
+                        <line x1="8" x2="8" y1="2" y2="6" />
+                        <line x1="3" x2="21" y1="10" y2="10" />
+                        <path d="M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01M16 18h.01" />
+                    </svg>
+                    <span style="flex:1">Lịch trực Nhân sự</span>
+                </a>
+            </div>
+            <!-- Hoàn tiền -->
+            <div class="mgr-nav-item">
+                <a href="/manager/refunds" class="mgr-nav-link">
+                    <svg class="mgr-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="2" y="5" width="20" height="14" rx="2" ry="2"></rect>
+                        <line x1="2" y1="10" x2="22" y2="10"></line>
+                    </svg>
+                    <span style="flex:1">Hoàn tiền</span>
+                </a>
+            </div>
+            <!-- Duyệt yêu cầu (ACTIVE) -->
+            <div class="mgr-nav-item">
+                <a href="/manager/approvals" class="mgr-nav-link active">
+                    <svg class="mgr-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path
+                            d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z" />
+                    </svg>
+                    <span style="flex:1">Duyệt yêu cầu</span>
+                </a>
+            </div>
+            <!-- Báo cáo Doanh thu -->
+            <div class="mgr-nav-item">
+                <a href="/manager/revenue" class="mgr-nav-link">
+                    <svg class="mgr-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect width="18" height="18" x="3" y="4" rx="2" />
+                        <line x1="16" x2="16" y1="2" y2="6" />
+                        <line x1="8" x2="8" y1="2" y2="6" />
+                        <line x1="3" x2="21" y1="10" y2="10" />
+                    </svg>
+                    <span style="flex:1">Báo cáo Doanh thu</span>
+                </a>
+            </div>
+            <!-- Biểu đồ Phân tích -->
+            <div class="mgr-nav-item">
+                <button class="mgr-nav-link" onclick="toggleSubmenu('sub-analytics','arr-analytics')">
+                    <svg class="mgr-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M3 3v18h18" />
+                        <path d="M18.7 8 13 13.7 8.7 9.4l-5 5" />
+                    </svg>
+                    <span style="flex:1">Biểu đồ Phân tích</span>
+                    <svg class="mgr-nav-arrow" id="arr-analytics" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2">
+                        <path d="m9 18 6-6-6-6" />
+                    </svg>
+                </button>
+                <div class="mgr-submenu" id="sub-analytics">
+                    <a href="/manager/analytics/room" class="mgr-submenu-link"><svg viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2">
+                            <path d="M3 9a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9Z" />
+                            <path d="M3 11h18" />
+                        </svg>Hiệu suất phòng</a>
+                    <a href="/manager/analytics/tour" class="mgr-submenu-link"><svg viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2">
+                            <path d="M3 11l19-9-9 19-2-8-8-2z" />
+                        </svg>Tỷ lệ tour</a>
+                    <a href="/manager/analytics/food" class="mgr-submenu-link"><svg viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2">
+                            <path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2" />
+                            <path d="M7 2v20" />
+                            <path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7" />
+                        </svg>Tỷ lệ các món ăn</a>
+                </div>
+            </div>
+            <!-- Xuất báo cáo -->
+            <div class="mgr-nav-item">
+                <a href="/manager/export" class="mgr-nav-link">
+                    <svg class="mgr-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                        <polyline points="7 10 12 15 17 10" />
+                        <line x1="12" x2="12" y1="15" y2="3" />
+                    </svg>
+                    <span style="flex:1">Xuất báo cáo</span>
+                </a>
+            </div>
+        </nav>
+        <div class="mgr-sidebar-footer">
+            <div class="mgr-sidebar-user">
+                <div class="mgr-sidebar-avatar">MG</div>
+                <div>
+                    <div class="mgr-sidebar-name">Manager</div>
+                    <div class="mgr-sidebar-role">Quản lý</div>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- MAIN -->
+    <div class="mgr-main">
+        <header class="mgr-header">
+            <div class="mgr-header-left">
+                <button class="mgr-header-icon-btn mgr-sidebar-toggle"
+                    onclick="document.body.classList.toggle('sidebar-hidden')">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="3" y1="12" x2="21" y2="12" />
+                        <line x1="3" y1="6" x2="21" y2="6" />
+                        <line x1="3" y1="18" x2="21" y2="18" />
+                    </svg>
+                </button>
+                <span style="color:#4A4740;font-size:12px">MANAGER</span>
+                <span class="mgr-breadcrumb-sep">/</span>
+                <span style="color:#C9A96E;font-size:12px;font-weight:500">Duyệt yêu cầu</span>
+            </div>
+            <div class="mgr-header-right">
+                <button class="mgr-header-icon-btn" style="position:relative">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" />
+                        <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" />
+                    </svg>
+                    <span class="mgr-notif-dot"></span>
+                </button>
+                <div class="mgr-header-user-box">
+                    <div class="mgr-header-avatar">MG</div>
+                    <span class="mgr-header-username">Manager</span>
+                </div>
+                <div class="mgr-divider-v"></div>
+                <a href="/logout" class="mgr-header-logout">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                        <polyline points="16 17 21 12 16 7" />
+                        <line x1="21" x2="9" y1="12" y2="12" />
+                    </svg>
+                    Đăng xuất
+                </a>
+            </div>
+        </header>
+
+        <main class="mgr-page">
+            <div>
+                <p class="mgr-page-eyebrow" th:text="${todayLabel}">Thứ Năm, 2 tháng 7, 2026</p>
+                <h1 class="mgr-page-title">Duyệt yêu cầu</h1>
+            </div>
+
+            <!-- TABS -->
+            <div class="mgr-tabs">
+                <button class="mgr-tab active" onclick="switchTab('pending-tab', this)">Chờ duyệt (<span
+                        th:text="${pendingApprovals.size()}">0</span>)</button>
+                <button class="mgr-tab" onclick="switchTab('completed-tab', this)">Đã duyệt (<span
+                        th:text="${completedApprovals.size()}">0</span>)</button>
+                <button class="mgr-tab" onclick="switchTab('rejected-tab', this)">Đã từ chối (<span
+                        th:text="${rejectedApprovals.size()}">0</span>)</button>
+            </div>
+
+            <!-- TAB 1: PENDING -->
+            <div id="pending-tab" class="tab-content active">
+                <div class="mgr-section-card" style="margin-top: 0;">
+                    <div class="mgr-section-title" style="margin-bottom:4px">Yêu cầu chờ xử lý</div>
+                    <div class="mgr-section-subtitle" style="margin-bottom:16px">Các yêu cầu điều chỉnh tài chính và
+                        chính sách cần cấp quản lý phê duyệt.</div>
+                    <div style="overflow-x: auto;">
+                        <table class="mgr-table">
+                            <thead>
+                                <tr>
+                                    <th>Thông tin Booking</th>
+                                    <th>Loại yêu cầu</th>
+                                    <th>Lý do</th>
+                                    <th>Tổng tiền</th>
+                                    <th>Ngày gửi</th>
+                                    <th style="text-align: center;">Thao tác</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="item : ${pendingApprovals}" th:id="'row-' + ${item.taskId}">
+                                    <td>
+                                        <div style="font-weight: 600; color: #2c2a29; font-size: 14px;">
+                                            <a th:if="${item.bookingId != null}"
+                                                th:href="@{/admin/bookings(bookingId=${item.bookingId})}"
+                                                th:text="'BK-' + ${item.bookingId}"
+                                                style="color: var(--primary); font-weight: 600; text-decoration: none;">BK-1</a>
+                                            <span th:if="${item.bookingId == null}">N/A</span>
+                                            <span style="color: #ccc; margin: 0 4px;">|</span>
+                                            <span th:text="${item.customerName}">Nguyễn Văn A</span>
+                                        </div>
+                                        <div style="font-size: 12px; color: #8b8b8b; margin-top: 4px;">
+                                            <span th:text="${item.bookingDetails}">Đặt phòng (Deluxe)</span>
+                                            <span style="margin-left: 4px;"
+                                                th:text="'(Yêu cầu: #' + ${item.taskId} + ')'"></span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div>
+                                            <span th:if="${item.operationalType == 'Manager_Approval'}"
+                                                class="badge-type type-discount">Duyệt chiết khấu</span>
+                                            <span th:if="${item.operationalType == 'Late_Checkout_Waiver'}"
+                                                class="badge-type type-late">Miễn phụ thu</span>
+                                            <span th:if="${item.operationalType == 'Cancellation_Fee_Waiver'}"
+                                                class="badge-type type-cancel">Miễn phạt hủy</span>
+                                            <span th:if="${item.operationalType == 'Room_Downgrade_Refund'}"
+                                                class="badge-type type-downgrade">Hoàn chênh lệch</span>
+                                        </div>
+                                        <div th:if="${item.promoCode != null and item.promoCode != 'N/A'}"
+                                            style="font-size: 11px; color: #8b8b8b; margin-top: 6px; font-family: var(--font-mono);">
+                                            Mã: <span th:text="${item.promoCode}" class="promo-code-badge"
+                                                style="font-weight: bold; background: rgba(201,169,110,0.1); color: var(--primary); padding: 2px 6px; border-radius: 4px;">GOLDEN</span>
+                                        </div>
+                                    </td>
+                                    <td class="td-notes">
+                                        <div class="note-text" th:text="${item.notes}">Mô tả...</div>
+                                        <button type="button" class="btn-readmore"
+                                            th:if="${item.notes != null and #strings.length(item.notes) > 50}"
+                                            onclick="openNoteModal(this)">Xem chi tiết...</button>
+                                        <div class="full-note-content" style="display:none;" th:text="${item.notes}">
+                                        </div>
+                                    </td>
+                                    <td th:text="${item.totalPrice}"
+                                        style="font-weight: 600; color: #333333; white-space: nowrap;">1,500,000đ</td>
+                                    <td style="white-space: nowrap;">
+                                        <div th:text="${item.createdAt != null and #strings.length(item.createdAt) >= 10 ? #strings.substring(item.createdAt, 0, 10) : item.createdAt}"
+                                            style="font-weight: 500; color: #2c2a29; font-size: 13px;">13/07/2026</div>
+                                        <div th:if="${item.createdAt != null and #strings.length(item.createdAt) > 11}"
+                                            th:text="${#strings.substring(item.createdAt, 11)}"
+                                            style="font-size: 11px; color: #8b8b8b; margin-top: 2px;">08:10</div>
+                                    </td>
+                                    <td>
+                                        <div
+                                            style="display: flex; gap: 8px; justify-content: center; white-space: nowrap;">
+                                            <button class="btn-action btn-approve"
+                                                th:onclick="'handleApproval(' + ${item.taskId} + ', \'approve\')'">
+                                                <span class="material-symbols-outlined"
+                                                    style="font-size: 16px; color: #ffffff !important;">check</span>
+                                                Duyệt
+                                            </button>
+                                            <button class="btn-action btn-reject"
+                                                th:onclick="'handleApproval(' + ${item.taskId} + ', \'reject\')'">
+                                                <span class="material-symbols-outlined"
+                                                    style="font-size: 16px;">close</span> Từ chối
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr th:if="${pendingApprovals.isEmpty()}">
+                                    <td colspan="6"
+                                        style="text-align: center; color: var(--text-muted); padding: 40px; font-family: var(--font-sans);">
+                                        Không có yêu cầu nào chờ phê duyệt.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 2: COMPLETED -->
+            <div id="completed-tab" class="tab-content">
+                <div class="mgr-section-card" style="margin-top: 0;">
+                    <div class="mgr-section-title" style="margin-bottom:4px">Yêu cầu đã phê duyệt</div>
+                    <div class="mgr-section-subtitle" style="margin-bottom:16px">Lịch sử các yêu cầu đã được đồng ý
+                        thông qua</div>
+                    <div style="overflow-x: auto;">
+                        <table class="mgr-table">
+                            <thead>
+                                <tr>
+                                    <th>Thông tin Booking</th>
+                                    <th>Loại yêu cầu</th>
+                                    <th>Lý do</th>
+                                    <th>Tổng tiền</th>
+                                    <th>Ngày gửi</th>
+                                    <th>Trạng thái</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="item : ${completedApprovals}">
+                                    <td>
+                                        <div style="font-weight: 600; color: #2c2a29; font-size: 14px;">
+                                            <a th:if="${item.bookingId != null}"
+                                                th:href="@{/admin/bookings(bookingId=${item.bookingId})}"
+                                                th:text="'BK-' + ${item.bookingId}"
+                                                style="color: var(--primary); font-weight: 600; text-decoration: none;">BK-1</a>
+                                            <span th:if="${item.bookingId == null}">N/A</span>
+                                            <span style="color: #ccc; margin: 0 4px;">|</span>
+                                            <span th:text="${item.customerName}">Nguyễn Văn A</span>
+                                        </div>
+                                        <div style="font-size: 12px; color: #8b8b8b; margin-top: 4px;">
+                                            <span th:text="${item.bookingDetails}">Đặt phòng (Deluxe)</span>
+                                            <span style="margin-left: 4px;"
+                                                th:text="'(Yêu cầu: #' + ${item.taskId} + ')'"></span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div>
+                                            <span th:if="${item.operationalType == 'Manager_Approval'}"
+                                                class="badge-type type-discount">Duyệt chiết khấu</span>
+                                            <span th:if="${item.operationalType == 'Late_Checkout_Waiver'}"
+                                                class="badge-type type-late">Miễn phụ thu</span>
+                                            <span th:if="${item.operationalType == 'Cancellation_Fee_Waiver'}"
+                                                class="badge-type type-cancel">Miễn phạt hủy</span>
+                                            <span th:if="${item.operationalType == 'Room_Downgrade_Refund'}"
+                                                class="badge-type type-downgrade">Hoàn chênh lệch</span>
+                                        </div>
+                                        <div th:if="${item.promoCode != null and item.promoCode != 'N/A'}"
+                                            style="font-size: 11px; color: #8b8b8b; margin-top: 6px; font-family: var(--font-mono);">
+                                            Mã: <span th:text="${item.promoCode}" class="promo-code-badge"
+                                                style="font-weight: bold; background: rgba(201,169,110,0.1); color: var(--primary); padding: 2px 6px; border-radius: 4px;">GOLDEN</span>
+                                        </div>
+                                    </td>
+                                    <td class="td-notes">
+                                        <div class="note-text" th:text="${item.notes}">Mô tả...</div>
+                                        <button type="button" class="btn-readmore"
+                                            th:if="${item.notes != null and #strings.length(item.notes) > 50}"
+                                            onclick="openNoteModal(this)">Xem chi tiết...</button>
+                                        <div class="full-note-content" style="display:none;" th:text="${item.notes}">
+                                        </div>
+                                    </td>
+                                    <td th:text="${item.totalPrice}"
+                                        style="font-weight: 600; color: #333333; white-space: nowrap;">1,500,000đ</td>
+                                    <td style="white-space: nowrap;">
+                                        <div th:text="${item.createdAt != null and #strings.length(item.createdAt) >= 10 ? #strings.substring(item.createdAt, 0, 10) : item.createdAt}"
+                                            style="font-weight: 500; color: #2c2a29; font-size: 13px;">13/07/2026</div>
+                                        <div th:if="${item.createdAt != null and #strings.length(item.createdAt) > 11}"
+                                            th:text="${#strings.substring(item.createdAt, 11)}"
+                                            style="font-size: 11px; color: #8b8b8b; margin-top: 2px;">08:10</div>
+                                    </td>
+                                    <td><span class="badge-completed">ĐÃ DUYỆT</span></td>
+                                </tr>
+                                <tr th:if="${completedApprovals.isEmpty()}">
+                                    <td colspan="6"
+                                        style="text-align: center; color: var(--text-muted); padding: 40px; font-family: var(--font-sans);">
+                                        Chưa có yêu cầu nào được phê duyệt.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 3: REJECTED -->
+            <div id="rejected-tab" class="tab-content">
+                <div class="mgr-section-card" style="margin-top: 0;">
+                    <div class="mgr-section-title" style="margin-bottom:4px">Yêu cầu đã từ chối</div>
+                    <div class="mgr-section-subtitle" style="margin-bottom:16px">Danh sách các yêu cầu không được phê
+                        duyệt</div>
+                    <div style="overflow-x: auto;">
+                        <table class="mgr-table">
+                            <thead>
+                                <tr>
+                                    <th>Thông tin Booking</th>
+                                    <th>Loại yêu cầu</th>
+                                    <th>Lý do</th>
+                                    <th>Tổng tiền</th>
+                                    <th>Ngày gửi</th>
+                                    <th>Trạng thái</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="item : ${rejectedApprovals}">
+                                    <td>
+                                        <div style="font-weight: 600; color: #2c2a29; font-size: 14px;">
+                                            <a th:if="${item.bookingId != null}"
+                                                th:href="@{/admin/bookings(bookingId=${item.bookingId})}"
+                                                th:text="'BK-' + ${item.bookingId}"
+                                                style="color: var(--primary); font-weight: 600; text-decoration: none;">BK-1</a>
+                                            <span th:if="${item.bookingId == null}">N/A</span>
+                                            <span style="color: #ccc; margin: 0 4px;">|</span>
+                                            <span th:text="${item.customerName}">Nguyễn Văn A</span>
+                                        </div>
+                                        <div style="font-size: 12px; color: #8b8b8b; margin-top: 4px;">
+                                            <span th:text="${item.bookingDetails}">Đặt phòng (Deluxe)</span>
+                                            <span style="margin-left: 4px;"
+                                                th:text="'(Yêu cầu: #' + ${item.taskId} + ')'"></span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div>
+                                            <span th:if="${item.operationalType == 'Manager_Approval'}"
+                                                class="badge-type type-discount">Duyệt chiết khấu</span>
+                                            <span th:if="${item.operationalType == 'Late_Checkout_Waiver'}"
+                                                class="badge-type type-late">Miễn phụ thu</span>
+                                            <span th:if="${item.operationalType == 'Cancellation_Fee_Waiver'}"
+                                                class="badge-type type-cancel">Miễn phạt hủy</span>
+                                            <span th:if="${item.operationalType == 'Room_Downgrade_Refund'}"
+                                                class="badge-type type-downgrade">Hoàn chênh lệch</span>
+                                        </div>
+                                        <div th:if="${item.promoCode != null and item.promoCode != 'N/A'}"
+                                            style="font-size: 11px; color: #8b8b8b; margin-top: 6px; font-family: var(--font-mono);">
+                                            Mã: <span th:text="${item.promoCode}" class="promo-code-badge"
+                                                style="font-weight: bold; background: rgba(201,169,110,0.1); color: var(--primary); padding: 2px 6px; border-radius: 4px;">GOLDEN</span>
+                                        </div>
+                                    </td>
+                                    <td class="td-notes">
+                                        <div class="note-text" th:text="${item.notes}">Mô tả...</div>
+                                        <button type="button" class="btn-readmore"
+                                            th:if="${item.notes != null and #strings.length(item.notes) > 50}"
+                                            onclick="openNoteModal(this)">Xem chi tiết...</button>
+                                        <div class="full-note-content" style="display:none;" th:text="${item.notes}">
+                                        </div>
+                                    </td>
+                                    <td th:text="${item.totalPrice}"
+                                        style="font-weight: 600; color: #333333; white-space: nowrap;">1,500,000đ</td>
+                                    <td style="white-space: nowrap;">
+                                        <div th:text="${item.createdAt != null and #strings.length(item.createdAt) >= 10 ? #strings.substring(item.createdAt, 0, 10) : item.createdAt}"
+                                            style="font-weight: 500; color: #2c2a29; font-size: 13px;">13/07/2026</div>
+                                        <div th:if="${item.createdAt != null and #strings.length(item.createdAt) > 11}"
+                                            th:text="${#strings.substring(item.createdAt, 11)}"
+                                            style="font-size: 11px; color: #8b8b8b; margin-top: 2px;">08:10</div>
+                                    </td>
+                                    <td><span class="badge-rejected">ĐÃ TỪ CHỐI</span></td>
+                                </tr>
+                                <tr th:if="${rejectedApprovals.isEmpty()}">
+                                    <td colspan="6"
+                                        style="text-align: center; color: var(--text-muted); padding: 40px; font-family: var(--font-sans);">
+                                        Chưa có yêu cầu nào bị từ chối.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Toast -->
+    <div id="toast" class="toast"></div>
+
+    <!-- Note Modal Overlay -->
+    <div id="noteModalOverlay" class="note-modal-overlay" onclick="if(event.target===this) closeNoteModal()">
+        <div class="note-modal">
+            <button class="note-modal-close" onclick="closeNoteModal()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
+            <div class="note-modal-title">Chi tiết Lý do</div>
+            <div id="noteModalContent" style="color: #555; white-space: pre-wrap; word-break: break-word;"></div>
+        </div>
+    </div>
+
+    <script>
+        // Init Lucide
+        lucide.createIcons();
+
+        // Submenu toggler
+        function toggleSubmenu(subId, arrId) {
+            const sub = document.getElementById(subId);
+            const arr = document.getElementById(arrId);
+            if (sub && arr) {
+                const isOpen = sub.classList.contains('open');
+                if (isOpen) {
+                    sub.classList.remove('open');
+                    arr.style.transform = 'rotate(0deg)';
+                } else {
+                    sub.classList.add('open');
+                    arr.style.transform = 'rotate(90deg)';
+                }
+            }
+        }
+
+        // Tab switcher
+        function switchTab(tabId, btn) {
+            // Hide all tab contents
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            // Show target tab
+            document.getElementById(tabId).classList.add('active');
+
+            // Deactivate all buttons
+            document.querySelectorAll('.mgr-tab').forEach(b => {
+                b.classList.remove('active');
+            });
+            // Activate target button
+            btn.classList.add('active');
+        }
+
+        // Handle Approve/Reject
+        function handleApproval(taskId, action) {
+            if (!confirm('Bạn có chắc chắn muốn ' + (action === 'approve' ? 'PHÊ DUYỆT' : 'TỪ CHỐI') + ' yêu cầu này không?')) {
+                return;
+            }
+
+            const url = '/manager/api/approvals/' + taskId + '/' + action;
+
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        return response.json().then(err => { throw new Error(err.message || 'Lỗi hệ thống') });
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    showToast(action === 'approve' ? 'Đã phê duyệt yêu cầu thành công!' : 'Đã từ chối yêu cầu thành công!');
+                    // Reload page after 1.5s to update tables
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1500);
+                })
+                .catch(error => {
+                    showToast('Lỗi: ' + error.message, true);
+                });
+        }
+
+        // Toast helper
+        function showToast(message, isError = false) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.style.background = isError ? '#c62828' : '#2e7d32';
+            toast.style.display = 'block';
+            setTimeout(() => {
+                toast.style.display = 'none';
+            }, 3000);
+        }
+
+        // Note Modal Logic
+        function openNoteModal(btn) {
+            const fullContent = btn.nextElementSibling.innerText;
+            document.getElementById('noteModalContent').innerText = fullContent;
+            document.getElementById('noteModalOverlay').style.display = 'flex';
+        }
+
+        function closeNoteModal() {
+            document.getElementById('noteModalOverlay').style.display = 'none';
+        }
+    </script>
+    <th:block th:replace="~{manager/fragments/incident-modal :: incident-modal}"></th:block>
+
+<!-- MANAGER PROFILE MODAL -->
+<div id="managerProfileModal" class="modal-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999; justify-content: center; align-items: center;">
+    <div class="modal-content" style="background: white; padding: 24px; border-radius: 8px; width: 600px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); font-family: 'Inter', sans-serif;">
+        <h2 style="margin-top: 0; border-bottom: 1px solid #e5e7eb; padding-bottom: 12px; color: #111827; font-size: 1.25rem; font-weight: 600;">Hồ sơ Cá nhân</h2>
+        
+        <div style="display: flex; gap: 24px; margin-top: 16px;">
+            <!-- Left col: Info -->
+            <div style="flex: 1;">
+                <div style="display: flex; align-items: center; margin-bottom: 16px;">
+                    <div class="mgr-sidebar-avatar" style="width: 64px; height: 64px; border-radius: 50%; background: #4f46e5; color: white; display: flex; align-items: center; justify-content: center; font-size: 24px; margin-right: 16px; font-weight: bold;" th:text="${staffName != null && staffName.length() >= 2 ? staffName.substring(0, 2).toUpperCase() : 'NV'}">NV</div>
+                    <div>
+                        <h3 style="margin: 0; font-size: 18px; color: #111827;" th:text="${staffName != null ? staffName : 'Nhân viên'}">Nhân viên</h3>
+                        <p style="margin: 4px 0 0 0; color: #6b7280; font-size: 14px;" th:text="${staffRole != null ? staffRole : 'Quản lý'}">Quản lý</p>
+                    </div>
+                </div>
+                <div style="font-size: 14px; line-height: 1.6; color: #374151;">
+                    <p style="margin: 4px 0;"><strong>Email:</strong> <span th:text="${currentEmployee != null ? currentEmployee.email : 'Chưa cập nhật'}"></span></p>
+                    <p style="margin: 4px 0;"><strong>SĐT:</strong> <span th:text="${currentEmployee != null ? currentEmployee.phone : 'Chưa cập nhật'}"></span></p>
+                    <p style="margin: 4px 0;"><strong>Giới tính:</strong> <span th:text="${currentEmployee != null ? currentEmployee.gender : 'Chưa cập nhật'}"></span></p>
+                    <p style="margin: 4px 0;"><strong>CCCD:</strong> <span th:text="${currentEmployee != null ? currentEmployee.cccd : 'Chưa cập nhật'}"></span></p>
+                </div>
+            </div>
+
+            <!-- Right col: Password -->
+            <div style="flex: 1; border-left: 1px solid #e5e7eb; padding-left: 24px;">
+                <h3 style="margin-top: 0; font-size: 16px; color: #111827;">Đổi mật khẩu</h3>
+                <div style="margin-top: 12px;">
+                    <label style="display: block; font-size: 13px; color: #4b5563; margin-bottom: 4px;">Mật khẩu mới</label>
+                    <input type="password" id="managerNewPassword" placeholder="Nhập mật khẩu mới" style="width: 100%; padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 4px; box-sizing: border-box; font-size: 14px; margin-bottom: 8px;">
+                    <button id="managerSavePasswordBtn" style="padding: 8px 16px; background: #4f46e5; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 500; font-size: 14px; width: 100%;">Cập nhật ngay</button>
+                    <div id="managerPasswordMsg" style="margin-top: 8px; font-size: 13px; display: none;"></div>
+                </div>
+            </div>
+        </div>
+
+        <div style="margin-top: 24px; text-align: right; border-top: 1px solid #e5e7eb; padding-top: 16px;">
+            <button onclick="document.getElementById('managerProfileModal').style.display='none'" style="padding: 8px 16px; background: white; color: #374151; border: 1px solid #d1d5db; border-radius: 4px; cursor: pointer; font-weight: 500;">Đóng</button>
+        </div>
+    </div>
+</div>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const avatars = document.querySelectorAll('.mgr-sidebar-user, .mgr-header-user, .mgr-header-user-box, .mgr-sidebar-footer, .mgr-header-avatar');
+        avatars.forEach(avatar => {
+            avatar.style.cursor = 'pointer';
+            avatar.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                document.getElementById('managerProfileModal').style.display = 'flex';
+                document.getElementById('managerNewPassword').value = '';
+                document.getElementById('managerPasswordMsg').style.display = 'none';
+            });
+        });
+        
+        const modal = document.getElementById('managerProfileModal');
+        if(modal) {
+            modal.addEventListener('click', function(e) {
+                if (e.target === modal) {
+                    modal.style.display = 'none';
+                }
+            });
+        }
+
+        const saveBtn = document.getElementById('managerSavePasswordBtn');
+        if (saveBtn) {
+            saveBtn.addEventListener('click', function() {
+                const newPwd = document.getElementById('managerNewPassword').value;
+                const msg = document.getElementById('managerPasswordMsg');
+                
+                if (!newPwd || newPwd.trim() === '') {
+                    msg.style.display = 'block';
+                    msg.style.color = '#dc2626';
+                    msg.innerText = 'Vui lòng nhập mật khẩu mới';
+                    return;
+                }
+
+                saveBtn.disabled = true;
+                saveBtn.innerText = 'Đang lưu...';
+
+                fetch('/api/staff/change-password', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ newPassword: newPwd })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    saveBtn.disabled = false;
+                    saveBtn.innerText = 'Cập nhật ngay';
+                    msg.style.display = 'block';
+                    if (data.success) {
+                        msg.style.color = '#16a34a';
+                        msg.innerText = 'Đổi mật khẩu thành công!';
+                        document.getElementById('managerNewPassword').value = '';
+                    } else {
+                        msg.style.color = '#dc2626';
+                        msg.innerText = data.message || 'Có lỗi xảy ra';
+                    }
+                })
+                .catch(err => {
+                    saveBtn.disabled = false;
+                    saveBtn.innerText = 'Cập nhật ngay';
+                    msg.style.display = 'block';
+                    msg.style.color = '#dc2626';
+                    msg.innerText = 'Lỗi kết nối mạng';
+                });
+            });
+        }
+    });
+</script>
+</body>
+
+
+</html>

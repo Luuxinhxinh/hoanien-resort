@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Quản lý đánh giá — Hoanien Retreat Operations Hub</title>
+
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" th:href="@{/admin/css/theme.css}" href="../../static/admin/css/theme.css"/>
+    <link rel="stylesheet" th:href="@{/admin/css/admin.css}" href="../../static/admin/css/admin.css"/>
+</head>
+<body>
+
+<!-- ═══════════════════════ SIDEBAR ═══════════════════════ -->
+<aside th:replace="~{admin/fragments/sidebar :: sidebar('reviews', '')}"></aside>
+
+
+<!-- ═══════════════════════ MAIN ═══════════════════════ -->
+<div class="adm-main">
+
+    <!-- Header -->
+    <header class="adm-header">
+        <div class="adm-header-left">
+            <span class="adm-breadcrumb-site">Hoanien Retreat</span>
+            <span class="adm-breadcrumb-sep">/</span>
+            <span class="adm-breadcrumb-page" style="color:#6B6558">Phản hồi</span>
+            <span class="adm-breadcrumb-sep">/</span>
+            <span class="adm-breadcrumb-page">Quản lý đánh giá</span>
+        </div>
+        <div class="adm-header-right">
+            <div class="adm-header-user-box">
+                <div class="adm-header-avatar" th:text="${staffName != null ? #strings.substring(staffName, 0, 2).toUpperCase() : (#authentication != null ? #strings.substring(#authentication.name, 0, 2).toUpperCase() : 'AD')}">AD</div>
+                <span class="adm-header-username" th:text="${staffName != null ? staffName : (#authentication != null ? #authentication.name : 'Admin')}">Admin</span>
+            </div>
+            <div class="adm-divider-v"></div>
+            <a href="/logout" class="adm-header-logout"><i data-lucide="log-out" style="width:12px;height:12px"></i>Đăng xuất</a>
+        </div>
+    </header>
+
+    <!-- Page Content -->
+    <main class="adm-page">
+
+        <!-- Page Title -->
+        <div>
+            <p class="adm-page-eyebrow">Phản hồi khách hàng</p>
+            <h1 class="adm-page-title">Quản lý đánh giá</h1>
+        </div>
+
+        <!-- Filter Bar -->
+        <div class="adm-filter-bar">
+            <!-- Service type -->
+            <div class="filter-group" id="filter-type-group">
+                <button id="typebtn-All"  class="adm-filter-chip filter-btn-type filter-btn-active"  data-type="All">Tất cả</button>
+                <button id="typebtn-Room" class="adm-filter-chip filter-btn-type filter-btn-inactive" data-type="Room">Phòng</button>
+                <button id="typebtn-Dish" class="adm-filter-chip filter-btn-type filter-btn-inactive" data-type="Dish">Món ăn</button>
+                <button id="typebtn-Tour" class="adm-filter-chip filter-btn-type filter-btn-inactive" data-type="Tour">Tour</button>
+            </div>
+
+            <div class="filter-sep"></div>
+
+            <!-- Rating -->
+            <div class="filter-group" id="filter-rating-group">
+                <button id="ratebtn-All" class="adm-filter-chip filter-btn-rating filter-btn-active"  data-rating="All">Tất cả ★</button>
+                <button id="ratebtn-5"   class="adm-filter-chip filter-btn-rating filter-btn-inactive" data-rating="5">5 ★</button>
+                <button id="ratebtn-4"   class="adm-filter-chip filter-btn-rating filter-btn-inactive" data-rating="4">4 ★</button>
+                <button id="ratebtn-3"   class="adm-filter-chip filter-btn-rating filter-btn-inactive" data-rating="3">3 ★</button>
+                <button id="ratebtn-2"   class="adm-filter-chip filter-btn-rating filter-btn-inactive" data-rating="2">2 ★</button>
+                <button id="ratebtn-1"   class="adm-filter-chip filter-btn-rating filter-btn-inactive" data-rating="1">1 ★</button>
+            </div>
+
+            <div class="filter-sep"></div>
+
+            <!-- Status -->
+            <div class="filter-group" id="filter-status-group">
+                <button id="statusbtn-All"     class="adm-filter-chip filter-btn-status filter-btn-active"  data-status="All">Tất cả</button>
+                <button id="statusbtn-Visible" class="adm-filter-chip filter-btn-status filter-btn-inactive" data-status="Visible">Hiển thị</button>
+                <button id="statusbtn-Hidden"  class="adm-filter-chip filter-btn-status filter-btn-inactive" data-status="Hidden">Đã ẩn</button>
+            </div>
+
+            <div style="flex:1"></div>
+
+            <span class="adm-page-eyebrow" style="letter-spacing:0;text-transform:none;font-size:14px;margin:0"
+                  id="review-counter-label" th:text="${reviewCount} + ' đánh giá'">8 đánh giá</span>
+        </div>
+
+        <!-- Review Cards Grid -->
+        <div class="reviews-grid" id="reviews-grid">
+            <div th:each="review : ${reviews}"
+                 class="review-card"
+                 th:attr="data-id=${review.id},data-type=${review.serviceType},data-rating=${review.rating},data-visible=${review.visible}"
+                 th:style="${review.visible} ? 'opacity:1' : 'opacity:0.78;border-color:rgba(140,60,40,0.2)'">
+
+                <!-- Header -->
+                <div class="review-card-header">
+                    <div class="review-card-meta">
+                        <div class="review-avatar" th:text="${review.initials}">HY</div>
+                        <div>
+                            <p class="review-guest-name" th:text="${review.guest}">Haruto Y.</p>
+                            <div class="review-stars">
+                                <span th:each="i : ${#numbers.sequence(1, 5)}">
+                                    <svg viewBox="0 0 24 24"
+                                         th:attr="fill=${i <= review.rating ? '#C9A96E' : 'none'},stroke=${i <= review.rating ? '#C9A96E' : 'rgba(201,176,122,0.3)'}"
+                                         stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                                    </svg>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="review-badges">
+                        <span class="review-type-badge"
+                              th:style="'background-color:' + ${review.serviceTypeBg} + ';color:' + ${review.serviceTypeColor}"
+                              th:text="${review.serviceTypeLabel}">Phòng</span>
+                        <span th:if="${review.visible}" class="review-vis-badge review-visible">
+                            <i data-lucide="check"></i> Hiển thị
+                        </span>
+                        <span th:unless="${review.visible}" class="review-vis-badge review-hidden-badge">
+                            <i data-lucide="eye-off"></i> Đã ẩn
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Service name -->
+                <p class="review-service" th:text="${review.service}">Deluxe River View Room</p>
+
+                <!-- Review text -->
+                <div>
+                    <p class="review-text" th:text="${review.text}" th:attr="data-full-text=${review.text}">Review text...</p>
+                    <button class="review-read-more hidden">Xem thêm</button>
+                </div>
+
+                <!-- Date + Audit trail -->
+                <div>
+                    <p class="review-date" th:text="'Đăng ngày ' + ${review.date}">Đăng ngày 05/06/2026</p>
+                    <p th:if="${!review.visible and review.hiddenBy != null}"
+                       class="review-audit-trail"
+                       th:text="'Ẩn bởi ' + ${review.hiddenBy} + ' ngày ' + ${review.hiddenDate} + ' — ' + ${review.hiddenReason}">
+                        Ẩn bởi Admin Dũng...
+                    </p>
+                    <p th:if="${review.visible}" class="review-audit-trail hidden"></p>
+                </div>
+
+                <!-- Actions -->
+                <div class="review-footer">
+                    <button th:if="${review.visible}"
+                            class="btn-hide-review"
+                            th:attr="data-id=${review.id},data-text=${review.text},data-guest=${review.guest},data-service=${review.service}">
+                        <i data-lucide="eye-off"></i> Ẩn đánh giá
+                    </button>
+                    <button th:unless="${review.visible}"
+                            class="btn-restore-review"
+                            th:attr="data-id=${review.id}">
+                        <i data-lucide="eye"></i> Khôi phục hiển thị
+                    </button>
+                </div>
+            </div>
+        </div>
+
+    </main>
+</div>
+
+<!-- Hide Reason Modal -->
+<div id="hide-reason-modal" class="adm-modal-backdrop hidden">
+    <div class="adm-modal-box" onclick="event.stopPropagation()">
+        <div class="adm-modal-header">
+            <h3 class="adm-modal-title">Ẩn đánh giá</h3>
+            <button id="btn-close-hide-modal" class="adm-modal-close"><i data-lucide="x"></i></button>
+        </div>
+        <div class="adm-modal-body">
+            <div class="modal-review-preview">
+                <p id="hide-modal-text" class="modal-review-text">"Review text..."</p>
+                <p id="hide-modal-meta" class="modal-review-meta">— Guest · Service</p>
+            </div>
+            <div>
+                <label class="modal-label">Lý do ẩn <span>*</span></label>
+                <textarea id="hide-reason-textarea" rows="3"
+                          placeholder="VD: Nội dung spam, đánh giá giả mạo, đang điều tra..."
+                          class="modal-textarea"></textarea>
+            </div>
+        </div>
+        <div class="adm-modal-footer">
+            <button id="btn-cancel-hide" class="adm-btn adm-btn-ghost">Huỷ</button>
+            <button id="btn-submit-hide" disabled
+                    class="btn-submit-hide"
+                    style="background:rgba(201,169,110,0.40);color:#1A1814;">
+                <i data-lucide="eye-off"></i> Xác nhận ẩn
+            </button>
+        </div>
+    </div>
+</div>
+
+<script th:src="@{/admin/js/main.js}"    src="../../static/admin/js/main.js"></script>
+<script th:src="@{/admin/js/reviews.js}" src="../../static/admin/js/reviews.js"></script>
+
+<!-- ADMIN PROFILE MODAL -->
+<div id="adminProfileModal" class="modal-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999; justify-content: center; align-items: center;">
+    <div class="modal-content" style="background: white; padding: 24px; border-radius: 8px; width: 600px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); font-family: 'Inter', sans-serif;">
+        <h2 style="margin-top: 0; border-bottom: 1px solid #e5e7eb; padding-bottom: 12px; color: #111827; font-size: 1.25rem; font-weight: 600;">Hồ sơ Cá nhân</h2>
+        
+        <div style="display: flex; gap: 24px; margin-top: 16px;">
+            <!-- Left col: Info -->
+            <div style="flex: 1;">
+                <div style="display: flex; align-items: center; margin-bottom: 16px;">
+                    <div class="adm-sidebar-avatar" style="width: 64px; height: 64px; border-radius: 50%; background: #111827; color: white; display: flex; align-items: center; justify-content: center; font-size: 24px; margin-right: 16px; font-weight: bold;" th:text="${staffName != null && staffName.length() >= 2 ? staffName.substring(0, 2).toUpperCase() : 'NV'}">NV</div>
+                    <div>
+                        <h3 style="margin: 0; font-size: 18px; color: #111827;" th:text="${staffName != null ? staffName : 'Nhân viên'}">Nhân viên</h3>
+                        <p style="margin: 4px 0 0 0; color: #6b7280; font-size: 14px;" th:text="${staffRole != null ? staffRole : 'Quản trị Hệ thống'}">Quản trị Hệ thống</p>
+                    </div>
+                </div>
+                <div style="font-size: 14px; line-height: 1.6; color: #374151;">
+                    <p style="margin: 4px 0;"><strong>Email:</strong> <span th:text="${currentEmployee != null ? currentEmployee.email : 'Chưa cập nhật'}"></span></p>
+                    <p style="margin: 4px 0;"><strong>SĐT:</strong> <span th:text="${currentEmployee != null ? currentEmployee.phone : 'Chưa cập nhật'}"></span></p>
+                    <p style="margin: 4px 0;"><strong>Giới tính:</strong> <span th:text="${currentEmployee != null ? currentEmployee.gender : 'Chưa cập nhật'}"></span></p>
+                    <p style="margin: 4px 0;"><strong>CCCD:</strong> <span th:text="${currentEmployee != null ? currentEmployee.cccd : 'Chưa cập nhật'}"></span></p>
+                </div>
+            </div>
+
+            <!-- Right col: Password -->
+            <div style="flex: 1; border-left: 1px solid #e5e7eb; padding-left: 24px;">
+                <h3 style="margin-top: 0; font-size: 16px; color: #111827;">Đổi mật khẩu</h3>
+                <div style="margin-top: 12px;">
+                    <label style="display: block; font-size: 13px; color: #4b5563; margin-bottom: 4px;">Mật khẩu mới</label>
+                    <input type="password" id="adminNewPassword" placeholder="Nhập mật khẩu mới" style="width: 100%; padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 4px; box-sizing: border-box; font-size: 14px; margin-bottom: 8px;">
+                    <button id="adminSavePasswordBtn" style="padding: 8px 16px; background: #111827; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 500; font-size: 14px; width: 100%;">Cập nhật ngay</button>
+                    <div id="adminPasswordMsg" style="margin-top: 8px; font-size: 13px; display: none;"></div>
+                </div>
+            </div>
+        </div>
+
+        <div style="margin-top: 24px; text-align: right; border-top: 1px solid #e5e7eb; padding-top: 16px;">
+            <button onclick="document.getElementById('adminProfileModal').style.display='none'" style="padding: 8px 16px; background: white; color: #374151; border: 1px solid #d1d5db; border-radius: 4px; cursor: pointer; font-weight: 500;">Đóng</button>
+        </div>
+    </div>
+</div>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const avatars = document.querySelectorAll('.adm-sidebar-user, .adm-header-user-box, .adm-sidebar-footer, .adm-header-avatar');
+        avatars.forEach(avatar => {
+            avatar.style.cursor = 'pointer';
+            avatar.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                document.getElementById('adminProfileModal').style.display = 'flex';
+                document.getElementById('adminNewPassword').value = '';
+                document.getElementById('adminPasswordMsg').style.display = 'none';
+            });
+        });
+        
+        const modal = document.getElementById('adminProfileModal');
+        if(modal) {
+            modal.addEventListener('click', function(e) {
+                if (e.target === modal) {
+                    modal.style.display = 'none';
+                }
+            });
+        }
+
+        const saveBtn = document.getElementById('adminSavePasswordBtn');
+        if (saveBtn) {
+            saveBtn.addEventListener('click', function() {
+                const newPwd = document.getElementById('adminNewPassword').value;
+                const msg = document.getElementById('adminPasswordMsg');
+                
+                if (!newPwd || newPwd.trim() === '') {
+                    msg.style.display = 'block';
+                    msg.style.color = '#dc2626';
+                    msg.innerText = 'Vui lòng nhập mật khẩu mới';
+                    return;
+                }
+
+                saveBtn.disabled = true;
+                saveBtn.innerText = 'Đang lưu...';
+
+                fetch('/api/staff/change-password', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ newPassword: newPwd })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    saveBtn.disabled = false;
+                    saveBtn.innerText = 'Cập nhật ngay';
+                    msg.style.display = 'block';
+                    if (data.success) {
+                        msg.style.color = '#16a34a';
+                        msg.innerText = 'Đổi mật khẩu thành công!';
+                        document.getElementById('adminNewPassword').value = '';
+                    } else {
+                        msg.style.color = '#dc2626';
+                        msg.innerText = data.message || 'Có lỗi xảy ra';
+                    }
+                })
+                .catch(err => {
+                    saveBtn.disabled = false;
+                    saveBtn.innerText = 'Cập nhật ngay';
+                    msg.style.display = 'block';
+                    msg.style.color = '#dc2626';
+                    msg.innerText = 'Lỗi kết nối mạng';
+                });
+            });
+        }
+    });
+</script>
+</body>
+
+</html>

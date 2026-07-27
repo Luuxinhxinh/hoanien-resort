@@ -1,1 +1,21 @@
-{"configurations":[{"type":"java","name":"Spring Boot - KawaiApplication","request":"launch","mainClass":"com.kawai.KawaiApplication","projectName":"kawai-backend","args":"","env":{},"cwd":"${workspaceFolder}/05-Development/kawai-backend","vmArgs":"-Djava.io.tmpdir=${workspaceFolder}/05-Development/kawai-backend/target","shortenCommandLine":"argfile"}]}
+{"configurations":[
+        {
+            "type": "java",
+            "name": "HoanienApplication",
+            "request": "launch",
+            "mainClass": "com.hoanien.HoanienApplication",
+            "projectName": ""
+        },
+        {
+            "type": "java",
+            "name": "Spring Boot - KawaiApplication",
+            "request": "launch",
+            "mainClass": "com.kawai.KawaiApplication",
+            "projectName": "kawai-backend",
+            "args": "",
+            "env": {},
+            "cwd": "${workspaceFolder}/05-Development/kawai-backend",
+            "vmArgs": "-Djava.io.tmpdir=${workspaceFolder}/05-Development/kawai-backend/target",
+            "shortenCommandLine": "argfile"
+        }
+    ]}

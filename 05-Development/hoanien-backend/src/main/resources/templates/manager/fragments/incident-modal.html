@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<body>
+    <th:block th:fragment="incident-modal">
+        <script>
+            document.addEventListener("DOMContentLoaded", function() {
+                // Prevent duplicate injection if already injected
+                if (document.getElementById('incidentModal')) return;
+
+                // --- INJECT NOTIFICATION ICON ---
+                const headerRight = document.querySelector('.mgr-header-right');
+                if (headerRight) {
+                    const emgBtn = document.createElement('button');
+                    emgBtn.className = 'mgr-header-icon-btn';
+                    emgBtn.style.position = 'relative';
+                    emgBtn.style.color = '#3B82F6';
+                    emgBtn.style.background = 'rgba(59, 130, 246, 0.12)';
+                    emgBtn.style.border = '1px solid rgba(59, 130, 246, 0.3)';
+                    emgBtn.style.borderRadius = '50%';
+                    emgBtn.style.width = '34px';
+                    emgBtn.style.height = '34px';
+                    emgBtn.style.display = 'flex';
+                    emgBtn.style.alignItems = 'center';
+                    emgBtn.style.justifyContent = 'center';
+                    emgBtn.style.cursor = 'pointer';
+                    emgBtn.style.transition = 'all 0.2s ease';
+                    emgBtn.innerHTML = `
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#3B82F6" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                            <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                        </svg>
+                        <span id="emg-notif-dot" class="mgr-notif-dot" style="position:absolute; top:2px; right:2px; width:9px; height:9px; background:#EF4444; border-radius:50%; border:1.5px solid #322720; display:none;"></span>
+                    `;
+                    emgBtn.title = "Thông báo từ Tourguide";
+                    emgBtn.onclick = openIncidentModal;
+                    headerRight.insertBefore(emgBtn, headerRight.firstChild);
+                }
+
+                // --- INJECT MODAL HTML ---
+                const modalHtml = `
+                <div id="incidentModal" class="mgr-modal" style="display:none; position:fixed; z-index:9999; left:0; top:0; width:100%; height:100%; background:rgba(0,0,0,0.5);">
+                    <div style="background:#fff; width:600px; margin: 10% auto; padding: 24px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px;">
+                            <h3 style="margin:0; font-size:20px; color:#1e293b; display:flex; align-items:center; gap:8px;">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3B82F6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                                    <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                                </svg>
+                                Thông báo từ Tourguide
+                            </h3>
+                            <button onclick="closeIncidentModal()" style="background:none; border:none; font-size:24px; cursor:pointer;">&times;</button>
+                        </div>
+                        <div id="incidentList" style="max-height: 400px; overflow-y: auto; display:flex; flex-direction:column; gap:12px;">
+                            <div style="text-align:center; padding: 20px; color:#64748b;">Đang tải...</div>
+                        </div>
+                    </div>
+                </div>
+                `;
+                document.body.insertAdjacentHTML('beforeend', modalHtml);
+
+                fetchIncidents();
+                setInterval(fetchIncidents, 30000); // refresh every 30s
+            });
+
+            function fetchIncidents() {
+                fetch('/api/tour-incidents/pending')
+                .then(res => {
+                    if (!res.ok) return null;
+                    return res.json();
+                })
+                .then(data => {
+                    if (data && data.success) {
+                        const list = data.data;
+                        const dot = document.getElementById('emg-notif-dot');
+                        if (dot) dot.style.display = list.length > 0 ? 'block' : 'none';
+                        
+                        const listContainer = document.getElementById('incidentList');
+                        if (listContainer) {
+                            if (list.length === 0) {
+                                listContainer.innerHTML = '<div style="text-align:center; padding: 20px; color:#64748b;">Không có thông báo nào mới.</div>';
+                            } else {
+                                listContainer.innerHTML = list.map(inc => `
+                                    <div style="border:1px solid #e2e8f0; border-radius:8px; padding:16px; background:#f8fafc;">
+                                        <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
+                                            <strong style="color:#0f172a;">${inc.staffName}</strong>
+                                            <span style="font-size:12px; color:#64748b;">${new Date(inc.createdAt).toLocaleString()}</span>
+                                        </div>
+                                        <p style="margin:0 0 12px 0; color:#334155; font-size:14px; white-space:pre-wrap;">${inc.description}</p>
+                                        <div style="text-align:right;">
+                                            <button onclick="resolveIncident(${inc.id})" style="background:#3B82F6; color:white; border:none; padding:6px 16px; border-radius:4px; font-weight:500; cursor:pointer; font-size:13px;">Đã xem & Xác nhận</button>
+                                        </div>
+                                    </div>
+                                `).join('');
+                            }
+                        }
+                    }
+                })
+                .catch(err => console.warn('Could not fetch incidents:', err));
+            }
+
+            function openIncidentModal() {
+                document.getElementById('incidentModal').style.display = 'block';
+                fetchIncidents();
+            }
+
+            function closeIncidentModal() {
+                document.getElementById('incidentModal').style.display = 'none';
+            }
+
+            function resolveIncident(id) {
+                if(!confirm('Xác nhận đã xem thông báo này?')) return;
+                fetch('/api/tour-incidents/' + id + '/resolve', { method: 'PUT' })
+                .then(res => {
+                    if (!res.ok) throw new Error('HTTP error ' + res.status);
+                    return res.json();
+                })
+                .then(data => {
+                    if (data && data.success) {
+                        fetchIncidents();
+                    } else {
+                        alert(data ? data.message : 'Lỗi xử lý');
+                    }
+                })
+                .catch(err => alert('Lỗi xử lý thông báo: ' + err.message));
+            }
+        </script>
+    </th:block>
+</body>
+</html>

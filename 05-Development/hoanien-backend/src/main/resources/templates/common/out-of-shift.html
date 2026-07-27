@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ngoài Ca Làm Việc - Hoanien Retreat</title>
+    <!-- CSS Dependencies -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-color: #12121a;
+            --surface: #1e1e2e;
+            --surface-hover: #2a2a3c;
+            --border: #3f3f5a;
+            --text-main: #e2e2f0;
+            --text-muted: #a0a0c0;
+            --primary: #6366f1;
+            --danger: #ff6b6b;
+            --danger-bg: rgba(255, 107, 107, 0.1);
+            --radius-lg: 16px;
+            --radius-md: 12px;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 500px;
+            background-color: var(--surface);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border);
+            padding: 40px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            text-align: center;
+        }
+
+        .icon-wrapper {
+            width: 80px;
+            height: 80px;
+            background-color: var(--danger-bg);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 24px;
+        }
+
+        .icon-wrapper i {
+            font-size: 36px;
+            color: var(--danger);
+        }
+
+        h1 {
+            margin: 0 0 12px;
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--danger);
+        }
+
+        p.desc {
+            margin: 0 0 32px;
+            color: var(--text-muted);
+            line-height: 1.6;
+        }
+
+        .schedule-box {
+            background-color: rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 20px;
+            margin-bottom: 32px;
+            text-align: left;
+        }
+
+        .schedule-title {
+            font-size: 14px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .schedule-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            max-height: 250px;
+            overflow-y: auto;
+        }
+
+        .schedule-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 12px;
+            border-bottom: 1px dashed var(--border);
+        }
+
+        .schedule-item:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
+        .schedule-date {
+            font-weight: 600;
+            color: var(--text-main);
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .schedule-name {
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        .schedule-time {
+            font-weight: 600;
+            color: var(--primary);
+            background: rgba(99, 102, 241, 0.1);
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .btn-logout {
+            display: inline-block;
+            background-color: var(--primary);
+            color: white;
+            text-decoration: none;
+            padding: 12px 24px;
+            border-radius: var(--radius-md);
+            font-weight: 600;
+            transition: all 0.2s ease;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .btn-logout:hover {
+            background-color: #4f46e5;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+        }
+        
+        .empty-state {
+            text-align: center;
+            color: var(--text-muted);
+            font-style: italic;
+            padding: 10px 0;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="icon-wrapper">
+            <i class="fa-solid fa-lock"></i>
+        </div>
+        <h1>Hệ Thống Đã Khoá</h1>
+        <p class="desc">Bạn đang truy cập ngoài khung giờ làm việc được phân công. Vui lòng quay lại trong ca trực của bạn để tiếp tục sử dụng hệ thống.</p>
+
+        <div class="schedule-box">
+            <div class="schedule-title">
+                <i class="fa-regular fa-calendar-check"></i>
+                Lịch trực sắp tới của bạn
+            </div>
+            
+            <div th:if="${schedules == null || schedules.isEmpty()}" class="empty-state">
+                Bạn chưa có lịch trực nào được phân công.
+            </div>
+            
+            <ul class="schedule-list" th:if="${schedules != null && !schedules.isEmpty()}">
+                <li class="schedule-item" th:each="schedule : ${schedules}">
+                    <div>
+                        <span class="schedule-date" th:text="${#temporals.format(schedule.workDate, 'dd/MM/yyyy')}">22/07/2026</span>
+                        <span class="schedule-name" th:text="${schedule.shift.shiftName}">Ca Sáng</span>
+                    </div>
+                    <div class="schedule-time" th:text="${schedule.shift.startTime + ' - ' + schedule.shift.endTime}">
+                        06:00 - 14:00
+                    </div>
+                </li>
+            </ul>
+        </div>
+
+        <a href="/logout" class="btn-logout">Đăng Xuất</a>
+    </div>
+</body>
+
+</html>

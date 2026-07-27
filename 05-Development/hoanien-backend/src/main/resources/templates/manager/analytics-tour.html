@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tỷ lệ tour — Hoanien Manager Portal</title>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+    <link rel="stylesheet" th:href="@{/manager/css/dashboard.css}" href="../../static/manager/css/dashboard.css" />
+</head>
+
+<body>
+    <th:block th:replace="~{manager/fragments/sidebar :: sidebar(activeItem='analytics-tour')}"></th:block>
+
+    <div class="mgr-main">
+        <main class="mgr-page">
+            <div>
+                <p class="mgr-page-eyebrow">Biểu đồ Phân tích</p>
+                <h1 class="mgr-page-title">Tỷ lệ tour</h1>
+            </div>
+
+            <div class="mgr-kpi-grid">
+                <div class="mgr-kpi-card">
+                    <div class="mgr-kpi-top"><span class="mgr-kpi-label">Tổng lượt đặt</span>
+                        <div class="mgr-kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path d="M3 11l19-9-9 19-2-8-8-2z" />
+                            </svg></div>
+                    </div>
+                    <div class="mgr-kpi-bottom"><span class="mgr-kpi-value" th:text="${totalBookings}">127</span><span
+                            class="mgr-kpi-note">Tháng hiện tại</span></div>
+                </div>
+                <div class="mgr-kpi-card">
+                    <div class="mgr-kpi-top"><span class="mgr-kpi-label">Doanh thu tour</span>
+                        <div class="mgr-kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <line x1="12" x2="12" y1="2" y2="22" />
+                                <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+                            </svg></div>
+                    </div>
+                    <div class="mgr-kpi-bottom"><span class="mgr-kpi-value" th:text="${totalRevenue}">231M</span><span
+                            class="mgr-kpi-note">Tháng 6/2026</span></div>
+                </div>
+                <div class="mgr-kpi-card">
+                    <div class="mgr-kpi-top"><span class="mgr-kpi-label">Giá vé TB</span>
+                        <div class="mgr-kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path
+                                    d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z" />
+                                <path d="M13 5v2" />
+                                <path d="M13 17v2" />
+                                <path d="M13 11v2" />
+                            </svg></div>
+                    </div>
+                    <div class="mgr-kpi-bottom"><span class="mgr-kpi-value" th:text="${avgTicket}">481K</span><span
+                            class="mgr-kpi-note">VNĐ / lượt</span></div>
+                </div>
+                <div class="mgr-kpi-card">
+                    <div class="mgr-kpi-top"><span class="mgr-kpi-label">Số loại tour</span>
+                        <div class="mgr-kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path d="M3 3v18h18" />
+                                <path d="M18.7 8 13 13.7 8.7 9.4l-5 5" />
+                            </svg></div>
+                    </div>
+                    <div class="mgr-kpi-bottom"><span class="mgr-kpi-value">4</span><span class="mgr-kpi-note">Loại tour
+                            đang hoạt động</span></div>
+                </div>
+            </div>
+
+            <div class="mgr-chart-row mgr-chart-row-62">
+                <div class="mgr-chart-card">
+                    <div class="mgr-chart-header">
+                        <div>
+                            <div class="mgr-chart-title">Lượt đặt theo tour</div>
+                            <div class="mgr-chart-subtitle">Tháng hiện tại</div>
+                        </div>
+                    </div>
+                    <div class="mgr-progress-list" style="margin-top:8px">
+                        <div th:each="row : ${rows}" class="mgr-progress-row">
+                            <div class="mgr-progress-top">
+                                <span class="mgr-progress-name" th:text="${row.name}">Du thuyền hoàng hôn</span>
+                                <span class="mgr-progress-val" th:text="${row.bookings}+' lượt'">43 lượt</span>
+                            </div>
+                            <div class="mgr-progress-bar">
+                                <div class="mgr-progress-fill" th:style="'width:'+${row.barPct}+'%;background:#6B8C9A'">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="mgr-chart-card">
+                    <div class="mgr-chart-header">
+                        <div>
+                            <div class="mgr-chart-title">Phân bổ lượt đặt</div>
+                        </div>
+                    </div>
+                    <div class="mgr-donut-wrap" style="height:240px; margin-top: 16px;">
+                        <canvas id="chart-tour-donut" style="width: 240px !important; height: 240px !important;"></canvas>
+                        <div class="mgr-donut-center">
+                            <div class="mgr-donut-center-value" th:text="${totalBookings}">127</div>
+                            <div class="mgr-donut-center-label">Tổng lượt</div>
+                        </div>
+                    </div>
+                    
+                    <div class="mgr-donut-legend" style="margin-top: 30px; display: flex; flex-direction: column; gap: 12px; height: 180px; overflow-y: auto; padding-right: 8px;">
+                        <div class="mgr-donut-legend-row" th:each="row, iterStat : ${rows}">
+                            <div class="mgr-donut-legend-dot" th:with="colors=${ {'#C9A96E','#7A9C7A','#6B8C9A','#A89060','#D17C6B','#9B8B6B','#5A7D7C','#B59B7D','#6A8F70','#8D7E61','#4A6B80','#D49E7C'} }" th:style="'background:' + ${colors[iterStat.index % 12]}"></div>
+                            <span class="mgr-donut-legend-name" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" th:title="${row.name}" th:text="${row.name}">Tour name</span>
+                            <span class="mgr-donut-legend-val" th:text="${row.bookings}">43</span>
+                            <span class="mgr-donut-legend-pct" th:text="${totalBookings > 0 ? #numbers.formatDecimal(row.bookings * 100.0 / totalBookings, 0, 0) : 0} + '%'">68%</span>
+                        </div>
+                    </div>
+                    <script th:inline="javascript">
+                        window.tourDonutData = {
+                            labels: /*[[${rows.![name]}]]*/["Du thuyền hoàng hôn", "Thăm bản Hmông", "Đi bộ rừng", "Kayak thác nước"],
+                            values: /*[[${rows.![bookings]}]]*/[43, 38, 29, 17]
+                        };
+                    </script>
+                </div>
+            </div>
+
+            <div class="mgr-section-card">
+                <div class="mgr-section-title" style="margin-bottom:16px">Chi tiết từng tour</div>
+                <table class="mgr-table">
+                    <thead>
+                        <tr>
+                            <th>Tên tour</th>
+                            <th>Danh mục</th>
+                            <th>Lượt đặt</th>
+                            <th>Giá vé</th>
+                            <th>Doanh thu</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="row : ${rows}">
+                            <td th:text="${row.name}">Du thuyền hoàng hôn</td>
+                            <td th:text="${row.category}">Du thuyền sông</td>
+                            <td th:text="${row.bookings}">43</td>
+                            <td th:text="${row.price}">450K</td>
+                            <td class="total-col" th:text="${row.revenue}">19.35M</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+    <script th:src="@{/manager/js/analytics-tour.js}" src="../../static/manager/js/analytics-tour.js"></script>
+    <th:block th:replace="~{manager/fragments/incident-modal :: incident-modal}"></th:block>
+
+<!-- MANAGER PROFILE MODAL -->
+<div id="managerProfileModal" class="modal-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999; justify-content: center; align-items: center;">
+    <div class="modal-content" style="background: white; padding: 24px; border-radius: 8px; width: 600px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); font-family: 'Inter', sans-serif;">
+        <h2 style="margin-top: 0; border-bottom: 1px solid #e5e7eb; padding-bottom: 12px; color: #111827; font-size: 1.25rem; font-weight: 600;">Hồ sơ Cá nhân</h2>
+        
+        <div style="display: flex; gap: 24px; margin-top: 16px;">
+            <!-- Left col: Info -->
+            <div style="flex: 1;">
+                <div style="display: flex; align-items: center; margin-bottom: 16px;">
+                    <div class="mgr-sidebar-avatar" style="width: 64px; height: 64px; border-radius: 50%; background: #4f46e5; color: white; display: flex; align-items: center; justify-content: center; font-size: 24px; margin-right: 16px; font-weight: bold;" th:text="${staffName != null && staffName.length() >= 2 ? staffName.substring(0, 2).toUpperCase() : 'NV'}">NV</div>
+                    <div>
+                        <h3 style="margin: 0; font-size: 18px; color: #111827;" th:text="${staffName != null ? staffName : 'Nhân viên'}">Nhân viên</h3>
+                        <p style="margin: 4px 0 0 0; color: #6b7280; font-size: 14px;" th:text="${staffRole != null ? staffRole : 'Quản lý'}">Quản lý</p>
+                    </div>
+                </div>
+                <div style="font-size: 14px; line-height: 1.6; color: #374151;">
+                    <p style="margin: 4px 0;"><strong>Email:</strong> <span th:text="${currentEmployee != null ? currentEmployee.email : 'Chưa cập nhật'}"></span></p>
+                    <p style="margin: 4px 0;"><strong>SĐT:</strong> <span th:text="${currentEmployee != null ? currentEmployee.phone : 'Chưa cập nhật'}"></span></p>
+                    <p style="margin: 4px 0;"><strong>Giới tính:</strong> <span th:text="${currentEmployee != null ? currentEmployee.gender : 'Chưa cập nhật'}"></span></p>
+                    <p style="margin: 4px 0;"><strong>CCCD:</strong> <span th:text="${currentEmployee != null ? currentEmployee.cccd : 'Chưa cập nhật'}"></span></p>
+                </div>
+            </div>
+
+            <!-- Right col: Password -->
+            <div style="flex: 1; border-left: 1px solid #e5e7eb; padding-left: 24px;">
+                <h3 style="margin-top: 0; font-size: 16px; color: #111827;">Đổi mật khẩu</h3>
+                <div style="margin-top: 12px;">
+                    <label style="display: block; font-size: 13px; color: #4b5563; margin-bottom: 4px;">Mật khẩu mới</label>
+                    <input type="password" id="managerNewPassword" placeholder="Nhập mật khẩu mới" style="width: 100%; padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 4px; box-sizing: border-box; font-size: 14px; margin-bottom: 8px;">
+                    <button id="managerSavePasswordBtn" style="padding: 8px 16px; background: #4f46e5; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 500; font-size: 14px; width: 100%;">Cập nhật ngay</button>
+                    <div id="managerPasswordMsg" style="margin-top: 8px; font-size: 13px; display: none;"></div>
+                </div>
+            </div>
+        </div>
+
+        <div style="margin-top: 24px; text-align: right; border-top: 1px solid #e5e7eb; padding-top: 16px;">
+            <button onclick="document.getElementById('managerProfileModal').style.display='none'" style="padding: 8px 16px; background: white; color: #374151; border: 1px solid #d1d5db; border-radius: 4px; cursor: pointer; font-weight: 500;">Đóng</button>
+        </div>
+    </div>
+</div>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const avatars = document.querySelectorAll('.mgr-sidebar-user, .mgr-header-user, .mgr-header-user-box, .mgr-sidebar-footer, .mgr-header-avatar');
+        avatars.forEach(avatar => {
+            avatar.style.cursor = 'pointer';
+            avatar.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                document.getElementById('managerProfileModal').style.display = 'flex';
+                document.getElementById('managerNewPassword').value = '';
+                document.getElementById('managerPasswordMsg').style.display = 'none';
+            });
+        });
+        
+        const modal = document.getElementById('managerProfileModal');
+        if(modal) {
+            modal.addEventListener('click', function(e) {
+                if (e.target === modal) {
+                    modal.style.display = 'none';
+                }
+            });
+        }
+
+        const saveBtn = document.getElementById('managerSavePasswordBtn');
+        if (saveBtn) {
+            saveBtn.addEventListener('click', function() {
+                const newPwd = document.getElementById('managerNewPassword').value;
+                const msg = document.getElementById('managerPasswordMsg');
+                
+                if (!newPwd || newPwd.trim() === '') {
+                    msg.style.display = 'block';
+                    msg.style.color = '#dc2626';
+                    msg.innerText = 'Vui lòng nhập mật khẩu mới';
+                    return;
+                }
+
+                saveBtn.disabled = true;
+                saveBtn.innerText = 'Đang lưu...';
+
+                fetch('/api/staff/change-password', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ newPassword: newPwd })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    saveBtn.disabled = false;
+                    saveBtn.innerText = 'Cập nhật ngay';
+                    msg.style.display = 'block';
+                    if (data.success) {
+                        msg.style.color = '#16a34a';
+                        msg.innerText = 'Đổi mật khẩu thành công!';
+                        document.getElementById('managerNewPassword').value = '';
+                    } else {
+                        msg.style.color = '#dc2626';
+                        msg.innerText = data.message || 'Có lỗi xảy ra';
+                    }
+                })
+                .catch(err => {
+                    saveBtn.disabled = false;
+                    saveBtn.innerText = 'Cập nhật ngay';
+                    msg.style.display = 'block';
+                    msg.style.color = '#dc2626';
+                    msg.innerText = 'Lỗi kết nối mạng';
+                });
+            });
+        }
+    });
+</script>
+</body>
+
+
+</html>

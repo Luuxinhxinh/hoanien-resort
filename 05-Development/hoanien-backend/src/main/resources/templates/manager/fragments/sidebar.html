@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<body>
+    <th:block th:fragment="sidebar(activeItem)">
+        <aside class="mgr-sidebar">
+            <div style="display: flex; align-items: center; gap: 24px;">
+                <div class="mgr-sidebar-logo">
+                    <div class="mgr-logo-brand">
+                        <span class="mgr-logo-label">HOA NIEN RETREAT</span>
+                    </div>
+                    <h1 class="mgr-portal-title">Manager</h1>
+                </div>
+                <nav class="mgr-nav">
+                    <!-- Tổng quan -->
+                    <div class="mgr-nav-item">
+                        <a href="/manager/dashboard" class="mgr-nav-link" th:classappend="${activeItem == 'dashboard' ? 'active' : ''}">
+                            <i data-lucide="layout-dashboard" class="mgr-nav-icon"></i>
+                            <span>Tổng quan</span>
+                        </a>
+                    </div>
+                    <!-- Lịch trực Nhân sự -->
+                    <div class="mgr-nav-item">
+                        <a href="/manager/schedules" class="mgr-nav-link" th:classappend="${activeItem == 'schedules' ? 'active' : ''}">
+                            <i data-lucide="calendar-days" class="mgr-nav-icon"></i>
+                            <span>Lịch trực Nhân sự</span>
+                        </a>
+                    </div>
+                    <!-- Hoàn tiền -->
+                    <div class="mgr-nav-item">
+                        <a href="/manager/refunds" class="mgr-nav-link" th:classappend="${activeItem == 'refunds' ? 'active' : ''}">
+                            <i data-lucide="credit-card" class="mgr-nav-icon"></i>
+                            <span>Hoàn tiền</span>
+                        </a>
+                    </div>
+
+                    <!-- Báo cáo Doanh thu -->
+                    <div class="mgr-nav-item">
+                        <a href="/manager/revenue" class="mgr-nav-link" th:classappend="${activeItem == 'revenue' ? 'active' : ''}">
+                            <i data-lucide="calendar" class="mgr-nav-icon"></i>
+                            <span>Báo cáo Doanh thu</span>
+                        </a>
+                    </div>
+                    <!-- Biểu đồ Phân tích -->
+                    <div class="mgr-nav-item" style="position: relative;">
+                        <button class="mgr-nav-link" th:classappend="${activeItem != null and activeItem.startsWith('analytics') ? 'active' : ''}" style="background: none; border: none; font-family: inherit; font-size: inherit; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                            <i data-lucide="bar-chart-3" class="mgr-nav-icon"></i>
+                            <span>Biểu đồ Phân tích</span>
+                            <i data-lucide="chevron-down" class="mgr-nav-arrow" style="width: 12px; height: 12px; margin-left: 2px;"></i>
+                        </button>
+                        <div class="mgr-submenu" th:classappend="${activeItem != null and activeItem.startsWith('analytics') ? 'open' : ''}">
+                            <a href="/manager/analytics/room" class="mgr-submenu-link" th:classappend="${activeItem == 'analytics-room' ? 'active' : ''}">
+                                <i data-lucide="bed-double" style="width: 13px; height: 13px;"></i> Hiệu suất phòng
+                            </a>
+                            <a href="/manager/analytics/tour" class="mgr-submenu-link" th:classappend="${activeItem == 'analytics-tour' ? 'active' : ''}">
+                                <i data-lucide="compass" style="width: 13px; height: 13px;"></i> Tỷ lệ tour
+                            </a>
+                            <a href="/manager/analytics/food" class="mgr-submenu-link" th:classappend="${activeItem == 'analytics-food' ? 'active' : ''}">
+                                <i data-lucide="utensils" style="width: 13px; height: 13px;"></i> Tỷ lệ các món ăn
+                            </a>
+                        </div>
+                    </div>
+                    <!-- Xuất báo cáo -->
+                    <div class="mgr-nav-item">
+                        <a href="/manager/export" class="mgr-nav-link" th:classappend="${activeItem == 'export' ? 'active' : ''}">
+                            <i data-lucide="download" class="mgr-nav-icon"></i>
+                            <span>Xuất báo cáo</span>
+                        </a>
+                    </div>
+                </nav>
+            </div>
+
+            <!-- Header Right Controls -->
+            <div class="mgr-header-right" style="display: flex; align-items: center; gap: 14px;">
+                <!-- Notification Bell Icon (Replaced red $) -->
+                <button class="mgr-header-icon-btn" title="Thông báo hệ thống" style="position:relative; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.18); color: #F5E6D3; border-radius: 50%; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: background 0.15s;">
+                    <i data-lucide="bell" style="width: 16px; height: 16px; color: #F5E6D3;"></i>
+                    <span class="mgr-notif-dot" style="position: absolute; top: 4px; right: 4px; width: 8px; height: 8px; background: #EF4444; border-radius: 50%; border: 1.5px solid #322720;"></span>
+                </button>
+
+                <!-- User Profile Badge -->
+                <div class="mgr-header-user-box" onclick="if(document.getElementById('managerProfileModal')) { document.getElementById('managerProfileModal').style.display='flex'; } else { window.location.href='/profile'; }" style="display: flex; align-items: center; gap: 8px; background: rgba(255, 255, 255, 0.12); padding: 4px 12px 4px 5px; border-radius: 20px; color: #F5E6D3; border: 1px solid rgba(255, 255, 255, 0.2); cursor: pointer;">
+                    <div class="mgr-header-avatar" style="width: 28px; height: 28px; border-radius: 50%; background: #4F3D33; color: #F5E6D3; font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; border: 1px solid #735C4D;">MG</div>
+                    <span class="mgr-header-username" style="font-size: 13px; color: #F5E6D3; font-weight: 600;">Manager</span>
+                </div>
+
+                <div class="mgr-divider-v" style="width: 1px; height: 18px; background: rgba(255, 255, 255, 0.2);"></div>
+
+                <!-- Logout -->
+                <a href="/logout" class="mgr-header-logout" style="display: flex; align-items: center; gap: 6px; color: #F5E6D3; text-decoration: none; font-size: 13px; font-weight: 500; padding: 6px 12px; border-radius: 6px; border: 1px solid rgba(255, 255, 255, 0.2); transition: all 0.2s;">
+                    <i data-lucide="log-out" style="width: 14px; height: 14px;"></i>
+                    <span>Đăng xuất</span>
+                </a>
+            </div>
+        </aside>
+        
+        <script src="https://unpkg.com/lucide@latest"></script>
+        <script>
+            document.addEventListener("DOMContentLoaded", function() {
+                if (typeof lucide !== 'undefined') {
+                    lucide.createIcons();
+                }
+            });
+        </script>
+    </th:block>
+</body>
+</html>

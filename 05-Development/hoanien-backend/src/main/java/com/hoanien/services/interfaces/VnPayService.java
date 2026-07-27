@@ -1,0 +1,13 @@
+package com.hoanien.services.interfaces;
+
+import java.util.Map;
+import com.hoanien.models.PaymentTransaction;
+
+public interface VnPayService {
+    String createPaymentUrl(Long bookingId, String ipAddress);
+    String createPaymentUrlForWalkIn(Long bookingId, String ipAddress);
+    String createPaymentUrlForFoodOrder(Long orderId, String ipAddress, String source);
+    String createPaymentUrlFromTransaction(PaymentTransaction txn, String ipAddress);
+    String createPaymentUrlForTourBooking(Long tourBookingId, java.math.BigDecimal amount, String paymentType, String ipAddress);
+    Map<String, String> verifyIpn(Map<String, String> queryParams);
+}

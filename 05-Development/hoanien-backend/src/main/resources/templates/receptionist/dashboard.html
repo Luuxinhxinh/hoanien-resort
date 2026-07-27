@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Receptionist Dashboard - Hoanien Retreat</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    <link rel="stylesheet" href="/receptionist/css/dashboard.css">
+    <style>
+        .room-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 16px;
+            max-height: 142px;
+            /* Height of exactly one card row */
+            overflow: hidden;
+            transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Removed .room-grid.expanded max-height hack */
+        .urgent-clean-btn.btn-occupied {
+            background: #ffffff;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .urgent-clean-btn.btn-occupied:hover {
+            background: #f3f4f6;
+        }
+
+        .urgent-clean-btn.btn-dirty {
+            background: rgba(220, 38, 38, 0.1);
+        }
+
+        .urgent-clean-btn.btn-dirty:hover {
+            background: rgba(220, 38, 38, 0.2);
+        }
+
+        /* Modal Style for Urgent Maintenance */
+        .maintenance-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            backdrop-filter: blur(4px);
+        }
+
+        .maintenance-modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .maintenance-modal-content {
+            background: #ffffff;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 450px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+            padding: 24px;
+            transform: translateY(20px);
+            transition: transform 0.3s ease;
+        }
+
+        .maintenance-modal-overlay.active .maintenance-modal-content {
+            transform: translateY(0);
+        }
+
+        .maintenance-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .maintenance-modal-header h3 {
+            margin: 0;
+            color: #2c2a29;
+            font-size: 16px;
+            font-weight: 700;
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .maintenance-modal-header .close-btn {
+            background: none;
+            border: none;
+            font-size: 18px;
+            cursor: pointer;
+            color: #9e9e9e;
+            transition: color 0.2s;
+        }
+
+        .maintenance-modal-header .close-btn:hover {
+            color: #2c2a29;
+        }
+
+        .maintenance-form-group {
+            margin-bottom: 20px;
+        }
+
+        .maintenance-form-group label {
+            display: block;
+            margin-bottom: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #5a554f;
+        }
+
+        .maintenance-form-group input,
+        .maintenance-form-group textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #e6ded4;
+            border-radius: 8px;
+            font-size: 13px;
+            outline: none;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .maintenance-form-group input:focus,
+        .maintenance-form-group textarea:focus {
+            border-color: #d35400;
+        }
+
+        .maintenance-modal-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .maintenance-modal-actions button {
+            flex: 1;
+            padding: 10px 16px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 13px;
+            font-family: 'Inter', sans-serif;
+            cursor: pointer;
+            border: none;
+            transition: opacity 0.2s;
+        }
+
+        .maintenance-modal-actions .btn-cancel {
+            background: #f8f9fa;
+            color: #5a554f;
+            border: 1px solid #e6ded4;
+        }
+
+        .maintenance-modal-actions .btn-submit {
+            background: #d35400;
+            color: white;
+        }
+
+        .maintenance-modal-actions button:hover {
+            opacity: 0.9;
+        }
+    </style>
+
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <div class="brand-logo">◆</div>
+                <div class="brand-text">
+                    <h1 class="brand-title">Hoanien Retreat</h1>
+                    <p class="brand-subtitle">Resort & Hub</p>
+                </div>
+            </div>
+
+            <div class="sidebar-section-title">RECEPTIONIST</div>
+
+            <nav class="sidebar-nav">
+                <a href="/receptionist/dashboard" class="nav-item active"
+                    sec:authorize="hasAnyAuthority('OP_DASHBOARD', 'ROLE_ADMIN', 'ROLE_MANAGER')">
+                    <i class="fa-solid fa-border-all"></i>
+                    <div class="nav-text">
+                        <span class="nav-main-text">Room Matrix</span>
+                        <span class="nav-sub-text">Sơ đồ phòng</span>
+                    </div>
+
+                </a>
+
+                <a href="/receptionist/walk-in" class="nav-item"
+                    sec:authorize="hasAnyAuthority('OP_RECEPTION_WALKIN', 'OP_BOOKING', 'ROLE_ADMIN', 'ROLE_MANAGER')">
+                    <i class="fa-solid fa-person-walking-luggage"></i>
+                    <div class="nav-text">
+                        <span class="nav-main-text">Walk-In</span>
+                        <span class="nav-sub-text">Khách vãng lai</span>
+                    </div>
+                </a>
+                <a href="/receptionist/check-in" class="nav-item"
+                    sec:authorize="hasAnyAuthority('OP_RECEPTION_CHECKIN', 'OP_BOOKING', 'ROLE_ADMIN', 'ROLE_MANAGER')">
+                    <i class="fa-solid fa-arrow-right-to-bracket"></i>
+                    <div class="nav-text">
+                        <span class="nav-main-text">Check-in</span>
+                        <span class="nav-sub-text">Nhận phòng</span>
+                    </div>
+                </a>
+                <a href="/receptionist/folio" class="nav-item"
+                    sec:authorize="hasAnyAuthority('OP_RECEPTION_CHECKOUT', 'OP_BOOKING', 'ROLE_ADMIN', 'ROLE_MANAGER')">
+                    <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                    <div class="nav-text">
+                        <span class="nav-main-text">Check-out / Folio</span>
+                        <span class="nav-sub-text">Trả phòng &amp; Hóa đơn</span>
+                    </div>
+                </a>
+                <a href="/receptionist/in-house" class="nav-item"
+                    sec:authorize="hasAnyAuthority('OP_RECEPTION_INHOUSE', 'OP_BOOKING', 'ROLE_ADMIN', 'ROLE_MANAGER')">
+                    <i class="fa-solid fa-bed"></i>
+                    <div class="nav-text">
+                        <span class="nav-main-text">Khách lưu trú</span>
+                        <span class="nav-sub-text">Quản lý khách in-house</span>
+                    </div>
+                </a>
+                <!--
+                <a href="/receptionist/night-audit" class="nav-item">
+                    <i class="fa-solid fa-moon"></i>
+                    <div class="nav-text">
+                        <span class="nav-main-text">Night Audit</span>
+                        <span class="nav-sub-text">Giao ca & Báo cáo</span>
+                    </div>
+                </a>
+                -->
+            </nav>
+
+            <!-- Module Switcher for RBAC cross-navigation -->
+            <div class="module-switcher" sec:authorize="hasAuthority('ROLE_ADMIN')" style="padding: 0 24px 20px 24px;">
+                <select onchange="if(this.value) window.location.href=this.value"
+                    style="width: 100%; padding: 8px; border-radius: 6px; background: rgba(255,255,255,0.05); color: #c9a96e; border: 1px solid rgba(255,255,255,0.1); font-size: 13px; font-weight: 500; outline: none; cursor: pointer; font-family: 'Inter', sans-serif;">
+                    <option value="" disabled selected>-- Chuyển phân hệ --</option>
+                    <option
+                        sec:authorize="hasAnyAuthority('ROLE_ADMIN', 'ROLE_MANAGER', 'MASTER_DATA', 'OP_MASTER_DATA')"
+                        value="/admin/dashboard">Core Operations (Admin)</option>
+                    <option
+                        sec:authorize="hasAnyAuthority('ROLE_ADMIN', 'ROLE_MANAGER', 'ROLE_RECEPTIONIST', 'BOOKING', 'RECEPTION_CHECKIN')"
+                        value="/receptionist/dashboard">Receptionist (Lễ tân)</option>
+                    <option
+                        sec:authorize="hasAnyAuthority('ROLE_ADMIN', 'ROLE_MANAGER', 'ROLE_FB_STAFF', 'FNB', 'FNB_ORDER')"
+                        value="/fbStaff/dashboard">F&B POS (Nhà hàng)</option>
+                    <option sec:authorize="hasAnyAuthority('ROLE_ADMIN', 'ROLE_MANAGER', 'ROLE_TOURGUIDE', 'OP_TOUR')"
+                        value="/tourguide/tour">Tour Guide (Điểm danh Tour)</option>
+                </select>
+            </div>
+
+            <div class="sidebar-user">
+                <div class="user-avatar"
+                    th:text="${staffName != null && staffName.length() >= 2 ? staffName.substring(0, 2).toUpperCase() : 'NV'}">
+                    NV</div>
+                <div class="user-info">
+                    <div class="user-name" th:text="${staffName != null ? staffName : 'Nhân viên'}">
+                        Nhân viên</div>
+                    <div class="user-role" th:text="${staffRole != null ? staffRole : 'Receptionist'}">
+                        Receptionist</div>
+                </div>
+                <div class="user-status"></div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="top-header">
+                <div class="header-datetime">
+                    <div class="date" id="currentDate" th:text="${todayLabel}">Wednesday, June 10, 2026</div>
+                </div>
+
+                <div class="header-actions">
+                    <button class="user-profile-btn">
+                        <i class="fa-solid fa-user"></i>
+                        <span>Receptionist</span>
+                    </button>
+
+                    <button class="logout-btn" onclick="window.location.href='/auth/logout'">
+                        <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                        <span>Logout</span>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Dashboard Content -->
+            <div class="dashboard-scroll-area">
+
+                <!-- Stat Cards -->
+                <div class="stat-cards-container">
+                    <div class="stat-card">
+                        <div class="stat-card-header">
+                            <span class="stat-title">Occupancy Rate</span>
+                            <div class="stat-icon-wrapper bg-purple-light">
+                                <i class="fa-solid fa-arrow-trend-up text-purple"></i>
+                            </div>
+                        </div>
+                        <div class="stat-value"
+                            th:text="${totalRooms > 0 ? (occupiedRooms * 100 / totalRooms) + '%' : '0%'}">38%</div>
+                        <div class="stat-subtitle" th:text="${occupiedRooms} + ' / ' + ${totalRooms} + ' rooms'">9/24
+                            rooms</div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-card-header">
+                            <span class="stat-title">Checking In Today</span>
+                            <div class="stat-icon-wrapper bg-green-light">
+                                <i class="fa-solid fa-arrow-right-to-bracket text-green"></i>
+                            </div>
+                        </div>
+                        <div class="stat-value" th:text="${pendingCheckIns}">5</div>
+                        <div class="stat-subtitle">Arrivals scheduled</div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-card-header">
+                            <span class="stat-title">Checking Out Today</span>
+                            <div class="stat-icon-wrapper bg-orange-light">
+                                <i class="fa-solid fa-arrow-right-from-bracket text-orange"></i>
+                            </div>
+                        </div>
+                        <div class="stat-value" th:text="${checkoutsToday}">3</div>
+                        <div class="stat-subtitle">Departures today</div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-card-header">
+                            <span class="stat-title">Dirty Rooms</span>
+                            <div class="stat-icon-wrapper bg-red-light">
+                                <i class="fa-solid fa-wand-magic-sparkles text-red"></i>
+                            </div>
+                        </div>
+                        <div class="stat-value" th:text="${dirtyRooms}">4</div>
+                        <div class="stat-subtitle">Awaiting housekeeping</div>
+                    </div>
+                </div>
+
+
+                <!-- Shared Room Matrix Section -->
+                <div th:replace="fragments/shared-room-matrix :: roomMatrix"></div>
+            </div>
+        </main>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="/receptionist/js/dashboard.js"></script>
+    <script src="/receptionist/js/room-alert.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+
+    <!-- WebSocket integration for real-time task notifications -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.5.1/sockjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+    <script th:inline="javascript">
+        (function () {
+            var staffId = /*[[${staffId}]]*/ 0;
+
+            function showPersistentToast(notif) {
+                if (typeof Toastify === 'undefined') return;
+                Toastify({
+                    text: notif.text,
+                    duration: notif.direct ? -1 : 4000,
+                    close: true,
+                    gravity: "top",
+                    position: "right",
+                    style: notif.direct ? {
+                        background: "linear-gradient(to right, #FF416C, #FF4B2B)",
+                        fontSize: "14px",
+                        fontWeight: "600",
+                        fontFamily: "'Inter', sans-serif",
+                        borderRadius: "8px",
+                        boxShadow: "0 4px 15px rgba(255,65,108,0.4)"
+                    } : {
+                        background: "linear-gradient(to right, #00b09b, #96c93d)",
+                        fontSize: "14px",
+                        fontWeight: "600",
+                        fontFamily: "'Inter', sans-serif",
+                        borderRadius: "8px"
+                    },
+                    callback: function () {
+                        var saved = JSON.parse(localStorage.getItem('kawai_notifs') || '[]');
+                        saved = saved.filter(function (n) { return n.id !== notif.id; });
+                        localStorage.setItem('kawai_notifs', JSON.stringify(saved));
+                    }
+                }).showToast();
+            }
+
+            try {
+                var pending = JSON.parse(localStorage.getItem('kawai_notifs') || '[]');
+                pending = pending.filter(function (n) {
+                    var t = n.text || '';
+                    return !t.includes('khẩn cấp') && !t.includes('Yêu cầu dọn') && !t.includes('Yêu cầu sửa');
+                });
+                localStorage.setItem('kawai_notifs', JSON.stringify(pending));
+                pending.forEach(function (n) { showPersistentToast(n); });
+            } catch (e) { }
+
+            function saveAndShow(text, direct) {
+                var notif = { id: Date.now() + '_' + Math.random(), text: text, direct: direct };
+                if (direct) {
+                    try {
+                        var saved = JSON.parse(localStorage.getItem('kawai_notifs') || '[]');
+                        saved.push(notif);
+                        localStorage.setItem('kawai_notifs', JSON.stringify(saved));
+                    } catch (e) { }
+                }
+                showPersistentToast(notif);
+            }
+
+            document.addEventListener("DOMContentLoaded", function () {
+                if (typeof SockJS === 'undefined' || typeof Stomp === 'undefined') {
+                    console.warn('[WS] SockJS or Stomp not loaded');
+                    return;
+                }
+
+                var socket = new SockJS('/ws-endpoint');
+                var stompClient = Stomp.over(socket);
+                stompClient.debug = null;
+
+                stompClient.connect({}, function (frame) {
+                    console.log('[WS] Đã kết nối thành công | staffId=' + staffId);
+
+                    stompClient.subscribe('/topic/operations', function (msg) {
+                        try {
+                            var payload = JSON.parse(msg.body);
+                            // Lọc bỏ thông báo nội bộ của housekeeping/maintenance để Lễ tân không bị làm phiền
+                            var isInternalTask = (payload.taskType && (payload.taskType.toUpperCase().includes('MAINTENANCE') || payload.taskType.toUpperCase().includes('CLEAN') || payload.taskType.toUpperCase().includes('DAMAGE')))
+                                || (payload.message && (payload.message.toUpperCase().includes('MAINTENANCE') || payload.message.includes('dọn khẩn') || payload.message.includes('sửa chữa') || payload.message.includes('bảo trì')));
+                            if (payload.type === 'NEW_TASK' && isInternalTask) {
+                                return;
+                            }
+                            console.log('[WS] Nhận tin nhắn từ kênh Chung (/topic/operations):', payload);
+                            if (payload.type === 'NEW_TASK') return;
+
+                            if (payload.type === 'ROOM_CLEANED') {
+                                if (typeof handleRoomCleanedEvent === 'function') {
+                                    handleRoomCleanedEvent(payload);
+                                }
+                                // Tự động tải lại trang sau 3 giây để cập nhật sơ đồ phòng (đủ lâu để user nghe tiếng Ting)
+                                setTimeout(function () {
+                                    window.location.reload();
+                                }, 3000);
+                                return;
+                            }
+
+                            saveAndShow('📢 THÔNG BÁO HỆ THỐNG: \n' + payload.message, false);
+                            setTimeout(function () {
+                                window.location.reload();
+                            }, 1500);
+                        } catch (e) { console.error('[WS] parse error', e); }
+                    });
+
+                    if (staffId && staffId !== 0) {
+                        stompClient.subscribe('/topic/operations/' + staffId, function (msg) {
+                            try {
+                                var payload = JSON.parse(msg.body);
+                                var isInternalTask = (payload.taskType && (payload.taskType.toUpperCase().includes('MAINTENANCE') || payload.taskType.toUpperCase().includes('CLEAN') || payload.taskType.toUpperCase().includes('DAMAGE')))
+                                    || (payload.message && (payload.message.toUpperCase().includes('MAINTENANCE') || payload.message.includes('dọn khẩn') || payload.message.includes('sửa chữa') || payload.message.includes('bảo trì')));
+                                if (payload.type === 'NEW_TASK' && isInternalTask) {
+                                    return;
+                                }
+                                console.log('[WS] Nhận tin nhắn từ kênh Đích danh (/topic/operations/' + staffId + '):', payload);
+                                saveAndShow('🔔 NHIỆM VỤ MỚI: \n ' + payload.message, true);
+                            } catch (e) { console.error('[WS] parse error', e); }
+                        });
+                        console.log('[WS] Đã đăng ký kênh riêng: /topic/operations/' + staffId);
+                    }
+
+                }, function (error) {
+                    console.error('[WS] Lỗi kết nối WebSocket:', error);
+                });
+            });
+        })();
+    </script>
+    <!-- Schedule Notification Script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            fetch('/api/v1/employees/me/schedules')
+                .then(res => {
+                    if (res.ok) return res.json();
+                    throw new Error('Not authorized or error');
+                })
+                .then(schedules => {
+                    if (schedules && schedules.length > 0) {
+                        const today = new Date().toISOString().split('T')[0];
+                        const todaySchedule = schedules.find(s => s.workDate === today);
+
+                        if (todaySchedule) {
+                            // Schedule checked silently
+                            console.log('Lịch làm việc hôm nay:', todaySchedule.shiftName);
+                        }
+                    }
+                })
+                .catch(err => console.log('Không thể lấy lịch làm việc:', err));
+        });
+    </script>
+
+
+    <!-- RECEPTIONIST PROFILE MODAL -->
+    <div id="receptionistProfileModal" class="modal-overlay"
+        style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999; justify-content: center; align-items: center;">
+        <div class="modal-content"
+            style="background: white; padding: 24px; border-radius: 8px; width: 600px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); font-family: 'Inter', sans-serif;">
+            <h2
+                style="margin-top: 0; border-bottom: 1px solid #e5e7eb; padding-bottom: 12px; color: #111827; font-size: 1.25rem; font-weight: 600;">
+                Hồ sơ Cá nhân</h2>
+
+            <div style="display: flex; gap: 24px; margin-top: 16px;">
+                <!-- Left col: Info -->
+                <div style="flex: 1;">
+                    <div style="display: flex; align-items: center; margin-bottom: 16px;">
+                        <div class="user-avatar"
+                            style="width: 64px; height: 64px; border-radius: 50%; background: #c19b6c; color: white; display: flex; align-items: center; justify-content: center; font-size: 24px; margin-right: 16px; font-weight: bold;"
+                            th:text="${staffName != null && staffName.length() >= 2 ? staffName.substring(0, 2).toUpperCase() : 'NV'}">
+                            NV</div>
+                        <div>
+                            <h3 style="margin: 0; font-size: 18px; color: #111827;"
+                                th:text="${staffName != null ? staffName : 'Nhân viên'}">Nhân viên</h3>
+                            <p style="margin: 4px 0 0 0; color: #6b7280; font-size: 14px;"
+                                th:text="${staffRole != null ? staffRole : 'Receptionist'}">Receptionist</p>
+                        </div>
+                    </div>
+                    <div style="font-size: 14px; line-height: 1.6; color: #374151;">
+                        <p style="margin: 4px 0;"><strong>Email:</strong> <span
+                                th:text="${currentEmployee != null ? currentEmployee.email : 'Chưa cập nhật'}"></span>
+                        </p>
+                        <p style="margin: 4px 0;"><strong>SĐT:</strong> <span
+                                th:text="${currentEmployee != null ? currentEmployee.phone : 'Chưa cập nhật'}"></span>
+                        </p>
+                        <p style="margin: 4px 0;"><strong>Giới tính:</strong> <span
+                                th:text="${currentEmployee != null ? currentEmployee.gender : 'Chưa cập nhật'}"></span>
+                        </p>
+                        <p style="margin: 4px 0;"><strong>CCCD:</strong> <span
+                                th:text="${currentEmployee != null ? currentEmployee.cccd : 'Chưa cập nhật'}"></span>
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Right col: Password -->
+                <div style="flex: 1; border-left: 1px solid #e5e7eb; padding-left: 24px;">
+                    <h3 style="margin-top: 0; font-size: 16px; color: #111827;">Đổi mật khẩu</h3>
+                    <div style="margin-top: 12px;">
+                        <label style="display: block; font-size: 13px; color: #4b5563; margin-bottom: 4px;">Mật khẩu
+                            mới</label>
+                        <input type="password" id="receptionistNewPassword" placeholder="Nhập mật khẩu mới"
+                            style="width: 100%; padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 4px; box-sizing: border-box; font-size: 14px; margin-bottom: 8px;">
+                        <button id="receptionistSavePasswordBtn"
+                            style="padding: 8px 16px; background: #c19b6c; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 500; font-size: 14px; width: 100%;">Cập
+                            nhật ngay</button>
+                        <div id="receptionistPasswordMsg" style="margin-top: 8px; font-size: 13px; display: none;">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div style="margin-top: 24px; text-align: right; border-top: 1px solid #e5e7eb; padding-top: 16px;">
+                <button onclick="document.getElementById('receptionistProfileModal').style.display='none'"
+                    style="padding: 8px 16px; background: white; color: #374151; border: 1px solid #d1d5db; border-radius: 4px; cursor: pointer; font-weight: 500;">Đóng</button>
+            </div>
+        </div>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const avatars = document.querySelectorAll('.sidebar-user, .user-profile-btn');
+            avatars.forEach(avatar => {
+                avatar.style.cursor = 'pointer';
+                avatar.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    document.getElementById('receptionistProfileModal').style.display = 'flex';
+                    document.getElementById('receptionistNewPassword').value = '';
+                    document.getElementById('receptionistPasswordMsg').style.display = 'none';
+                });
+            });
+
+            const modal = document.getElementById('receptionistProfileModal');
+            if (modal) {
+                modal.addEventListener('click', function (e) {
+                    if (e.target === modal) {
+                        modal.style.display = 'none';
+                    }
+                });
+            }
+
+            const saveBtn = document.getElementById('receptionistSavePasswordBtn');
+            if (saveBtn) {
+                saveBtn.addEventListener('click', function () {
+                    const newPwd = document.getElementById('receptionistNewPassword').value;
+                    const msg = document.getElementById('receptionistPasswordMsg');
+
+                    if (!newPwd || newPwd.trim() === '') {
+                        msg.style.display = 'block';
+                        msg.style.color = '#dc2626';
+                        msg.innerText = 'Vui lòng nhập mật khẩu mới';
+                        return;
+                    }
+
+                    saveBtn.disabled = true;
+                    saveBtn.innerText = 'Đang lưu...';
+
+                    fetch('/api/staff/change-password', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ newPassword: newPwd })
+                    })
+                        .then(res => res.json())
+                        .then(data => {
+                            saveBtn.disabled = false;
+                            saveBtn.innerText = 'Cập nhật ngay';
+                            msg.style.display = 'block';
+                            if (data.success) {
+                                msg.style.color = '#16a34a';
+                                msg.innerText = 'Đổi mật khẩu thành công!';
+                                document.getElementById('receptionistNewPassword').value = '';
+                            } else {
+                                msg.style.color = '#dc2626';
+                                msg.innerText = data.message || 'Có lỗi xảy ra';
+                            }
+                        })
+                        .catch(err => {
+                            saveBtn.disabled = false;
+                            saveBtn.innerText = 'Cập nhật ngay';
+                            msg.style.display = 'block';
+                            msg.style.color = '#dc2626';
+                            msg.innerText = 'Lỗi kết nối mạng';
+                        });
+                });
+            }
+        });
+    </script>
+</body>
+
+</html>

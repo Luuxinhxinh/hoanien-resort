@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Quản lý Đặt phòng (Bookings) — Hoanien Retreat</title>
+
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" th:href="@{/admin/css/theme.css}" href="../../static/admin/css/theme.css"/>
+    <link rel="stylesheet" th:href="@{/admin/css/admin.css}" href="../../static/admin/css/admin.css"/>
+    <style>
+        .booking-status-hold { background: #fff3cd; color: #856404; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 600; }
+        .booking-status-confirmed { background: #d4edda; color: #155724; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 600; }
+        .booking-status-checked-in { background: #cce5ff; color: #004085; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 600; }
+        .booking-status-checked-out { background: #e2e3e5; color: #383d41; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 600; }
+        .booking-status-cancelled { background: #f8d7da; color: #721c24; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 600; }
+        
+        .adm-kanban-board { display: flex; gap: 20px; overflow-x: auto; padding-bottom: 20px; }
+        .adm-kanban-col { background: #f9fafb; border-radius: 8px; min-width: 300px; padding: 16px; border: 1px solid #e5e7eb; display: flex; flex-direction: column; gap: 12px; }
+        .adm-kanban-header { display: flex; justify-content: space-between; align-items: center; font-weight: 600; margin-bottom: 8px; }
+        .adm-kanban-count { background: #e5e7eb; padding: 2px 8px; border-radius: 12px; font-size: 12px; }
+        .adm-kanban-card { background: white; border: 1px solid #e5e7eb; border-radius: 6px; padding: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); cursor: pointer; transition: transform 0.2s; }
+        .adm-kanban-card:hover { transform: translateY(-2px); box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .kb-card-header { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 13px; color: #6b7280; }
+        .kb-card-title { font-weight: 600; color: #111827; font-size: 15px; margin-bottom: 4px; }
+        .kb-card-rooms { font-size: 13px; color: #4b5563; margin-bottom: 12px; }
+        .kb-card-footer { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #f3f4f6; padding-top: 12px; }
+        .kb-price { font-weight: 700; color: #059669; }
+    </style>
+</head>
+<body>
+
+<!-- ═══════════════════════ SIDEBAR ═══════════════════════ -->
+<aside class="adm-sidebar">
+    <div class="adm-sidebar-logo">
+        <div class="adm-sidebar-brand">
+            <div class="adm-sidebar-dot">✦</div>
+            <span class="adm-sidebar-brand-name">Hoanien Retreat</span>
+        </div>
+        <h1 class="adm-sidebar-title">Operations Hub</h1>
+    </div>
+
+    <nav class="adm-nav">
+        <div class="adm-nav-item">
+            <a href="/admin/dashboard" class="adm-nav-link">
+                <span class="adm-nav-icon"><i data-lucide="layout-dashboard"></i></span>
+                <span class="adm-nav-label">Tổng quan</span>
+            </a>
+        </div>
+        
+        <!-- Operations Section -->
+        <div class="adm-nav-item">
+            <a href="/admin/bookings" class="adm-nav-link active">
+                <span class="adm-nav-icon"><i data-lucide="calendar-check"></i></span>
+                <span class="adm-nav-label">Quản lý Đặt phòng</span>
+            </a>
+        </div>
+        <div class="adm-nav-item">
+            <a href="/admin/fnb-orders" class="adm-nav-link">
+                <span class="adm-nav-icon"><i data-lucide="coffee"></i></span>
+                <span class="adm-nav-label">Order Nhà hàng</span>
+            </a>
+        </div>
+        <div class="adm-nav-item">
+            <a href="/admin/tour-schedules" class="adm-nav-link">
+                <span class="adm-nav-icon"><i data-lucide="map"></i></span>
+                <span class="adm-nav-label">Lịch trình Tour</span>
+            </a>
+        </div>
+
+        <div class="adm-nav-item" style="margin-top: 20px;">
+            <button id="master-data-toggle" class="adm-nav-link">
+                <span class="adm-nav-icon"><i data-lucide="database"></i></span>
+                <span class="adm-nav-label">Master Data</span>
+                <span class="adm-nav-arrow" id="master-data-arrow"><i data-lucide="chevron-right"></i></span>
+            </button>
+        </div>
+    </nav>
+</aside>
+
+<!-- ═══════════════════════ MAIN ═══════════════════════ -->
+<div class="adm-main">
+    <header class="adm-header">
+        <div class="adm-header-left">
+            <span class="adm-breadcrumb-site">Operations</span>
+            <span class="adm-breadcrumb-sep">/</span>
+            <span class="adm-breadcrumb-page">Đặt phòng (Bookings)</span>
+        </div>
+        <div class="adm-header-right">
+            <div class="adm-header-user-box">
+                <div class="adm-header-avatar" th:text="${staffName != null ? #strings.substring(staffName, 0, 2).toUpperCase() : (#authentication != null ? #strings.substring(#authentication.name, 0, 2).toUpperCase() : 'AD')}">AD</div>
+                <span class="adm-header-username" th:text="${staffName != null ? staffName : (#authentication != null ? #authentication.name : 'Admin')}">Admin</span>
+            </div>
+        </div>
+    </header>
+
+    <main class="adm-page">
+        <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 24px;">
+            <div>
+                <p class="adm-page-eyebrow">Front Desk Operations</p>
+                <h1 class="adm-page-title">Quản lý Đặt phòng</h1>
+            </div>
+            <div>
+                <button class="adm-btn adm-btn-primary"><i data-lucide="plus" style="width: 16px;"></i> Tạo Đơn Mới</button>
+            </div>
+        </div>
+
+        <!-- Kanban Board for Bookings -->
+        <div class="adm-kanban-board">
+            <!-- HOLD Column -->
+            <div class="adm-kanban-col">
+                <div class="adm-kanban-header">
+                    <span style="color: #856404;">Chờ thanh toán (HOLD)</span>
+                    <span class="adm-kanban-count">2</span>
+                </div>
+                <!-- Sample Card -->
+                <div class="adm-kanban-card">
+                    <div class="kb-card-header">
+                        <span>#BK-10023</span>
+                        <span>Hôm nay, 08:30</span>
+                    </div>
+                    <div class="kb-card-title">Nguyễn Văn A</div>
+                    <div class="kb-card-rooms"><i data-lucide="bed-double" style="width: 14px; display: inline-block;"></i> R101, R102 (2 đêm)</div>
+                    <div class="kb-card-footer">
+                        <span class="booking-status-hold">HOLD</span>
+                        <span class="kb-price">4,500,000đ</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CONFIRMED Column -->
+            <div class="adm-kanban-col">
+                <div class="adm-kanban-header">
+                    <span style="color: #155724;">Đã xác nhận (CONFIRMED)</span>
+                    <span class="adm-kanban-count">5</span>
+                </div>
+                <div class="adm-kanban-card">
+                    <div class="kb-card-header">
+                        <span>#BK-10020</span>
+                        <span>Check-in: 15/06</span>
+                    </div>
+                    <div class="kb-card-title">Trần Thị B</div>
+                    <div class="kb-card-rooms"><i data-lucide="bed-double" style="width: 14px; display: inline-block;"></i> VILLA-01 (3 đêm)</div>
+                    <div class="kb-card-footer">
+                        <span class="booking-status-confirmed">CONFIRMED</span>
+                        <span class="kb-price">12,000,000đ</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CHECKED_IN Column -->
+            <div class="adm-kanban-col">
+                <div class="adm-kanban-header">
+                    <span style="color: #004085;">Đang lưu trú (CHECKED IN)</span>
+                    <span class="adm-kanban-count">1</span>
+                </div>
+                <div class="adm-kanban-card">
+                    <div class="kb-card-header">
+                        <span>#BK-10018</span>
+                        <span>Check-out: 18/06</span>
+                    </div>
+                    <div class="kb-card-title">Lê Văn C</div>
+                    <div class="kb-card-rooms"><i data-lucide="bed-double" style="width: 14px; display: inline-block;"></i> R205 (1 đêm)</div>
+                    <div class="kb-card-footer">
+                        <span class="booking-status-checked-in">CHECKED IN</span>
+                        <span class="kb-price">2,000,000đ</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CHECKED_OUT / CANCELLED Column -->
+            <div class="adm-kanban-col">
+                <div class="adm-kanban-header">
+                    <span style="color: #383d41;">Lịch sử / Đã Hủy</span>
+                    <span class="adm-kanban-count">24</span>
+                </div>
+                <div class="adm-kanban-card" style="opacity: 0.7;">
+                    <div class="kb-card-header">
+                        <span>#BK-10015</span>
+                        <span>Hủy lúc: 10/06</span>
+                    </div>
+                    <div class="kb-card-title">Phạm D</div>
+                    <div class="kb-card-rooms">R302</div>
+                    <div class="kb-card-footer">
+                        <span class="booking-status-cancelled">CANCELLED</span>
+                        <span class="kb-price" style="color: #9ca3af; text-decoration: line-through;">3,500,000đ</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<script>
+    lucide.createIcons();
+</script>
+
+<!-- ADMIN PROFILE MODAL -->
+<div id="adminProfileModal" class="modal-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999; justify-content: center; align-items: center;">
+    <div class="modal-content" style="background: white; padding: 24px; border-radius: 8px; width: 600px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); font-family: 'Inter', sans-serif;">
+        <h2 style="margin-top: 0; border-bottom: 1px solid #e5e7eb; padding-bottom: 12px; color: #111827; font-size: 1.25rem; font-weight: 600;">Hồ sơ Cá nhân</h2>
+        
+        <div style="display: flex; gap: 24px; margin-top: 16px;">
+            <!-- Left col: Info -->
+            <div style="flex: 1;">
+                <div style="display: flex; align-items: center; margin-bottom: 16px;">
+                    <div class="adm-sidebar-avatar" style="width: 64px; height: 64px; border-radius: 50%; background: #111827; color: white; display: flex; align-items: center; justify-content: center; font-size: 24px; margin-right: 16px; font-weight: bold;" th:text="${staffName != null && staffName.length() >= 2 ? staffName.substring(0, 2).toUpperCase() : 'NV'}">NV</div>
+                    <div>
+                        <h3 style="margin: 0; font-size: 18px; color: #111827;" th:text="${staffName != null ? staffName : 'Nhân viên'}">Nhân viên</h3>
+                        <p style="margin: 4px 0 0 0; color: #6b7280; font-size: 14px;" th:text="${staffRole != null ? staffRole : 'Quản trị Hệ thống'}">Quản trị Hệ thống</p>
+                    </div>
+                </div>
+                <div style="font-size: 14px; line-height: 1.6; color: #374151;">
+                    <p style="margin: 4px 0;"><strong>Email:</strong> <span th:text="${currentEmployee != null ? currentEmployee.email : 'Chưa cập nhật'}"></span></p>
+                    <p style="margin: 4px 0;"><strong>SĐT:</strong> <span th:text="${currentEmployee != null ? currentEmployee.phone : 'Chưa cập nhật'}"></span></p>
+                    <p style="margin: 4px 0;"><strong>Giới tính:</strong> <span th:text="${currentEmployee != null ? currentEmployee.gender : 'Chưa cập nhật'}"></span></p>
+                    <p style="margin: 4px 0;"><strong>CCCD:</strong> <span th:text="${currentEmployee != null ? currentEmployee.cccd : 'Chưa cập nhật'}"></span></p>
+                </div>
+            </div>
+
+            <!-- Right col: Password -->
+            <div style="flex: 1; border-left: 1px solid #e5e7eb; padding-left: 24px;">
+                <h3 style="margin-top: 0; font-size: 16px; color: #111827;">Đổi mật khẩu</h3>
+                <div style="margin-top: 12px;">
+                    <label style="display: block; font-size: 13px; color: #4b5563; margin-bottom: 4px;">Mật khẩu mới</label>
+                    <input type="password" id="adminNewPassword" placeholder="Nhập mật khẩu mới" style="width: 100%; padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 4px; box-sizing: border-box; font-size: 14px; margin-bottom: 8px;">
+                    <button id="adminSavePasswordBtn" style="padding: 8px 16px; background: #111827; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 500; font-size: 14px; width: 100%;">Cập nhật ngay</button>
+                    <div id="adminPasswordMsg" style="margin-top: 8px; font-size: 13px; display: none;"></div>
+                </div>
+            </div>
+        </div>
+
+        <div style="margin-top: 24px; text-align: right; border-top: 1px solid #e5e7eb; padding-top: 16px;">
+            <button onclick="document.getElementById('adminProfileModal').style.display='none'" style="padding: 8px 16px; background: white; color: #374151; border: 1px solid #d1d5db; border-radius: 4px; cursor: pointer; font-weight: 500;">Đóng</button>
+        </div>
+    </div>
+</div>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const avatars = document.querySelectorAll('.adm-sidebar-user, .adm-header-user-box, .adm-sidebar-footer, .adm-header-avatar');
+        avatars.forEach(avatar => {
+            avatar.style.cursor = 'pointer';
+            avatar.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                document.getElementById('adminProfileModal').style.display = 'flex';
+                document.getElementById('adminNewPassword').value = '';
+                document.getElementById('adminPasswordMsg').style.display = 'none';
+            });
+        });
+        
+        const modal = document.getElementById('adminProfileModal');
+        if(modal) {
+            modal.addEventListener('click', function(e) {
+                if (e.target === modal) {
+                    modal.style.display = 'none';
+                }
+            });
+        }
+
+        const saveBtn = document.getElementById('adminSavePasswordBtn');
+        if (saveBtn) {
+            saveBtn.addEventListener('click', function() {
+                const newPwd = document.getElementById('adminNewPassword').value;
+                const msg = document.getElementById('adminPasswordMsg');
+                
+                if (!newPwd || newPwd.trim() === '') {
+                    msg.style.display = 'block';
+                    msg.style.color = '#dc2626';
+                    msg.innerText = 'Vui lòng nhập mật khẩu mới';
+                    return;
+                }
+
+                saveBtn.disabled = true;
+                saveBtn.innerText = 'Đang lưu...';
+
+                fetch('/api/staff/change-password', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ newPassword: newPwd })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    saveBtn.disabled = false;
+                    saveBtn.innerText = 'Cập nhật ngay';
+                    msg.style.display = 'block';
+                    if (data.success) {
+                        msg.style.color = '#16a34a';
+                        msg.innerText = 'Đổi mật khẩu thành công!';
+                        document.getElementById('adminNewPassword').value = '';
+                    } else {
+                        msg.style.color = '#dc2626';
+                        msg.innerText = data.message || 'Có lỗi xảy ra';
+                    }
+                })
+                .catch(err => {
+                    saveBtn.disabled = false;
+                    saveBtn.innerText = 'Cập nhật ngay';
+                    msg.style.display = 'block';
+                    msg.style.color = '#dc2626';
+                    msg.innerText = 'Lỗi kết nối mạng';
+                });
+            });
+        }
+    });
+</script>
+</body>
+
+</html>

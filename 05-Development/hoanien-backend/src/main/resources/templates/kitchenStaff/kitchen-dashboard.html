@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kitchen Display System | Hoanien Resort</title>
+
+  <link
+    href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap"
+    rel="stylesheet" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap"
+    rel="stylesheet" />
+
+  <link rel="stylesheet" th:href="@{/f&amp;bStaff/css/pos-dashboard.css}" href="../../statics/f&bStaff/css/pos-dashboard.css" />
+
+  <link rel="stylesheet" th:href="@{/kitchenStaff/css/kitchen-dashboard.css}" href="../../statics/kitchenStaff/css/kitchen-dashboard.css" />
+</head>
+
+<body>
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <div class="brand-name">HOANIEN</div>
+      <div class="brand-sub">Resort &amp; Tour Hub</div>
+      <div class="staff-badge">
+        <span class="material-symbols-outlined" style="font-size:0.7rem;font-variation-settings:'FILL' 1,'wght' 500,'GRAD' 0,'opsz' 24;">restaurant</span>
+        Kitchen Staff
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Vận hành</div>
+      <a href="/kitchenStaff/kitchen" class="nav-item active">
+        <span class="material-symbols-outlined">kitchen</span>
+        <span>KDS Dashboard</span>
+      </a>
+      <a href="/kitchenStaff/emenu" th:href="@{/kitchenStaff/emenu}" class="nav-item">
+        <span class="material-symbols-outlined">menu_book</span>
+        <span>E-Menu</span>
+      </a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="staff-profile">
+        <div class="staff-avatar">KS</div>
+        <div>
+          <div class="staff-name" th:text="${staffName != null ? staffName : 'Nhân viên bếp'}">Nhân viên Bếp</div>
+          <div class="staff-role">Nhà Bếp</div>
+        </div>
+        <button class="logout-btn" title="Đăng xuất" onclick="location.href='/auth/logout'">
+          <span class="material-symbols-outlined" style="font-size:1.05rem;">logout</span>
+        </button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <div class="main-content">
+    <header class="topbar" id="main-topbar">
+      <div>
+        <div class="topbar-title" id="topbar-title-text" style="color: #000;">KITCHEN DISPLAY SYSTEM</div>
+        <div class="topbar-subtitle" id="topbar-subtitle-text" style="color: rgba(0,0,0,0.7);">Màn hình Kanban cho Bếp</div>
+      </div>
+      <div class="topbar-right">
+        <div class="topbar-clock" id="live-clock" style="color: #000;">--:--:--</div>
+        <div class="icon-btn" title="Làm mới" onclick="refreshBoard()" style="color: #000; cursor: pointer;">
+          <span class="material-symbols-outlined">refresh</span>
+        </div>
+      </div>
+    </header>
+
+    <div class="dashboard-body" style="padding: 20px; overflow-y: auto;">
+      <div class="kanban-board">
+
+    <!-- PENDING COLUMN -->
+    <div class="kanban-col">
+      <h2>New Orders</h2>
+
+      <div class="order-card pending" th:each="order : ${orders}" th:if="${order.orderStatus == 'Pending'}">
+        <div class="order-header">
+          <span th:text="'Order #' + ${order.id}"></span>
+          <span th:text="${order.orderType}"></span>
+        </div>
+        <div class="order-meta">
+          <span th:text="${order.table != null ? 'Bàn ' + order.table.tableNumber : 'Room Service'}"></span>
+        </div>
+        
+        <div class="order-general-note" th:if="${order.note != null and !order.note.isEmpty()}">
+
+          <th:block th:if="${#strings.startsWith(order.note, 'GUEST:')}">
+            <th:block th:with="pipeIndex=${#strings.indexOf(order.note, '|')}">
+              <strong style="color: #b45309;" th:text="'Khách: ' + ${#strings.substring(order.note, 6, pipeIndex)}"></strong>
+              <span th:if="${#strings.length(order.note) > pipeIndex + 1}" 
+                    th:text="' - Note: ' + ${#strings.substring(order.note, pipeIndex + 1)}"></span>
+            </th:block>
+          </th:block>
+          <th:block th:unless="${#strings.startsWith(order.note, 'GUEST:')}">
+            <span th:text="'Note chung: ' + ${order.note}"></span>
+          </th:block>
+        </div>
+
+        <ul class="order-items" th:id="'list-' + ${order.id}">
+          <li th:each="detail : ${order.details}" th:if="${detail.kotStatus == 'Pending' || detail.kotStatus == 'Preparing'}" th:data-id="${detail.id}" onclick="toggleItem(this)">
+            <div style="width: 100%; text-align: left;">
+              <span th:text="${detail.quantity + 'x ' + (detail.menuItem != null ? detail.menuItem.itemName : 'Món')}"></span>
+              <div class="item-note" th:if="${detail.note != null and !detail.note.isEmpty()}" th:text="'↳ ' + ${detail.note}"></div>
+            </div>
+          </li>
+        </ul>
+        <button class="btn-action btn-start" th:onclick="|updateStatus(${order.id}, 'Preparing')|" sec:authorize="hasAnyAuthority('OP_FNB_ORDER', 'ROLE_ADMIN', 'ROLE_MANAGER')">Start Cooking</button>
+      </div>
+
+    </div>
+
+    <!-- PREPARING COLUMN -->
+    <div class="kanban-col">
+      <h2>Cooking</h2>
+
+      <div class="order-card preparing" th:each="order : ${orders}" th:if="${order.orderStatus == 'Preparing'}">
+        <div class="order-header">
+          <span th:text="'Order #' + ${order.id}"></span>
+          <span th:text="${order.orderType}"></span>
+        </div>
+        <div class="order-meta">
+          <span th:text="${order.table != null ? 'Bàn ' + order.table.tableNumber : 'Room Service'}"></span>
+        </div>
+        
+        <div class="order-general-note" th:if="${order.note != null and !order.note.isEmpty()}">
+
+          <th:block th:if="${#strings.startsWith(order.note, 'GUEST:')}">
+            <th:block th:with="pipeIndex=${#strings.indexOf(order.note, '|')}">
+              <strong style="color: #b45309;" th:text="'Khách: ' + ${#strings.substring(order.note, 6, pipeIndex)}"></strong>
+              <span th:if="${#strings.length(order.note) > pipeIndex + 1}" 
+                    th:text="' - Note: ' + ${#strings.substring(order.note, pipeIndex + 1)}"></span>
+            </th:block>
+          </th:block>
+          <th:block th:unless="${#strings.startsWith(order.note, 'GUEST:')}">
+            <span th:text="'Note chung: ' + ${order.note}"></span>
+          </th:block>
+        </div>
+
+        <ul class="order-items" th:id="'list-' + ${order.id}">
+          <li th:each="detail : ${order.details}" th:if="${detail.kotStatus == 'Pending' || detail.kotStatus == 'Preparing'}" th:data-id="${detail.id}" onclick="toggleItem(this)">
+            <div style="width: 100%; text-align: left;">
+              <span th:text="${detail.quantity + 'x ' + (detail.menuItem != null ? detail.menuItem.itemName : 'Món')}"></span>
+              <div class="item-note" th:if="${detail.note != null and !detail.note.isEmpty()}" th:text="'↳ ' + ${detail.note}"></div>
+            </div>
+          </li>
+        </ul>
+        <button th:id="'btn-ready-' + ${order.id}" class="btn-action btn-ready"
+          th:onclick="|updateStatus(${order.id}, 'Ready')|" disabled sec:authorize="hasAnyAuthority('OP_FNB_ORDER', 'ROLE_ADMIN', 'ROLE_MANAGER')">Done</button>
+      </div>
+
+    </div>
+
+      </div>
+    </div>
+  </div>
+
+  <script th:src="@{/kitchenStaff/js/kitchen-dashboard.js}" src="../../statics/kitchenStaff/js/kitchen-dashboard.js"></script>
+
+<!-- KITCHEN PROFILE MODAL -->
+<div id="kitchenProfileModal" class="modal-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999; justify-content: center; align-items: center;">
+    <div class="modal-content" style="background: white; padding: 24px; border-radius: 8px; width: 600px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); font-family: 'Inter', sans-serif;">
+        <h2 style="margin-top: 0; border-bottom: 1px solid #e5e7eb; padding-bottom: 12px; color: #111827; font-size: 1.25rem; font-weight: 600;">Hồ sơ Cá nhân</h2>
+        
+        <div style="display: flex; gap: 24px; margin-top: 16px;">
+            <!-- Left col: Info -->
+            <div style="flex: 1;">
+                <div style="display: flex; align-items: center; margin-bottom: 16px;">
+                    <div class="staff-avatar" style="width: 64px; height: 64px; border-radius: 50%; background: #ef4444; color: white; display: flex; align-items: center; justify-content: center; font-size: 24px; margin-right: 16px; font-weight: bold;" th:text="${staffName != null && staffName.length() >= 2 ? staffName.substring(0, 2).toUpperCase() : 'NV'}">NV</div>
+                    <div>
+                        <h3 style="margin: 0; font-size: 18px; color: #111827;" th:text="${staffName != null ? staffName : 'Nhân viên'}">Nhân viên</h3>
+                        <p style="margin: 4px 0 0 0; color: #6b7280; font-size: 14px;" th:text="${staffRole != null ? staffRole : 'Kitchen Staff'}">Kitchen Staff</p>
+                    </div>
+                </div>
+                <div style="font-size: 14px; line-height: 1.6; color: #374151;">
+                    <p style="margin: 4px 0;"><strong>Email:</strong> <span th:text="${currentEmployee != null ? currentEmployee.email : 'Chưa cập nhật'}"></span></p>
+                    <p style="margin: 4px 0;"><strong>SĐT:</strong> <span th:text="${currentEmployee != null ? currentEmployee.phone : 'Chưa cập nhật'}"></span></p>
+                    <p style="margin: 4px 0;"><strong>Giới tính:</strong> <span th:text="${currentEmployee != null ? currentEmployee.gender : 'Chưa cập nhật'}"></span></p>
+                    <p style="margin: 4px 0;"><strong>CCCD:</strong> <span th:text="${currentEmployee != null ? currentEmployee.cccd : 'Chưa cập nhật'}"></span></p>
+                </div>
+            </div>
+
+            <!-- Right col: Password -->
+            <div style="flex: 1; border-left: 1px solid #e5e7eb; padding-left: 24px;">
+                <h3 style="margin-top: 0; font-size: 16px; color: #111827;">Đổi mật khẩu</h3>
+                <div style="margin-top: 12px;">
+                    <label style="display: block; font-size: 13px; color: #4b5563; margin-bottom: 4px;">Mật khẩu mới</label>
+                    <input type="password" id="kitchenNewPassword" placeholder="Nhập mật khẩu mới" style="width: 100%; padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 4px; box-sizing: border-box; font-size: 14px; margin-bottom: 8px;">
+                    <button id="kitchenSavePasswordBtn" style="padding: 8px 16px; background: #ef4444; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 500; font-size: 14px; width: 100%;">Cập nhật ngay</button>
+                    <div id="kitchenPasswordMsg" style="margin-top: 8px; font-size: 13px; display: none;"></div>
+                </div>
+            </div>
+        </div>
+
+        <div style="margin-top: 24px; text-align: right; border-top: 1px solid #e5e7eb; padding-top: 16px;">
+            <button onclick="document.getElementById('kitchenProfileModal').style.display='none'" style="padding: 8px 16px; background: white; color: #374151; border: 1px solid #d1d5db; border-radius: 4px; cursor: pointer; font-weight: 500;">Đóng</button>
+        </div>
+    </div>
+</div>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const avatars = document.querySelectorAll('.staff-avatar, [title="Tài khoản"]');
+        avatars.forEach(avatar => {
+            avatar.style.cursor = 'pointer';
+            avatar.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                document.getElementById('kitchenProfileModal').style.display = 'flex';
+                document.getElementById('kitchenNewPassword').value = '';
+                document.getElementById('kitchenPasswordMsg').style.display = 'none';
+            });
+        });
+        
+        const modal = document.getElementById('kitchenProfileModal');
+        if(modal) {
+            modal.addEventListener('click', function(e) {
+                if (e.target === modal) {
+                    modal.style.display = 'none';
+                }
+            });
+        }
+
+        const saveBtn = document.getElementById('kitchenSavePasswordBtn');
+        if (saveBtn) {
+            saveBtn.addEventListener('click', function() {
+                const newPwd = document.getElementById('kitchenNewPassword').value;
+                const msg = document.getElementById('kitchenPasswordMsg');
+                
+                if (!newPwd || newPwd.trim() === '') {
+                    msg.style.display = 'block';
+                    msg.style.color = '#dc2626';
+                    msg.innerText = 'Vui lòng nhập mật khẩu mới';
+                    return;
+                }
+
+                saveBtn.disabled = true;
+                saveBtn.innerText = 'Đang lưu...';
+
+                fetch('/api/staff/change-password', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ newPassword: newPwd })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    saveBtn.disabled = false;
+                    saveBtn.innerText = 'Cập nhật ngay';
+                    msg.style.display = 'block';
+                    if (data.success) {
+                        msg.style.color = '#16a34a';
+                        msg.innerText = 'Đổi mật khẩu thành công!';
+                        document.getElementById('kitchenNewPassword').value = '';
+                    } else {
+                        msg.style.color = '#dc2626';
+                        msg.innerText = data.message || 'Có lỗi xảy ra';
+                    }
+                })
+                .catch(err => {
+                    saveBtn.disabled = false;
+                    saveBtn.innerText = 'Cập nhật ngay';
+                    msg.style.display = 'block';
+                    msg.style.color = '#dc2626';
+                    msg.innerText = 'Lỗi kết nối mạng';
+                });
+            });
+        }
+    });
+</script>
+</body>
+
+</html>

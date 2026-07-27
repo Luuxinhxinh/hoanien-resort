@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>[HOANIEN] Xác nhận Hủy Đặt Bàn #[[${reservationId}]]</title>
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;600&family=Inter:wght@300;400;500;600&display=swap');
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif; background-color: #1a120b; color: rgba(255, 255, 255, 0.9); }
+    .email-outer { background-color: #1a120b; background-size: cover; background-position: center; padding: 40px 16px; min-height: 100vh; }
+    .wrapper { max-width: 600px; margin: 0 auto; border-radius: 4px; overflow: hidden; box-shadow: 0 8px 48px rgba(0, 0, 0, 0.6); border: 1px solid rgba(229, 196, 148, 0.2); background: rgba(55, 40, 28, 0.88); }
+    
+    .header { background: rgba(60, 45, 30, 0.92); padding: 36px 40px 28px; text-align: center; border-bottom: 1px solid rgba(229, 196, 148, 0.3); }
+    .header .brand, .header h1 { font-family: 'EB Garamond', Georgia, serif; font-size: 42px; font-weight: 400; color: #e5c494; margin-bottom: 4px; }
+    .header .logo-text { font-family: 'EB Garamond', Georgia, serif; font-size: 16px; font-weight: 400; color: rgba(229, 196, 148, 0.8); letter-spacing: 2px; }
+    
+    .hero { background: rgba(70, 50, 35, 0.88); padding: 40px 40px 36px; text-align: center; border-bottom: 1px solid rgba(229, 196, 148, 0.2); }
+    .hero .icon { font-size: 44px; margin-bottom: 16px; display: block; color: #f0ca56; }
+    .hero h1 { font-family: 'EB Garamond', Georgia, serif; font-size: 26px; font-weight: 400; color: #e5c494; margin-bottom: 10px; letter-spacing: 0.5px; }
+    .hero p { font-size: 13px; font-weight: 300; color: rgba(255, 255, 255, 0.9); letter-spacing: 0.3px; line-height: 1.7; }
+    
+    .body { background: transparent; padding: 40px; }
+    .greeting, p { font-size: 14px; font-weight: 400; color: rgba(255, 255, 255, 0.95); margin-bottom: 20px; line-height: 1.9; }
+    .greeting strong, p strong { font-weight: 600; color: #f0ca56; }
+    
+    .divider-line, .divider { height: 1px; background: rgba(229, 196, 148, 0.15); margin: 28px 0; border: none; }
+    
+    .info-box { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(229, 196, 148, 0.2); border-radius: 3px; overflow: hidden; margin-bottom: 28px; }
+    .info-box-title { font-size: 10px; font-weight: 600; letter-spacing: 2.5px; text-transform: uppercase; color: #e5c494; margin-bottom:0; display: block; padding: 14px 20px; border-bottom: 1px solid rgba(229, 196, 148, 0.2); background: rgba(229, 196, 148, 0.1); }
+    .info-table { padding: 6px 0; width: 100%; border-collapse: collapse; }
+    
+    .info-table tr { display: flex; align-items: baseline; padding: 11px 20px; border-bottom: 1px solid rgba(229, 196, 148, 0.1); font-size: 13px; }
+    .info-table tr:last-child { border-bottom: none; }
+    .info-label { font-weight: 500; color: rgba(255, 255, 255, 0.7); white-space: nowrap; min-width: 160px; font-size: 13px; letter-spacing: 0.3px; width: 160px; }
+    .info-value { font-weight: 400; color: rgba(255, 255, 255, 0.95); font-size: 13px; width: 100%; }
+    .info-value.highlight { font-weight: 600; color: #f0ca56; }
+    
+    .closing, .intro { font-size: 13px; font-weight: 400; color: rgba(255, 255, 255, 0.85); line-height: 1.9; margin-bottom: 20px; }
+    .signoff { font-size: 13px; color: rgba(255, 255, 255, 0.85); line-height: 1.9; }
+    .signoff strong { font-weight: 600; color: #f0ca56; }
+    
+    .footer { background: rgba(50, 36, 24, 0.92); padding: 28px 40px; text-align: center; border-top: 1px solid rgba(229, 196, 148, 0.12); }
+    .footer .resort-name { font-family: 'EB Garamond', Georgia, serif; font-size: 18px; color: rgba(229, 196, 148, 0.7); margin-bottom: 10px; font-style: normal; }
+    .footer p { color: rgba(229, 196, 148, 0.35); font-size: 11px; line-height: 1.9; font-weight: 300; font-family: 'Inter'; }
+    .footer a { color: rgba(229, 196, 148, 0.55); text-decoration: none; }
+    .footer .footer-divider { height: 1px; background: rgba(229, 196, 148, 0.10); margin: 14px 0; }
+    
+    @media (max-width: 480px) { .body, .header, .hero, .footer { padding: 28px 24px; } .info-label { width: auto; min-width: 100px; } .info-table tr { flex-direction: column; gap: 3px; } }
+</style>
+</head>
+<body>
+  <div class="email-outer">
+    <div class="wrapper">
+
+      <!-- HEADER -->
+      <div class="header">
+        <div class="brand">Hòa Niên</div>
+        <div class="logo-text">Retreat Resort &amp; Hub</div>
+      </div>
+
+      <!-- HERO -->
+      <div class="hero">
+        <span class="icon">❌</span>
+        <h1>Xác nhận hủy đặt bàn</h1>
+        <p>Thông tin đặt bàn của Quý khách đã được hủy thành công</p>
+      </div>
+
+      <!-- BODY -->
+      <div class="body">
+
+      <p class="greeting">Kính gửi Quý khách <strong th:text="${customerName}">[Tên Khách]</strong>,</p>
+
+      <p class="intro">
+        HOANIEN Retreat &amp; Resort xin xác nhận yêu cầu hủy đặt bàn của Quý khách đã được xử lý thành công trên hệ thống.
+      </p>
+
+      <!-- ORDER INFO BOX -->
+      <div class="info-box">
+        <p class="info-box-title">Chi tiết đặt bàn đã hủy</p>
+        <table class="info-table">
+          <tr>
+            <td class="info-label">Mã đặt bàn</td>
+            <td class="info-value highlight" th:text="'#' + ${reservationId}">#[Mã]</td>
+          </tr>
+          <tr>
+            <td class="info-label">Bàn &amp; Số khách</td>
+            <td class="info-value">Bàn <span th:text="${tableNumber}"></span> | Số khách: <span th:text="${guestCount}"></span> người</td>
+          </tr>
+          <tr>
+            <td class="info-label">Thời gian</td>
+            <td class="info-value" th:text="${reservationTime} + ', ngày ' + ${reservationDate}">[Thời gian]</td>
+          </tr>
+          <tr>
+            <td class="info-label">Người thực hiện</td>
+            <td class="info-value" th:text="${cancelledBy}">[Người hủy]</td>
+          </tr>
+          <tr>
+            <td class="info-label">Lý do hủy</td>
+            <td class="info-value" th:text="${reason}">[Lý do]</td>
+          </tr>
+        </table>
+      </div>
+
+      <p class="closing">
+        Chúng tôi rất tiếc vì không có cơ hội phục vụ Quý khách trong dịp này. Nếu có bất kỳ thắc mắc nào hoặc muốn đặt bàn cho thời gian khác, Quý khách vui lòng liên hệ trực tiếp với nhân viên nhà hàng qua hotline. Mong sớm được đón tiếp Quý khách trong tương lai.
+      </p>
+
+      <hr class="divider" />
+
+      <div class="signoff">
+        Trân trọng,<br>
+        <strong>HOANIEN Concierge Team</strong>
+      </div>
+
+    </div>
+
+      <!-- FOOTER -->
+      <div class="footer">
+        <div class="resort-name">Hòa Niên</div>
+        <p>
+          📞 1900 1234 &nbsp;|&nbsp;
+          🌐 <a href="https://hoaniensorretreat.vn">hoaniensorretreat.vn</a>
+        </p>
+        <div class="footer-divider"></div>
+        <p>
+          Email này được gửi tự động — vui lòng không phản hồi.<br />
+          © 2026 Hòa Niên Retreat Resort &amp; Hub. Bảo lưu mọi quyền.
+        </p>
+      </div>
+
+    </div>
+  </div>
+</body>
+</html>

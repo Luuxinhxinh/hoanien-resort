@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Xuất báo cáo — Hoanien Manager Portal</title>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" th:href="@{/manager/css/dashboard.css}" href="../../static/manager/css/dashboard.css" />
+</head>
+
+<body>
+    <th:block th:replace="~{manager/fragments/sidebar :: sidebar(activeItem='export')}"></th:block>
+
+    <div class="mgr-main">
+        <main class="mgr-page">
+            <div>
+                <p class="mgr-page-eyebrow" th:text="${todayLabel}">Thứ Ba, 9 tháng 6, 2026</p>
+                <h1 class="mgr-page-title">Xuất báo cáo</h1>
+            </div>
+
+            <!-- Export Form -->
+            <div class="mgr-export-card">
+                <div class="mgr-section-title">Tạo báo cáo mới</div>
+                <div class="mgr-section-subtitle" style="margin-top:4px">Chọn loại báo cáo, khoảng thời gian và định
+                    dạng file xuất</div>
+
+                <div class="mgr-export-grid">
+                    <div class="mgr-form-group">
+                        <label class="mgr-form-label">Loại báo cáo</label>
+                        <select class="mgr-form-select" id="export-type">
+                            <option value="revenue">Doanh thu tổng hợp</option>
+                        </select>
+                    </div>
+                    <div class="mgr-form-group">
+                        <label class="mgr-form-label">Từ ngày</label>
+                        <input type="date" class="mgr-form-input" id="export-from" />
+                    </div>
+                    <div class="mgr-form-group">
+                        <label class="mgr-form-label">Đến ngày</label>
+                        <input type="date" class="mgr-form-input" id="export-to" />
+                    </div>
+                    <button class="mgr-export-btn" id="btn-export" onclick="handleExport()">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                            <polyline points="7 10 12 15 17 10" />
+                            <line x1="12" x2="12" y1="15" y2="3" />
+                        </svg>
+                        Xuất báo cáo
+                    </button>
+                </div>
+
+                <div class="mgr-export-formats">
+                    <button class="mgr-format-chip active" id="fmt-xlsx" onclick="selectFormat('xlsx')">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                            <polyline points="14 2 14 8 20 8" />
+                        </svg>Excel (.xlsx)
+                    </button>
+                </div>
+            </div>
+
+            <!-- History Table -->
+            <div class="mgr-section-card">
+                <div class="mgr-section-title" style="margin-bottom:4px">Lịch sử xuất báo cáo</div>
+                <div class="mgr-section-subtitle" style="margin-bottom:16px">Các báo cáo đã xuất trước đó</div>
+                <table class="mgr-table">
+                    <thead>
+                        <tr>
+                            <th>Tên báo cáo</th>
+                            <th>Định dạng</th>
+                            <th>Ngày xuất</th>
+                            <th>Người xuất</th>
+                            <th>Dung lượng</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="h : ${history}" th:if="${#strings.toLowerCase(h.format) == 'excel' or #strings.toLowerCase(h.format) == 'xlsx'}">
+                            <td th:text="${h.reportName}">Doanh thu tháng 5/2026</td>
+                            <td><span
+                                    style="padding:2px 8px;border-radius:4px;background:#333333;color:#ffffff;font-size:11px;font-weight:500"
+                                    th:text="${h.format}">Excel</span></td>
+                            <td th:text="${#temporals.format(h.exportedAt, 'dd/MM/yyyy HH:mm')}">01/06/2026 09:15</td>
+                            <td th:text="${h.exportedBy}">Manager </td>
+                            <td th:text="${h.fileSize}">2.4 MB</td>
+                            <td><button onclick="alert('Download: '+this.closest('tr').querySelector('td').textContent)"
+                                    style="padding:4px 10px;border-radius:5px;border:1px solid rgba(201,169,110,0.3);background:transparent;color:#C9A96E;font-size:11px;cursor:pointer;">Tải
+                                    lại</button></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+    <script th:src="@{/manager/js/export.js}" src="../../static/manager/js/export.js"></script>
+    <th:block th:replace="~{manager/fragments/incident-modal :: incident-modal}"></th:block>
+
+<!-- MANAGER PROFILE MODAL -->
+<div id="managerProfileModal" class="modal-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999; justify-content: center; align-items: center;">
+    <div class="modal-content" style="background: white; padding: 24px; border-radius: 8px; width: 600px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); font-family: 'Inter', sans-serif;">
+        <h2 style="margin-top: 0; border-bottom: 1px solid #e5e7eb; padding-bottom: 12px; color: #111827; font-size: 1.25rem; font-weight: 600;">Hồ sơ Cá nhân</h2>
+        
+        <div style="display: flex; gap: 24px; margin-top: 16px;">
+            <!-- Left col: Info -->
+            <div style="flex: 1;">
+                <div style="display: flex; align-items: center; margin-bottom: 16px;">
+                    <div class="mgr-sidebar-avatar" style="width: 64px; height: 64px; border-radius: 50%; background: #4f46e5; color: white; display: flex; align-items: center; justify-content: center; font-size: 24px; margin-right: 16px; font-weight: bold;" th:text="${staffName != null && staffName.length() >= 2 ? staffName.substring(0, 2).toUpperCase() : 'NV'}">NV</div>
+                    <div>
+                        <h3 style="margin: 0; font-size: 18px; color: #111827;" th:text="${staffName != null ? staffName : 'Nhân viên'}">Nhân viên</h3>
+                        <p style="margin: 4px 0 0 0; color: #6b7280; font-size: 14px;" th:text="${staffRole != null ? staffRole : 'Quản lý'}">Quản lý</p>
+                    </div>
+                </div>
+                <div style="font-size: 14px; line-height: 1.6; color: #374151;">
+                    <p style="margin: 4px 0;"><strong>Email:</strong> <span th:text="${currentEmployee != null ? currentEmployee.email : 'Chưa cập nhật'}"></span></p>
+                    <p style="margin: 4px 0;"><strong>SĐT:</strong> <span th:text="${currentEmployee != null ? currentEmployee.phone : 'Chưa cập nhật'}"></span></p>
+                    <p style="margin: 4px 0;"><strong>Giới tính:</strong> <span th:text="${currentEmployee != null ? currentEmployee.gender : 'Chưa cập nhật'}"></span></p>
+                    <p style="margin: 4px 0;"><strong>CCCD:</strong> <span th:text="${currentEmployee != null ? currentEmployee.cccd : 'Chưa cập nhật'}"></span></p>
+                </div>
+            </div>
+
+            <!-- Right col: Password -->
+            <div style="flex: 1; border-left: 1px solid #e5e7eb; padding-left: 24px;">
+                <h3 style="margin-top: 0; font-size: 16px; color: #111827;">Đổi mật khẩu</h3>
+                <div style="margin-top: 12px;">
+                    <label style="display: block; font-size: 13px; color: #4b5563; margin-bottom: 4px;">Mật khẩu mới</label>
+                    <input type="password" id="managerNewPassword" placeholder="Nhập mật khẩu mới" style="width: 100%; padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 4px; box-sizing: border-box; font-size: 14px; margin-bottom: 8px;">
+                    <button id="managerSavePasswordBtn" style="padding: 8px 16px; background: #4f46e5; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 500; font-size: 14px; width: 100%;">Cập nhật ngay</button>
+                    <div id="managerPasswordMsg" style="margin-top: 8px; font-size: 13px; display: none;"></div>
+                </div>
+            </div>
+        </div>
+
+        <div style="margin-top: 24px; text-align: right; border-top: 1px solid #e5e7eb; padding-top: 16px;">
+            <button onclick="document.getElementById('managerProfileModal').style.display='none'" style="padding: 8px 16px; background: white; color: #374151; border: 1px solid #d1d5db; border-radius: 4px; cursor: pointer; font-weight: 500;">Đóng</button>
+        </div>
+    </div>
+</div>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const avatars = document.querySelectorAll('.mgr-sidebar-user, .mgr-header-user, .mgr-header-user-box, .mgr-sidebar-footer, .mgr-header-avatar');
+        avatars.forEach(avatar => {
+            avatar.style.cursor = 'pointer';
+            avatar.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                document.getElementById('managerProfileModal').style.display = 'flex';
+                document.getElementById('managerNewPassword').value = '';
+                document.getElementById('managerPasswordMsg').style.display = 'none';
+            });
+        });
+        
+        const modal = document.getElementById('managerProfileModal');
+        if(modal) {
+            modal.addEventListener('click', function(e) {
+                if (e.target === modal) {
+                    modal.style.display = 'none';
+                }
+            });
+        }
+
+        const saveBtn = document.getElementById('managerSavePasswordBtn');
+        if (saveBtn) {
+            saveBtn.addEventListener('click', function() {
+                const newPwd = document.getElementById('managerNewPassword').value;
+                const msg = document.getElementById('managerPasswordMsg');
+                
+                if (!newPwd || newPwd.trim() === '') {
+                    msg.style.display = 'block';
+                    msg.style.color = '#dc2626';
+                    msg.innerText = 'Vui lòng nhập mật khẩu mới';
+                    return;
+                }
+
+                saveBtn.disabled = true;
+                saveBtn.innerText = 'Đang lưu...';
+
+                fetch('/api/staff/change-password', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ newPassword: newPwd })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    saveBtn.disabled = false;
+                    saveBtn.innerText = 'Cập nhật ngay';
+                    msg.style.display = 'block';
+                    if (data.success) {
+                        msg.style.color = '#16a34a';
+                        msg.innerText = 'Đổi mật khẩu thành công!';
+                        document.getElementById('managerNewPassword').value = '';
+                    } else {
+                        msg.style.color = '#dc2626';
+                        msg.innerText = data.message || 'Có lỗi xảy ra';
+                    }
+                })
+                .catch(err => {
+                    saveBtn.disabled = false;
+                    saveBtn.innerText = 'Cập nhật ngay';
+                    msg.style.display = 'block';
+                    msg.style.color = '#dc2626';
+                    msg.innerText = 'Lỗi kết nối mạng';
+                });
+            });
+        }
+    });
+</script>
+</body>
+
+
+</html>

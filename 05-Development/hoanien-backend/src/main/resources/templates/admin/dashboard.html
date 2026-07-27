@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Dashboard — Hoanien Retreat Operations Hub</title>
+
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" th:href="@{/admin/css/theme.css}"  href="../../static/admin/css/theme.css"/>
+    <link rel="stylesheet" th:href="@{/admin/css/admin.css}"  href="../../static/admin/css/admin.css"/>
+    
+    <!-- FontAwesome, Toastify & SweetAlert for Room Matrix -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body>
+
+<!-- ═══════════════════════ SIDEBAR ═══════════════════════ -->
+<aside th:replace="~{admin/fragments/sidebar :: sidebar('dashboard', '')}"></aside>
+
+
+<!-- ═══════════════════════ MAIN ═══════════════════════ -->
+<div class="adm-main">
+
+    <!-- Header -->
+    <header class="adm-header">
+        <div class="adm-header-left">
+            <span class="adm-breadcrumb-site">Hoanien Retreat</span>
+            <span class="adm-breadcrumb-sep">/</span>
+            <span class="adm-breadcrumb-page">Dashboard</span>
+        </div>
+        <div class="adm-header-right">
+            <button class="adm-header-icon-btn" id="btn-header-search"><i data-lucide="search"></i></button>
+            <button class="adm-header-icon-btn" id="btn-header-bell">
+                <i data-lucide="bell"></i>
+                <span class="adm-notif-dot"></span>
+            </button>
+            <div class="adm-header-user-box">
+                <div class="adm-header-avatar" th:text="${staffName != null ? #strings.substring(staffName, 0, 2).toUpperCase() : (#authentication != null ? #strings.substring(#authentication.name, 0, 2).toUpperCase() : 'AD')}">AD</div>
+                <span class="adm-header-username" th:text="${staffName != null ? staffName : (#authentication != null ? #authentication.name : 'Admin')}">Admin</span>
+            </div>
+            <div class="adm-divider-v"></div>
+            <a href="/logout" class="adm-header-logout"><i data-lucide="log-out" style="width:12px;height:12px"></i>Đăng xuất</a>
+        </div>
+    </header>
+
+    <!-- Page Content -->
+    <main class="adm-page">
+
+        <!-- Page Title -->
+        <div>
+            <p class="adm-page-eyebrow" th:text="${todayLabel}">Overview — Thứ Hai, 9 tháng 6, 2026</p>
+            <h1 class="adm-page-title">Dashboard</h1>
+        </div>
+
+        <!-- KPI Row -->
+        <div class="adm-kpi-grid">
+
+            <!-- Tỷ lệ lấp phòng -->
+            <div class="adm-kpi-card">
+                <div class="adm-kpi-top">
+                    <span class="adm-kpi-label">Tỷ lệ lấp phòng</span>
+                    <div class="adm-kpi-icon"><i data-lucide="trending-up"></i></div>
+                </div>
+                <div class="adm-kpi-bottom">
+                    <span class="adm-kpi-value" th:text="${occupancyRate} + '%'">83%</span>
+                    <span class="adm-kpi-note"
+                          th:text="${occupiedRooms} + ' / ' + ${totalRooms} + ' phòng đang có khách'">
+                        83 / 100 phòng đang có khách
+                    </span>
+                </div>
+            </div>
+
+            <!-- Khách đang ở -->
+            <div class="adm-kpi-card">
+                <div class="adm-kpi-top">
+                    <span class="adm-kpi-label">Khách đang ở</span>
+                    <div class="adm-kpi-icon"><i data-lucide="users"></i></div>
+                </div>
+                <div class="adm-kpi-bottom">
+                    <span class="adm-kpi-value" th:text="${currentGuests}">150</span>
+                    <span class="adm-kpi-note"
+                          th:text="'Trên ' + ${occupiedRooms} + ' phòng đang sử dụng'">
+                        Trên 83 phòng đang sử dụng
+                    </span>
+                </div>
+            </div>
+
+            <!-- Bảo trì chờ xử lý -->
+            <div class="adm-kpi-card">
+                <div class="adm-kpi-top">
+                    <span class="adm-kpi-label">Bảo trì chờ xử lý</span>
+                    <div class="adm-kpi-icon"><i data-lucide="wrench"></i></div>
+                </div>
+                <div class="adm-kpi-bottom">
+                    <span class="adm-kpi-value" th:text="${pendingMaintenance}">3</span>
+                    <span class="adm-kpi-note"
+                          th:text="${urgentMaintenance} + ' khẩn cấp / ' + ${normalMaintenance} + ' thông thường'">
+                        2 khẩn cấp / 1 thông thường
+                    </span>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Chart Row -->
+        <div class="adm-card" style="margin-top: 24px; margin-bottom: 24px;">
+            <div class="adm-card-header">
+                <h2 class="adm-section-title">Doanh thu 7 ngày gần nhất (VNĐ)</h2>
+            </div>
+            <div style="height: 300px; width: 100%;">
+                <canvas id="revenueChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Room Status Matrix -->
+        <div th:replace="~{fragments/shared-room-matrix :: roomMatrix}"></div>
+
+        </main>
+</div>
+
+<script th:src="@{/admin/js/main.js}"      src="../../static/admin/js/main.js"></script>
+<script th:src="@{/admin/js/dashboard.js}" src="../../static/admin/js/dashboard.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    document.addEventListener('DOMContentLoaded', function() {
+        const ctx = document.getElementById('revenueChart').getContext('2d');
+        const labels = /*[[${chartLabels}]]*/ [];
+        const data = /*[[${chartData}]]*/ [];
+
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Doanh thu (VNĐ)',
+                    data: data,
+                    borderColor: '#C9A96E',
+                    backgroundColor: 'rgba(201, 169, 110, 0.1)',
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    y: { 
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value, index, values) {
+                                if (value >= 1000000) {
+                                    return (value / 1000000) + 'M';
+                                }
+                                return value;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    });
+    /*]]>*/
+</script>
+
+<!-- Room Detail Modal -->
+<div id="roomDetailModal" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.5); z-index:9999; align-items:center; justify-content:center;">
+    <div style="background:#fff; border-radius:12px; width:450px; padding:24px; box-shadow:0 10px 25px rgba(0,0,0,0.15); font-family:'Inter', sans-serif;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; border-bottom:1px solid #eee; padding-bottom:12px;">
+            <h3 style="margin:0; font-size:18px; color:#2C2A1E; font-weight:700; display:flex; align-items:center; gap:8px;">
+                <i data-lucide="info" style="color:#C9A96E; width:22px; height:22px;"></i>
+                Chi tiết Phòng <span id="modalRoomNo" style="color:#C9A96E;"></span>
+            </h3>
+            <button onclick="closeRoomDetailModal()" style="background:none; border:none; cursor:pointer; color:#8B7355;"><i data-lucide="x" style="width:20px; height:20px;"></i></button>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:16px;">
+            <div style="display:grid; grid-template-columns: 100px 1fr; gap:12px; align-items:center;">
+                <span style="color:#8B7355; font-size:13px; font-weight:600;">Loại phòng:</span>
+                <span id="modalRoomCat" style="color:#2C2A1E; font-size:14px; font-weight:500; background:#f4f4f4; padding:4px 8px; border-radius:4px;"></span>
+            </div>
+            <div style="display:grid; grid-template-columns: 100px 1fr; gap:12px; align-items:center;">
+                <span style="color:#8B7355; font-size:13px; font-weight:600;">Trạng thái:</span>
+                <span id="modalRoomStatus" style="font-size:13px; font-weight:600; padding:4px 8px; border-radius:4px;"></span>
+            </div>
+            <div id="modalGuestInfo" style="display:none; flex-direction:column; gap:16px; margin-top:8px; padding-top:16px; border-top:1px dashed #e2ddce;">
+                <div style="display:grid; grid-template-columns: 100px 1fr; gap:12px; align-items:center;">
+                    <span style="color:#8B7355; font-size:13px; font-weight:600;">Khách lưu trú:</span>
+                    <span id="modalGuestName" style="color:#2C2A1E; font-size:14px; font-weight:600;"></span>
+                </div>
+                <div style="display:grid; grid-template-columns: 100px 1fr; gap:12px; align-items:center;">
+                    <span style="color:#8B7355; font-size:13px; font-weight:600;">Số lượng:</span>
+                    <span id="modalGuests" style="color:#2C2A1E; font-size:14px; font-weight:500;"></span>
+                </div>
+                <div id="modalRequestsWrap" style="display:none; background:rgba(201,169,110,0.1); padding:12px; border-radius:6px; border-left:3px solid #C9A96E;">
+                    <span style="color:#8B6010; font-size:12px; font-weight:700; text-transform:uppercase;">Yêu cầu đặc biệt:</span>
+                    <p id="modalRequests" style="margin:4px 0 0 0; color:#2C2A1E; font-size:13px; line-height:1.4;"></p>
+                </div>
+            </div>
+            <div id="modalIssueWrap" style="display:none; background:rgba(239,68,68,0.05); padding:12px; border-radius:6px; border-left:3px solid #EF4444; margin-top:8px;">
+                <span style="color:#B91C1C; font-size:12px; font-weight:700; text-transform:uppercase;">Lỗi / Sự cố:</span>
+                <p id="modalIssue" style="margin:4px 0 0 0; color:#991B1B; font-size:13px; line-height:1.4;"></p>
+            </div>
+        </div>
+        <div style="margin-top:24px; display:flex; justify-content:flex-end;">
+            <button onclick="closeRoomDetailModal()" style="background:#C9A96E; color:#fff; border:none; padding:8px 16px; border-radius:6px; font-weight:600; cursor:pointer; font-size:13px;">Đóng</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    function openRoomDetailModal(el) {
+        document.getElementById('modalRoomNo').innerText = el.dataset.roomNo;
+        document.getElementById('modalRoomCat').innerText = el.dataset.category;
+        
+        const status = el.dataset.status;
+        const statusEl = document.getElementById('modalRoomStatus');
+        statusEl.innerText = status;
+        
+        if (status === 'Có Khách') {
+            statusEl.style.backgroundColor = '#DBEAFE';
+            statusEl.style.color = '#1E40AF';
+            document.getElementById('modalGuestInfo').style.display = 'flex';
+            document.getElementById('modalGuestName').innerText = el.dataset.guestName;
+            document.getElementById('modalGuests').innerText = el.dataset.guests + ' khách';
+            
+            if (el.dataset.guestRequests) {
+                document.getElementById('modalRequestsWrap').style.display = 'block';
+                document.getElementById('modalRequests').innerText = el.dataset.guestRequests;
+            } else {
+                document.getElementById('modalRequestsWrap').style.display = 'none';
+            }
+            document.getElementById('modalIssueWrap').style.display = 'none';
+        } else if (status === 'HỎNG') {
+            statusEl.style.backgroundColor = '#FEE2E2';
+            statusEl.style.color = '#991B1B';
+            document.getElementById('modalGuestInfo').style.display = 'none';
+            document.getElementById('modalIssueWrap').style.display = 'block';
+            document.getElementById('modalIssue').innerText = el.dataset.issue;
+        } else if (status === 'Bẩn') {
+            statusEl.style.backgroundColor = '#FEF3C7';
+            statusEl.style.color = '#92400E';
+            document.getElementById('modalGuestInfo').style.display = 'none';
+            document.getElementById('modalIssueWrap').style.display = 'none';
+        } else {
+            statusEl.style.backgroundColor = '#E5E7EB';
+            statusEl.style.color = '#374151';
+            document.getElementById('modalGuestInfo').style.display = 'none';
+            document.getElementById('modalIssueWrap').style.display = 'none';
+        }
+        
+        document.getElementById('roomDetailModal').style.display = 'flex';
+        lucide.createIcons();
+    }
+    
+    function closeRoomDetailModal() {
+        document.getElementById('roomDetailModal').style.display = 'none';
+    }
+</script>
+
+<!-- ADMIN PROFILE MODAL -->
+<div id="adminProfileModal" class="modal-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999; justify-content: center; align-items: center;">
+    <div class="modal-content" style="background: white; padding: 24px; border-radius: 8px; width: 600px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); font-family: 'Inter', sans-serif;">
+        <h2 style="margin-top: 0; border-bottom: 1px solid #e5e7eb; padding-bottom: 12px; color: #111827; font-size: 1.25rem; font-weight: 600;">Hồ sơ Cá nhân</h2>
+        
+        <div style="display: flex; gap: 24px; margin-top: 16px;">
+            <!-- Left col: Info -->
+            <div style="flex: 1;">
+                <div style="display: flex; align-items: center; margin-bottom: 16px;">
+                    <div class="adm-sidebar-avatar" style="width: 64px; height: 64px; border-radius: 50%; background: #111827; color: white; display: flex; align-items: center; justify-content: center; font-size: 24px; margin-right: 16px; font-weight: bold;" th:text="${staffName != null && staffName.length() >= 2 ? staffName.substring(0, 2).toUpperCase() : 'NV'}">NV</div>
+                    <div>
+                        <h3 style="margin: 0; font-size: 18px; color: #111827;" th:text="${staffName != null ? staffName : 'Nhân viên'}">Nhân viên</h3>
+                        <p style="margin: 4px 0 0 0; color: #6b7280; font-size: 14px;" th:text="${staffRole != null ? staffRole : 'Quản trị Hệ thống'}">Quản trị Hệ thống</p>
+                    </div>
+                </div>
+                <div style="font-size: 14px; line-height: 1.6; color: #374151;">
+                    <p style="margin: 4px 0;"><strong>Email:</strong> <span th:text="${currentEmployee != null ? currentEmployee.email : 'Chưa cập nhật'}"></span></p>
+                    <p style="margin: 4px 0;"><strong>SĐT:</strong> <span th:text="${currentEmployee != null ? currentEmployee.phone : 'Chưa cập nhật'}"></span></p>
+                    <p style="margin: 4px 0;"><strong>Giới tính:</strong> <span th:text="${currentEmployee != null ? currentEmployee.gender : 'Chưa cập nhật'}"></span></p>
+                    <p style="margin: 4px 0;"><strong>CCCD:</strong> <span th:text="${currentEmployee != null ? currentEmployee.cccd : 'Chưa cập nhật'}"></span></p>
+                </div>
+            </div>
+
+            <!-- Right col: Password -->
+            <div style="flex: 1; border-left: 1px solid #e5e7eb; padding-left: 24px;">
+                <h3 style="margin-top: 0; font-size: 16px; color: #111827;">Đổi mật khẩu</h3>
+                <div style="margin-top: 12px;">
+                    <label style="display: block; font-size: 13px; color: #4b5563; margin-bottom: 4px;">Mật khẩu mới</label>
+                    <input type="password" id="adminNewPassword" placeholder="Nhập mật khẩu mới" style="width: 100%; padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 4px; box-sizing: border-box; font-size: 14px; margin-bottom: 8px;">
+                    <button id="adminSavePasswordBtn" style="padding: 8px 16px; background: #111827; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 500; font-size: 14px; width: 100%;">Cập nhật ngay</button>
+                    <div id="adminPasswordMsg" style="margin-top: 8px; font-size: 13px; display: none;"></div>
+                </div>
+            </div>
+        </div>
+
+        <div style="margin-top: 24px; text-align: right; border-top: 1px solid #e5e7eb; padding-top: 16px;">
+            <button onclick="document.getElementById('adminProfileModal').style.display='none'" style="padding: 8px 16px; background: white; color: #374151; border: 1px solid #d1d5db; border-radius: 4px; cursor: pointer; font-weight: 500;">Đóng</button>
+        </div>
+    </div>
+</div>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const avatars = document.querySelectorAll('.adm-sidebar-user, .adm-header-user-box, .adm-sidebar-footer, .adm-header-avatar');
+        avatars.forEach(avatar => {
+            avatar.style.cursor = 'pointer';
+            avatar.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                document.getElementById('adminProfileModal').style.display = 'flex';
+                document.getElementById('adminNewPassword').value = '';
+                document.getElementById('adminPasswordMsg').style.display = 'none';
+            });
+        });
+        
+        const modal = document.getElementById('adminProfileModal');
+        if(modal) {
+            modal.addEventListener('click', function(e) {
+                if (e.target === modal) {
+                    modal.style.display = 'none';
+                }
+            });
+        }
+
+        const saveBtn = document.getElementById('adminSavePasswordBtn');
+        if (saveBtn) {
+            saveBtn.addEventListener('click', function() {
+                const newPwd = document.getElementById('adminNewPassword').value;
+                const msg = document.getElementById('adminPasswordMsg');
+                
+                if (!newPwd || newPwd.trim() === '') {
+                    msg.style.display = 'block';
+                    msg.style.color = '#dc2626';
+                    msg.innerText = 'Vui lòng nhập mật khẩu mới';
+                    return;
+                }
+
+                saveBtn.disabled = true;
+                saveBtn.innerText = 'Đang lưu...';
+
+                fetch('/api/staff/change-password', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ newPassword: newPwd })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    saveBtn.disabled = false;
+                    saveBtn.innerText = 'Cập nhật ngay';
+                    msg.style.display = 'block';
+                    if (data.success) {
+                        msg.style.color = '#16a34a';
+                        msg.innerText = 'Đổi mật khẩu thành công!';
+                        document.getElementById('adminNewPassword').value = '';
+                    } else {
+                        msg.style.color = '#dc2626';
+                        msg.innerText = data.message || 'Có lỗi xảy ra';
+                    }
+                })
+                .catch(err => {
+                    saveBtn.disabled = false;
+                    saveBtn.innerText = 'Cập nhật ngay';
+                    msg.style.display = 'block';
+                    msg.style.color = '#dc2626';
+                    msg.innerText = 'Lỗi kết nối mạng';
+                });
+            });
+        }
+    });
+</script>
+</body>
+
+</html>

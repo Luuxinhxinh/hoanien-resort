@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <style>
+        /* Đã chuyển màu chữ sang #2F1F17 */
+        body {
+            font-family: 'Times New Roman', serif;
+            background-color: #F0EBDF;
+            padding: 40px;
+            color: #2F1F17;
+        }
+
+        .invoice-container {
+            max-width: 700px;
+            margin: auto;
+            background-color: #FFFFFF;
+            padding: 40px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+            text-transform: uppercase;
+        }
+
+        .header .address {
+            margin-top: 15px;
+            margin-bottom: 5px;
+            font-size: 13px;
+            color: #2F1F17;
+            opacity: 0.8;
+        }
+
+        .invoice-title {
+            font-size: 20px;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin: 20px 0;
+            border-top: 1px solid #2F1F17;
+            border-bottom: 1px solid #2F1F17;
+            padding: 10px 0;
+        }
+
+        .info-grid {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        th {
+            border-bottom: 1px solid #2F1F17;
+            padding: 10px 0;
+            text-align: left;
+            font-size: 14px;
+        }
+
+        td {
+            padding: 10px 0;
+            vertical-align: top;
+            font-size: 14px;
+        }
+
+        .text-right {
+            text-align: right;
+        }
+
+        .totals-wrapper {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 40px;
+            border-top: 1px solid #2F1F17;
+            padding-top: 20px;
+            align-items: flex-start;
+        }
+
+        .payment-info {
+            font-size: 14px;
+            width: 50%;
+        }
+
+        .totals-section {
+            width: 40%;
+        }
+
+        .total-row {
+            display: flex;
+            justify-content: space-between;
+            font-weight: bold;
+            padding: 5px 0;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 60px;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        .footer-contact {
+            font-size: 12px;
+            margin-bottom: 15px;
+            color: #2F1F17;
+            opacity: 0.8;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="invoice-container">
+        <div class="header">
+            <h1>HÒA NIÊN RETREAT RESORT & HUB</h1>
+            <p class="address">268 Minh Mạng, Phường Thủy Xuân, Thành phố Huế, Tỉnh Thừa Thiên Huế.</p>
+            <div class="invoice-title">HÓA ĐƠN KHÁCH HÀNG</div>
+        </div>
+
+        <table style="width: 100%; border: none; margin-bottom: 30px; font-size: 14px; line-height: 1.6; font-family: 'Times New Roman', serif;">
+            <tr>
+                <td style="width: 60%; padding: 0; border: none; text-align: left; color: #2F1F17; vertical-align: top;">
+                    <strong>Tên khách hàng:</strong> <span th:text="${customerName}">Customer</span><br>
+                    <strong>Số phòng:</strong> <span th:text="${roomNumber}">...</span> &nbsp;|&nbsp; <strong>Số khách:</strong> <span th:text="${guestCount}">2</span><br>
+                    <strong>Check-in:</strong> <span th:text="${checkInDate}">20/07/2026</span><br>
+                    <strong>Check-out:</strong> <span th:text="${checkOutDate}">23/07/2026</span>
+                </td>
+                <td style="width: 40%; padding: 0; border: none; text-align: right; color: #2F1F17; vertical-align: top;">
+                    <strong>Mã hóa đơn:</strong> <span th:text="${invoiceNumber}">INV-1756</span><br>
+                    <strong>Ngày xuất:</strong> <span th:text="${issuedDate}">26/06/2026</span>
+                </td>
+            </tr>
+        </table>
+
+        <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px; font-family: 'Times New Roman', serif;">
+            <thead>
+                <tr>
+                    <th style="border-bottom: 1px solid #2F1F17; padding: 10px 0; text-align: left; font-size: 14px; width: 15%; color: #2F1F17;">Ngày</th>
+                    <th style="border-bottom: 1px solid #2F1F17; padding: 10px 0; text-align: left; font-size: 14px; width: 40%; color: #2F1F17;">Mô tả</th>
+                    <th style="border-bottom: 1px solid #2F1F17; padding: 10px 0; text-align: center; font-size: 14px; width: 10%; color: #2F1F17;">Số lượng</th>
+                    <th style="border-bottom: 1px solid #2F1F17; padding: 10px 0; text-align: right; font-size: 14px; width: 15%; color: #2F1F17;">Đơn giá</th>
+                    <th style="border-bottom: 1px solid #2F1F17; padding: 10px 0; text-align: right; font-size: 14px; width: 20%; color: #2F1F17;">Thành tiền (VNĐ)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="item : ${items}">
+                    <!-- Cột Ngày -->
+                    <td style="padding: 10px 0; border-bottom: 1px dashed #ddd; font-size: 14px; color: #2F1F17; text-align: left;"
+                        th:text="${item.date}">26/06/2026</td>
+                    
+                    <!-- Cột Mô tả -->
+                    <td th:style="${item.isChild} ? 'padding: 8px 0 8px 20px; border-bottom: 1px dashed #eee; font-style: italic; font-size: 14px; color: #2F1F17; text-align: left;' : 'padding: 10px 0; border-bottom: 1px dashed #ddd; font-size: 14px; color: #2F1F17; text-align: left;'"
+                        th:text="${item.description}">Tiền phòng</td>
+                    
+                    <!-- Cột Số lượng -->
+                    <td style="padding: 10px 0; border-bottom: 1px dashed #ddd; font-size: 14px; color: #2F1F17; text-align: center;"
+                        th:style="${item.isChild} ? 'padding: 8px 0; border-bottom: 1px dashed #eee; font-style: italic; font-size: 14px; color: #2F1F17; text-align: center;' : 'padding: 10px 0; border-bottom: 1px dashed #ddd; font-size: 14px; color: #2F1F17; text-align: center;'"
+                        th:text="${item.qty}">1</td>
+                    
+                    <!-- Cột Đơn giá -->
+                    <td style="padding: 10px 0; border-bottom: 1px dashed #ddd; font-size: 14px; color: #2F1F17; text-align: right;"
+                        th:style="${item.isChild} ? 'padding: 8px 0; border-bottom: 1px dashed #eee; font-style: italic; font-size: 14px; color: #2F1F17; text-align: right;' : 'padding: 10px 0; border-bottom: 1px dashed #ddd; font-size: 14px; color: #2F1F17; text-align: right;'"
+                        th:text="${item.unitPrice}">1.500.000</td>
+                    
+                    <!-- Cột Thành tiền -->
+                    <td style="padding: 10px 0; border-bottom: 1px dashed #ddd; font-size: 14px; color: #2F1F17; text-align: right;"
+                        th:style="${item.isChild} ? 'padding: 8px 0; border-bottom: 1px dashed #eee; font-style: italic; font-size: 14px; color: #2F1F17; text-align: right;' : 'padding: 10px 0; border-bottom: 1px dashed #ddd; font-size: 14px; color: #2F1F17; text-align: right;'"
+                        th:text="${item.amount}">1.500.000</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="totals-wrapper">
+            <div class="payment-info">
+                <strong>PHƯƠNG THỨC THANH TOÁN:</strong><br>
+                ☐ <span th:text="${paymentMethod}">Thẻ tín dụng</span>
+            </div>
+            <div class="totals-section">
+                <div class="total-row"><span>Tạm tính:</span> <span th:text="${subtotal}">1.700.000</span></div>
+                <div class="total-row"><span>Thuế (10%):</span> <span th:text="${vatAmount}">170.000</span></div>
+                <div class="total-row" th:if="${depositAmount != null and depositAmount != '0 ₫'}"><span>Đã đặt
+                        cọc:</span> <span th:text="${'- ' + depositAmount}">-170.000</span></div>
+                <div class="total-row" style="border-top: 1px solid #2F1F17; margin-top: 5px; padding-top: 5px;">
+                    <span>TỔNG CỘNG:</span> <span th:text="${totalAmount}">1.700.000</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p style="font-style: italic;">Cảm ơn Quý khách đã lựa chọn Hòa Niên Retreat Resort & Hub. Rất mong được đón
+                tiếp Quý khách trong những lần tới!</p>
+            <p>Hệ thống bởi Hòa Niên PMS</p>
+            <div class="footer-contact">
+                ĐT: +84 236 3123 456 | Email: info@hoanien.vn
+            </div>
+        </div>
+    </div>
+
+</body>
+
+</html>

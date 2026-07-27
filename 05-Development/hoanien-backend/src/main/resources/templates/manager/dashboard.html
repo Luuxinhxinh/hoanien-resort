@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tổng quan — Hoanien Retreat Manager Portal</title>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+    <link rel="stylesheet" th:href="@{/manager/css/dashboard.css}" href="../../static/manager/css/dashboard.css" />
+</head>
+
+<body>    <th:block th:replace="~{manager/fragments/sidebar :: sidebar(activeItem='dashboard')}"></th:block>
+
+    <!-- MAIN -->
+    <div class="mgr-main">
+
+        <main class="mgr-page">
+
+            <!-- Page Title -->
+            <div>
+                <p class="mgr-page-eyebrow" th:text="${todayLabel}">Thứ Ba, 9 tháng 6, 2026</p>
+                <h1 class="mgr-page-title">Dashboard</h1>
+            </div>
+
+            <!-- KPI Grid -->
+            <div class="mgr-kpi-grid">
+                <div class="mgr-kpi-card">
+                    <div class="mgr-kpi-top">
+                        <span class="mgr-kpi-label">Tỷ lệ lấp đầy tháng</span>
+                        <div class="mgr-kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path d="M3 9a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9Z" />
+                                <path d="M3 11h18" />
+                            </svg></div>
+                    </div>
+                    <div class="mgr-kpi-bottom">
+                        <span class="mgr-kpi-value" th:text="${occupancyRate} + '%'">78%</span>
+                        <span class="mgr-kpi-note" th:text="${occupiedRooms} + '/' + ${totalRooms} + ' phòng'">78/100
+                            phòng</span>
+                    </div>
+                </div>
+                <div class="mgr-kpi-card">
+                    <div class="mgr-kpi-top">
+                        <span class="mgr-kpi-label">Doanh thu hôm nay</span>
+                        <div class="mgr-kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <line x1="12" x2="12" y1="2" y2="22" />
+                                <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+                            </svg></div>
+                    </div>
+                    <div class="mgr-kpi-bottom">
+                        <span class="mgr-kpi-value" th:text="${revenueToday}">24.8M</span>
+                        <span class="mgr-kpi-note" th:text="${revenueTodayNote}">Phòng · F&amp;B · Tour</span>
+                    </div>
+                </div>
+                <div class="mgr-kpi-card">
+                    <div class="mgr-kpi-top">
+                        <span class="mgr-kpi-label">Thời gian lưu trú TB</span>
+                        <div class="mgr-kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <circle cx="12" cy="12" r="10" />
+                                <polyline points="12 6 12 12 16 14" />
+                            </svg></div>
+                    </div>
+                    <div class="mgr-kpi-bottom">
+                        <span class="mgr-kpi-value" th:text="${avgStayDays} + ' ngày'">3.2 ngày</span>
+                        <span class="mgr-kpi-note" th:text="${totalGuests} + ' lượt khách'">320 lượt khách</span>
+                    </div>
+                </div>
+                <div class="mgr-kpi-card">
+                    <div class="mgr-kpi-top">
+                        <span class="mgr-kpi-label">Doanh thu 7 ngày qua</span>
+                        <div class="mgr-kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path d="M3 3v18h18" />
+                                <path d="m19 9-5 5-4-4-3 3" />
+                            </svg></div>
+                    </div>
+                    <div class="mgr-kpi-bottom">
+                        <span class="mgr-kpi-value" th:text="${revenueMonth}">1.84 Tỷ</span>
+                        <span class="mgr-kpi-note" th:text="${revenueMonthNote}">Phòng + F&amp;B + Tour</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Chart Row 1: Bar + Donut -->
+            <div class="mgr-chart-row mgr-chart-row-62">
+                <div class="mgr-chart-card">
+                    <div class="mgr-chart-header">
+                        <div>
+                            <div class="mgr-chart-title">Doanh thu trong ngày</div>
+                            <div class="mgr-chart-subtitle">Đơn vị: triệu VNĐ</div>
+                        </div>
+                        <div class="mgr-legend">
+                            <div class="mgr-legend-item">
+                                <div class="mgr-legend-dot" style="background:#C9A96E"></div>Phòng
+                            </div>
+                            <div class="mgr-legend-item">
+                                <div class="mgr-legend-dot" style="background:#7A9C7A"></div>F&amp;B
+                            </div>
+                            <div class="mgr-legend-item">
+                                <div class="mgr-legend-dot" style="background:#6B8C9A"></div>Tour
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mgr-chart-canvas-wrap" style="height:220px"><canvas id="chart-line-today"></canvas></div>
+                    <script th:inline="javascript">
+                        window.todayData = {
+                            labels: /*[[${todayChartLabels}]]*/ ["06:00", "09:00", "12:00", "15:00", "18:00", "21:00"],
+                            room: /*[[${todayRoomValues}]]*/ [0, 10, 5, 20, 10, 30],
+                            fnb: /*[[${todayFnbValues}]]*/ [0.5, 5, 2, 5, 3, 10],
+                            tour: /*[[${todayTourValues}]]*/ [0, 10, 3, 10, 5, 8]
+                        };
+                    </script>
+                </div>
+                <div class="mgr-chart-card">
+                    <div class="mgr-chart-header">
+                        <div>
+                            <div class="mgr-chart-title">Doanh thu 7 ngày gần nhất</div>
+                        </div>
+                    </div>
+                    <div class="mgr-donut-wrap" style="height:240px; margin-top: 28px;">
+                        <canvas id="chart-donut" style="width: 240px !important; height: 240px !important;"></canvas>
+                        <div class="mgr-donut-center">
+                            <div class="mgr-donut-center-value" th:text="${revenueMonth}">1.84 Tỷ</div>
+                            <div class="mgr-donut-center-label">Tổng</div>
+                        </div>
+                    </div>
+                    <div class="mgr-donut-legend">
+                        <div class="mgr-donut-legend-row">
+                            <div class="mgr-donut-legend-dot" style="background:#C9A96E"></div><span
+                                class="mgr-donut-legend-name">Phòng</span><span class="mgr-donut-legend-val"
+                                th:text="${revRoom}+'M'">1128M</span><span class="mgr-donut-legend-pct"
+                                th:text="${revRoomPct}+'%'">61%</span>
+                        </div>
+                        <div class="mgr-donut-legend-row">
+                            <div class="mgr-donut-legend-dot" style="background:#7A9C7A"></div><span
+                                class="mgr-donut-legend-name">F&amp;B</span><span class="mgr-donut-legend-val"
+                                th:text="${revFnb}+'M'">487M</span><span class="mgr-donut-legend-pct"
+                                th:text="${revFnbPct}+'%'">26%</span>
+                        </div>
+                        <div class="mgr-donut-legend-row">
+                            <div class="mgr-donut-legend-dot" style="background:#6B8C9A"></div><span
+                                class="mgr-donut-legend-name">Tour</span><span class="mgr-donut-legend-val"
+                                th:text="${revTour}+'M'">231M</span><span class="mgr-donut-legend-pct"
+                                th:text="${revTourPct}+'%'">13%</span>
+                        </div>
+                    </div>
+                    <script
+                        th:inline="javascript">window.donutData = { room:/*[[${revRoom}]]*/1128, fnb:/*[[${revFnb}]]*/487, tour:/*[[${revTour}]]*/231 };</script>
+                </div>
+            </div>
+
+            <!-- Chart Row 2: Line + Quick Stats -->
+            <div class="mgr-chart-row mgr-chart-row-62">
+                <div class="mgr-chart-card">
+                    <div class="mgr-chart-header">
+                        <div>
+                            <div class="mgr-chart-title">Occupancy Rate — 30 ngày</div>
+                            <div class="mgr-chart-subtitle">Tỷ lệ lấp đầy phòng theo ngày trong tháng</div>
+                        </div>
+                    </div>
+                    <div class="mgr-chart-canvas-wrap" style="height:200px"><canvas id="chart-line"></canvas></div>
+                    <script th:inline="javascript">
+                        window.occupancyData = {
+                            labels: /*[[${occLabels}]]*/ [],
+                            data: /*[[${occVals}]]*/ []
+                        };
+                    </script>
+                </div>
+                <div class="mgr-chart-card">
+                    <div class="mgr-chart-header">
+                        <div>
+                            <div class="mgr-chart-title">Chỉ số nhanh tháng này</div>
+                        </div>
+                    </div>
+                    <div class="mgr-quick-stats">
+                        <div class="mgr-stat-row">
+                            <div>
+                                <div class="mgr-stat-label">Tỷ lệ lấp đầy cao nhất</div>
+                                <div class="mgr-stat-sub" th:text="'ngày '+${peakOccupancyDate}">ngày 03/06</div>
+                            </div>
+                            <div class="mgr-stat-value" th:text="${peakOccupancy}+'%'">94%</div>
+                        </div>
+                        <div class="mgr-stat-row">
+                            <div>
+                                <div class="mgr-stat-label">Lấp đầy TB tháng</div>
+                            </div>
+                            <div class="mgr-stat-value" th:text="${avgOccupancyMonth}+'%'">78%</div>
+                        </div>
+                        <div class="mgr-stat-row">
+                            <div>
+                                <div class="mgr-stat-label">Món bán chạy nhất</div>
+                                <div class="mgr-stat-sub" th:text="${topDishOrders}+' đơn'">87 đơn</div>
+                            </div>
+                            <div class="mgr-stat-value" th:text="${topDish}">Cá sông nướng</div>
+                        </div>
+                        <div class="mgr-stat-row">
+                            <div>
+                                <div class="mgr-stat-label">Tour phổ biến nhất</div>
+                                <div class="mgr-stat-sub" th:text="${topTourBookings}+' lượt đặt'">43 lượt đặt</div>
+                            </div>
+                            <div class="mgr-stat-value" th:text="${topTour}">Du thuyền hoàng hôn</div>
+                        </div>
+                        <div class="mgr-stat-row">
+                            <div>
+                                <div class="mgr-stat-label">Thời gian lưu trú TB</div>
+                                <div class="mgr-stat-sub" th:text="${totalGuests}+' lượt khách'">320 lượt khách</div>
+                            </div>
+                            <div class="mgr-stat-value" th:text="${avgStayDays}+' ngày'">3.2 ngày</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <script th:src="@{/manager/js/dashboard.js}" src="../../static/manager/js/dashboard.js"></script>
+    <th:block th:replace="~{manager/fragments/incident-modal :: incident-modal}"></th:block>
+
+<!-- MANAGER PROFILE MODAL -->
+<div id="managerProfileModal" class="modal-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999; justify-content: center; align-items: center;">
+    <div class="modal-content" style="background: white; padding: 24px; border-radius: 8px; width: 600px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); font-family: 'Inter', sans-serif;">
+        <h2 style="margin-top: 0; border-bottom: 1px solid #e5e7eb; padding-bottom: 12px; color: #111827; font-size: 1.25rem; font-weight: 600;">Hồ sơ Cá nhân</h2>
+        
+        <div style="display: flex; gap: 24px; margin-top: 16px;">
+            <!-- Left col: Info -->
+            <div style="flex: 1;">
+                <div style="display: flex; align-items: center; margin-bottom: 16px;">
+                    <div class="mgr-sidebar-avatar" style="width: 64px; height: 64px; border-radius: 50%; background: #4f46e5; color: white; display: flex; align-items: center; justify-content: center; font-size: 24px; margin-right: 16px; font-weight: bold;" th:text="${staffName != null && staffName.length() >= 2 ? staffName.substring(0, 2).toUpperCase() : 'NV'}">NV</div>
+                    <div>
+                        <h3 style="margin: 0; font-size: 18px; color: #111827;" th:text="${staffName != null ? staffName : 'Nhân viên'}">Nhân viên</h3>
+                        <p style="margin: 4px 0 0 0; color: #6b7280; font-size: 14px;" th:text="${staffRole != null ? staffRole : 'Quản lý'}">Quản lý</p>
+                    </div>
+                </div>
+                <div style="font-size: 14px; line-height: 1.6; color: #374151;">
+                    <p style="margin: 4px 0;"><strong>Email:</strong> <span th:text="${currentEmployee != null ? currentEmployee.email : 'Chưa cập nhật'}"></span></p>
+                    <p style="margin: 4px 0;"><strong>SĐT:</strong> <span th:text="${currentEmployee != null ? currentEmployee.phone : 'Chưa cập nhật'}"></span></p>
+                    <p style="margin: 4px 0;"><strong>Giới tính:</strong> <span th:text="${currentEmployee != null ? currentEmployee.gender : 'Chưa cập nhật'}"></span></p>
+                    <p style="margin: 4px 0;"><strong>CCCD:</strong> <span th:text="${currentEmployee != null ? currentEmployee.cccd : 'Chưa cập nhật'}"></span></p>
+                </div>
+            </div>
+
+            <!-- Right col: Password -->
+            <div style="flex: 1; border-left: 1px solid #e5e7eb; padding-left: 24px;">
+                <h3 style="margin-top: 0; font-size: 16px; color: #111827;">Đổi mật khẩu</h3>
+                <div style="margin-top: 12px;">
+                    <label style="display: block; font-size: 13px; color: #4b5563; margin-bottom: 4px;">Mật khẩu mới</label>
+                    <input type="password" id="managerNewPassword" placeholder="Nhập mật khẩu mới" style="width: 100%; padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 4px; box-sizing: border-box; font-size: 14px; margin-bottom: 8px;">
+                    <button id="managerSavePasswordBtn" style="padding: 8px 16px; background: #4f46e5; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 500; font-size: 14px; width: 100%;">Cập nhật ngay</button>
+                    <div id="managerPasswordMsg" style="margin-top: 8px; font-size: 13px; display: none;"></div>
+                </div>
+            </div>
+        </div>
+
+        <div style="margin-top: 24px; text-align: right; border-top: 1px solid #e5e7eb; padding-top: 16px;">
+            <button onclick="document.getElementById('managerProfileModal').style.display='none'" style="padding: 8px 16px; background: white; color: #374151; border: 1px solid #d1d5db; border-radius: 4px; cursor: pointer; font-weight: 500;">Đóng</button>
+        </div>
+    </div>
+</div>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const avatars = document.querySelectorAll('.mgr-sidebar-user, .mgr-header-user, .mgr-header-user-box, .mgr-sidebar-footer, .mgr-header-avatar');
+        avatars.forEach(avatar => {
+            avatar.style.cursor = 'pointer';
+            avatar.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                document.getElementById('managerProfileModal').style.display = 'flex';
+                document.getElementById('managerNewPassword').value = '';
+                document.getElementById('managerPasswordMsg').style.display = 'none';
+            });
+        });
+        
+        const modal = document.getElementById('managerProfileModal');
+        if(modal) {
+            modal.addEventListener('click', function(e) {
+                if (e.target === modal) {
+                    modal.style.display = 'none';
+                }
+            });
+        }
+
+        const saveBtn = document.getElementById('managerSavePasswordBtn');
+        if (saveBtn) {
+            saveBtn.addEventListener('click', function() {
+                const newPwd = document.getElementById('managerNewPassword').value;
+                const msg = document.getElementById('managerPasswordMsg');
+                
+                if (!newPwd || newPwd.trim() === '') {
+                    msg.style.display = 'block';
+                    msg.style.color = '#dc2626';
+                    msg.innerText = 'Vui lòng nhập mật khẩu mới';
+                    return;
+                }
+
+                saveBtn.disabled = true;
+                saveBtn.innerText = 'Đang lưu...';
+
+                fetch('/api/staff/change-password', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ newPassword: newPwd })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    saveBtn.disabled = false;
+                    saveBtn.innerText = 'Cập nhật ngay';
+                    msg.style.display = 'block';
+                    if (data.success) {
+                        msg.style.color = '#16a34a';
+                        msg.innerText = 'Đổi mật khẩu thành công!';
+                        document.getElementById('managerNewPassword').value = '';
+                    } else {
+                        msg.style.color = '#dc2626';
+                        msg.innerText = data.message || 'Có lỗi xảy ra';
+                    }
+                })
+                .catch(err => {
+                    saveBtn.disabled = false;
+                    saveBtn.innerText = 'Cập nhật ngay';
+                    msg.style.display = 'block';
+                    msg.style.color = '#dc2626';
+                    msg.innerText = 'Lỗi kết nối mạng';
+                });
+            });
+        }
+    });
+</script>
+</body>
+
+
+</html>

@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html class="light" lang="vi" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>HoaNien - Feedback Management</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <!-- Google Fonts: Bodoni Moda & Plus Jakarta Sans -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..900;1,6..96,400..900&amp;family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&amp;family=EB+Garamond:ital,wght@0,400..800;1,400..800&amp;display=swap"
+        rel="stylesheet">
+    <!-- Material Symbols -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:ital,wght@1,600&display=swap');
+        *:not(.material-symbols-outlined) {
+            font-family: 'Inter', sans-serif !important;
+            font-weight: 600 !important;
+            font-style: italic !important;
+        }
+        .brand,
+        .logo-text,
+        .resort-name,
+        header h1,
+        [onclick*="window.location.href='/'"] {
+            font-family: 'EB Garamond', Georgia, serif !important;
+            font-weight: 400 !important;
+            font-style: italic !important;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+
+        .glass-card {
+            background: rgba(255, 247, 250, 0.6);
+            backdrop-filter: blur(32px);
+            -webkit-backdrop-filter: blur(32px);
+            border: 1.5px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .glass-card-error {
+            background: rgba(186, 26, 26, 0.05);
+            backdrop-filter: blur(32px);
+            -webkit-backdrop-filter: blur(32px);
+            border: 1.5px solid rgba(186, 26, 26, 0.15);
+        }
+
+        body {
+            background-color: #fff7fa;
+            background-image:
+                radial-gradient(at 0% 0%, rgba(210, 188, 251, 0.15) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(177, 156, 217, 0.1) 0px, transparent 50%);
+            background-attachment: fixed;
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            right: 0;
+            top: 100%;
+            margin-top: 0.5rem;
+            min-width: 200px;
+            z-index: 60;
+        }
+
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+    </style>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-container-low": "#ffeffb",
+                        "outline": "#7a757f",
+                        "on-tertiary-container": "#3b3c39",
+                        "tertiary-container": "#a7a6a3",
+                        "surface-container-high": "#f3e4ef",
+                        "on-error": "#ffffff",
+                        "surface": "#fff7fa",
+                        "on-surface": "#211921",
+                        "surface-container-highest": "#eedeea",
+                        "primary-fixed": "#ebddff",
+                        "secondary-fixed-dim": "#debcd8",
+                        "tertiary-fixed": "#e4e2de",
+                        "on-tertiary-fixed-variant": "#474744",
+                        "outline-variant": "#cbc4d0",
+                        "secondary-container": "#fbd8f5",
+                        "inverse-surface": "#372e36",
+                        "tertiary-fixed-dim": "#c8c6c3",
+                        "surface-container": "#f9e9f5",
+                        "primary-container": "#b19cd9",
+                        "on-background": "#211921",
+                        "on-secondary-container": "#775c74",
+                        "on-primary-fixed-variant": "#4f3d73",
+                        "surface-bright": "#fff7fa",
+                        "on-tertiary": "#ffffff",
+                        "primary-fixed-dim": "#d2bcfb",
+                        "primary": "#67558c",
+                        "on-secondary-fixed-variant": "#583f55",
+                        "on-secondary": "#ffffff",
+                        "on-primary-fixed": "#220f44",
+                        "surface-variant": "#eedeea",
+                        "on-surface-variant": "#49454f",
+                        "secondary": "#71566e",
+                        "on-secondary-fixed": "#291428",
+                        "on-primary": "#ffffff",
+                        "on-tertiary-fixed": "#1b1c1a",
+                        "inverse-on-surface": "#fcecf8",
+                        "secondary-fixed": "#fbd8f5",
+                        "surface-dim": "#e5d6e1",
+                        "on-error-container": "#93000a",
+                        "inverse-primary": "#d2bcfb",
+                        "background": "#fff7fa",
+                        "surface-container-lowest": "#ffffff",
+                        "tertiary": "#5e5e5c",
+                        "on-primary-container": "#443267",
+                        "error": "#ba1a1a",
+                        "surface-tint": "#67558c",
+                        "error-container": "#ffdad6"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "1rem",
+                        "lg": "2rem",
+                        "xl": "3rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "unit": "8px",
+                        "margin-mobile": "20px",
+                        "margin-desktop": "64px",
+                        "gutter": "24px",
+                        "section-gap": "120px",
+                        "container-max": "1280px"
+                    },
+                    "fontFamily": {
+                        "headline-md": ["Bodoni Moda"],
+                        "label-sm": ["Plus Jakarta Sans"],
+                        "body-md": ["Plus Jakarta Sans"],
+                        "headline-lg": ["Bodoni Moda"],
+                        "body-lg": ["Plus Jakarta Sans"],
+                        "display-md": ["Bodoni Moda"],
+                        "headline-lg-mobile": ["Bodoni Moda"],
+                        "display-lg": ["Bodoni Moda"],
+                        "label-md": ["Plus Jakarta Sans"],
+                        "headline": ["EB Garamond", "serif"]
+                    },
+                    "fontSize": {
+                        "headline-md": ["28px", { "lineHeight": "36px", "fontWeight": "500" }],
+                        "label-sm": ["12px", { "lineHeight": "16px", "letterSpacing": "0.03em", "fontWeight": "500" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "headline-lg": ["40px", { "lineHeight": "48px", "fontWeight": "500" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "display-md": ["56px", { "lineHeight": "64px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "headline-lg-mobile": ["32px", { "lineHeight": "40px", "fontWeight": "500" }],
+                        "display-lg": ["80px", { "lineHeight": "88px", "letterSpacing": "-0.02em", "fontWeight": "600" }],
+                        "label-md": ["14px", { "lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "600" }]
+                    }
+                },
+            },
+        }
+    </script>
+</head>
+
+<body class="font-body-md text-on-surface min-h-screen">
+    <!-- TopNavBar (Horizontal) -->
+    <header
+        class="w-full h-20 fixed top-0 left-0 z-50 bg-surface/80 backdrop-blur-xl border-b border-white/20 px-margin-desktop flex items-center justify-between">
+        <div class="flex items-center gap-12">
+            <div class="flex flex-col">
+                <h1 class="font-headline text-[32px] italic tracking-tighter text-primary leading-tight cursor-pointer"
+                    onclick="window.location.href='/'">HoaNien</h1>
+                <p class="font-label-sm text-[10px] text-on-surface-variant/60 -mt-1">Retreat Resort &amp; Hub</p>
+            </div>
+            <nav class="flex items-center gap-2">
+                <a th:class="${requestUri == '/tourguide/tour'} ? 'flex items-center gap-2 py-2 px-4 rounded-full text-primary font-bold bg-primary/5 border border-primary/20 transition-all duration-300 no-underline' : 'flex items-center gap-2 py-2 px-4 rounded-full text-on-surface-variant/70 font-medium hover:bg-primary/5 transition-all duration-300 no-underline'"
+                    href="/tourguide/tour">
+                    <span class="material-symbols-outlined text-[20px]">map</span>
+                    <span class="font-label-md text-label-md">Hành trình</span>
+                </a>
+                <a th:class="${requestUri == '/tourguide/dashboard'} ? 'flex items-center gap-2 py-2 px-4 rounded-full text-primary font-bold bg-primary/5 border border-primary/20 transition-all duration-300 no-underline' : 'flex items-center gap-2 py-2 px-4 rounded-full text-on-surface-variant/70 font-medium hover:bg-primary/5 transition-all duration-300 no-underline'"
+                    href="/tourguide/dashboard">
+                    <span class="material-symbols-outlined text-[20px]">group</span>
+                    <span class="font-label-md text-label-md">Khách hàng</span>
+                </a>
+                <a th:class="${requestUri == '/tourguide/feedback'} ? 'flex items-center gap-2 py-2 px-4 rounded-full text-primary font-bold bg-primary/5 border border-primary/20 transition-all duration-300 no-underline' : 'flex items-center gap-2 py-2 px-4 rounded-full text-on-surface-variant/70 font-medium hover:bg-primary/5 transition-all duration-300 no-underline'"
+                    href="/tourguide/feedback">
+                    <span class="material-symbols-outlined text-[20px]">rate_review</span>
+                    <span class="font-label-md text-label-md">Nhận xét</span>
+                </a>
+            </nav>
+        </div>
+        <!-- 3. Profile & Icons -->
+        <div class="flex items-center gap-4">
+            <div class="relative dropdown-notification">
+                <button onclick="toggleNotificationDropdown(event)"
+                    class="w-10 h-10 flex items-center justify-center rounded-full text-on-surface-variant hover:bg-primary/5 transition-colors relative">
+                    <span class="material-symbols-outlined">notifications</span>
+                    <!-- Red badge for unread notifications -->
+                    <span class="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full"></span>
+                </button>
+                <!-- Dropdown Card -->
+                <div id="notificationDropdown"
+                    class="hidden absolute right-0 mt-2 w-80 bg-[#fdfbf7] border border-[#3a3230]/20 shadow-2xl rounded-2xl p-4 z-[100] text-[#372618]">
+                    <div class="flex justify-between items-center border-b border-[#3a3230]/10 pb-2 mb-3">
+                        <span class="font-headline text-lg font-bold">Thông báo mới</span>
+                        <button onclick="markAllNotificationsAsRead(event)"
+                            class="text-xs text-primary hover:underline font-semibold">Đọc tất cả</button>
+                    </div>
+                    <div class="space-y-3 max-h-64 overflow-y-auto text-left" id="notifications-list">
+                        <div th:each="n : ${dynamicNotifications}" class="p-3 bg-primary/5 rounded-xl border-l-4 border-primary space-y-1">
+                            <div class="flex items-center gap-1.5">
+                                <span class="material-symbols-outlined text-[14px] text-primary" th:text="${n.icon}">info</span>
+                                <p class="text-xs font-semibold text-on-surface" th:text="${n.title}">Tiêu đề thông báo</p>
+                            </div>
+                            <p class="text-[11px] text-on-surface-variant/70 leading-snug" th:text="${n.content}">Nội dung thông báo...</p>
+                            <p class="text-[9px] text-on-surface-variant/50" th:text="${n.timeText}">5 phút trước</p>
+                        </div>
+                        <div th:if="${dynamicNotifications == null || dynamicNotifications.isEmpty()}" class="p-4 text-center text-xs text-on-surface-variant/50">
+                            Không có thông báo mới nào.
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="h-8 w-px bg-primary/10"></div>
+            <button onclick="openGuideSettingsModal(event)"
+                class="flex items-center gap-3 pl-2 pr-1 py-1 rounded-full hover:bg-primary/5 transition-all outline-none cursor-pointer"
+                title="Thông tin cá nhân">
+                <div class="text-right">
+                    <p class="font-label-md text-label-md text-on-surface leading-none"
+                        th:text="${employee != null ? employee.fullName : 'NguynNgoc'}">NguynNgoc</p>
+                    <p class="text-[10px] text-on-surface-variant/60">Hướng dẫn viên cao cấp</p>
+                </div>
+                <div
+                    class="w-10 h-10 rounded-full overflow-hidden border-2 border-primary/20 ring-4 ring-primary/5 bg-primary-container flex items-center justify-center text-on-primary-container font-bold">
+                    GD
+                </div>
+            </button>
+            <form th:action="@{/auth/logout}" method="post" class="inline">
+                <button type="submit"
+                    class="w-10 h-10 flex items-center justify-center rounded-full text-red-600 hover:bg-red-50 hover:text-red-800 transition-colors"
+                    title="Đăng xuất">
+                    <span class="material-symbols-outlined">logout</span>
+                </button>
+            </form>
+        </div>
+    </header>
+
+    <main class="pt-32 pb-section-gap px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto">
+        <div class="relative mb-12">
+            <h1 class="font-display-md text-display-md text-on-surface mb-2">Nhận xét của khách hàng</h1>
+            <p class="font-headline text-lg md:text-xl font-light text-on-surface-variant max-w-2xl">Theo dõi chất lượng
+                tour và mức độ hài lòng của khách hàng theo thời gian thực. Cần đặc biệt lưu ý các đánh giá tiêu cực.
+            </p>
+        </div>
+
+        <!-- Summary Widgets -->
+        <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-gutter mb-12 animate-fade-in no-print">
+            <div class="glass-card p-6 rounded-lg flex flex-col gap-2 shadow-sm border-primary/10">
+                <span class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Tổng số đánh giá</span>
+                <div class="flex items-baseline gap-2">
+                    <span class="font-headline-lg text-headline-lg text-primary font-bold" th:text="${totalReviews}">0</span>
+                </div>
+            </div>
+            <div class="glass-card p-6 rounded-lg flex flex-col gap-2 shadow-sm border-primary/10">
+                <span class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Điểm trung bình</span>
+                <div class="flex items-baseline gap-2">
+                    <span class="font-headline-lg text-headline-lg text-primary font-bold" th:text="${averageRating}">5.0</span>
+                    <div class="flex text-primary">
+                        <span class="material-symbols-outlined text-[20px]"
+                            style="font-variation-settings: 'FILL' 1;">star</span>
+                    </div>
+                </div>
+            </div>
+            <div class="glass-card p-6 rounded-lg flex flex-col gap-2 shadow-sm border-primary/10">
+                <span class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Tỷ lệ hài lòng</span>
+                <div class="flex items-baseline gap-2">
+                    <span class="font-headline-lg text-headline-lg text-primary font-bold" th:text="${satisfactionRate}">100%</span>
+                </div>
+            </div>
+            <div class="glass-card p-6 rounded-lg flex flex-col gap-2 shadow-sm border-primary/10">
+                <span class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Đánh giá tiêu cực</span>
+                <div class="flex items-baseline gap-2">
+                    <span class="font-headline-lg text-headline-lg text-primary font-bold" th:text="${negativeReviewsCount}">0</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Feedback Content -->
+        <section class="space-y-6">
+            <!-- Dynamic Review Card -->
+            <div th:each="review : ${tourReviews}"
+                class="glass-card p-8 rounded-lg flex flex-col md:flex-row gap-6 relative group hover:shadow-md transition-all duration-500 border-primary/10 shadow-sm animate-fade-in">
+                
+                <!-- Avatar placeholder with initials -->
+                <div th:with="custName=${review.customer?.fullName ?: 'Khách hàng'}"
+                    class="w-16 h-16 rounded-full overflow-hidden flex-shrink-0 border-2 border-primary/20 bg-primary-container flex items-center justify-center font-bold text-white text-lg"
+                    th:text="${#strings.length(custName) >= 2 ? #strings.substring(custName, 0, 2).toUpperCase() : custName.toUpperCase()}">
+                    NM
+                </div>
+                
+                <div class="flex-1">
+                    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2 mb-4">
+                        <div>
+                            <h3 class="font-headline-md text-[20px] leading-tight text-on-surface font-bold"
+                                th:text="${review.customer?.fullName ?: 'Khách hàng ẩn danh'}">Nguyễn Minh Anh</h3>
+                            <p class="font-label-sm text-[11px] text-primary uppercase font-bold tracking-wider mt-1"
+                                th:text="${review.tourBooking?.schedule?.tour?.tourName ?: 'Hành trình HoaNien'}">
+                                Hành trình Cố Đô
+                            </p>
+                        </div>
+                        
+                        <!-- Stars Rating -->
+                        <div class="flex text-[#BFAC8F]" th:with="rating=${review.ratingTour != null ? review.ratingTour : 5}">
+                            <span th:each="i : ${#numbers.sequence(1, 5)}"
+                                  class="material-symbols-outlined"
+                                  th:style="${i <= rating} ? 'font-variation-settings: \'FILL\' 1;' : ''"
+                                  th:text="'star'">star</span>
+                        </div>
+                    </div>
+                    
+                    <p class="font-headline text-lg font-light text-on-surface mb-4 leading-relaxed italic"
+                        th:text="${review.reviewText}">
+                        "Hướng dẫn viên nhiệt tình, chu đáo..."
+                    </p>
+                    
+                    <!-- Tour Guide Reply -->
+                    <div th:if="${review.replyText != null and !review.replyText.isEmpty()}"
+                        class="mt-4 p-4 rounded-xl bg-primary-container/10 border-l-4 border-primary text-left">
+                        <div class="flex items-center gap-2 text-primary font-bold text-xs mb-1">
+                            <span class="material-symbols-outlined text-[14px]">support_agent</span>
+                            <span>Hành trình HoaNien trả lời:</span>
+                        </div>
+                        <p class="font-headline text-sm font-light text-on-surface leading-relaxed italic" th:text="${review.replyText}">
+                            Cảm ơn quý khách...
+                        </p>
+                    </div>
+
+                    <!-- Actions (Reply / Report) -->
+                    <div th:if="${review.id > 0}" class="flex items-center justify-between gap-4 mt-6 pt-4 border-t border-outline-variant/20">
+                        <div class="flex items-center gap-3">
+                            <!-- Nút Phản hồi -->
+                            <button th:if="${review.replyText == null or review.replyText.isEmpty()}"
+                                th:onclick="'toggleReplyForm(' + ${review.id} + ')'"
+                                class="flex items-center gap-1 px-4 py-1.5 rounded-full text-xs font-bold text-primary border border-primary/20 hover:bg-primary/5 transition-all">
+                                <span class="material-symbols-outlined text-sm">reply</span>
+                                Phản hồi
+                            </button>
+                            <!-- Nút Báo cáo vi phạm -->
+                            <button th:if="${!review.isReported}"
+                                th:onclick="'openReportModal(' + ${review.id} + ')'"
+                                class="flex items-center gap-1 px-4 py-1.5 rounded-full text-xs font-bold text-red-600 border border-red-200 hover:bg-red-50 transition-all">
+                                <span class="material-symbols-outlined text-sm">report</span>
+                                Báo cáo vi phạm
+                            </button>
+                            <span th:if="${review.isReported}" class="inline-flex items-center gap-1 text-[10px] text-red-600 font-bold bg-red-50 border border-red-200 px-2.5 py-1 rounded-full">
+                                <span class="material-symbols-outlined text-[12px]">info</span>
+                                Đã báo cáo vi phạm
+                            </span>
+                        </div>
+                        <!-- Date -->
+                        <span class="text-[10px] text-on-surface-variant/50 font-medium bg-primary/5 px-2.5 py-1 rounded-full border border-primary/10" 
+                              th:text="${#temporals.format(review.createdAt, 'dd/MM/yyyy HH:mm')}">01/01/2026 12:00</span>
+                    </div>
+
+                    <div th:if="${review.id <= 0}" class="flex justify-end mt-4">
+                        <!-- Date for demo reviews -->
+                        <span class="text-[10px] text-on-surface-variant/50 font-medium bg-primary/5 px-2.5 py-1 rounded-full border border-primary/10" 
+                              th:text="${#temporals.format(review.createdAt, 'dd/MM/yyyy HH:mm')}">01/01/2026 12:00</span>
+                    </div>
+
+                    <!-- Inline Reply Form -->
+                    <form th:id="'replyForm-' + ${review.id}" th:action="@{/tourguide/feedback/reply}" method="post"
+                        class="hidden mt-4 p-4 rounded-xl bg-surface-container-low border border-outline-variant/30 text-left">
+                        <input type="hidden" name="reviewId" th:value="${review.id}" />
+                        <label class="block text-xs font-bold text-on-surface mb-2">Viết phản hồi cho khách hàng:</label>
+                        <textarea name="replyText" required rows="2"
+                            class="w-full bg-white border border-outline-variant/30 rounded-lg p-3 text-sm text-on-surface placeholder-on-surface-variant/40 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none font-medium italic-none"
+                            placeholder="Nhập nội dung phản hồi của bạn..."></textarea>
+                        <div class="flex justify-end gap-2 mt-3">
+                            <button type="button" th:onclick="'toggleReplyForm(' + ${review.id} + ')'"
+                                class="px-4 py-1.5 rounded-full text-xs font-bold text-on-surface-variant/70 border border-outline-variant/30 hover:bg-on-surface-variant/5 transition-all">Hủy</button>
+                            <button type="submit"
+                                class="px-5 py-1.5 rounded-full text-xs font-bold text-on-primary bg-primary hover:bg-primary/90 transition-all shadow-sm">Gửi phản hồi</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Empty State -->
+            <div th:if="${#lists.isEmpty(tourReviews)}"
+                class="flex flex-col items-center justify-center py-20 text-center glass-card border-primary/10 shadow-sm rounded-lg">
+                <span class="material-symbols-outlined text-[64px] text-primary/30 mb-4">rate_review</span>
+                <p class="font-body-md text-lg text-on-surface-variant/80 font-medium">Chưa có nhận xét nào liên quan tới các tour du lịch.</p>
+            </div>
+        </section>
+    </main>
+
+    <!-- BEGIN: Footer -->
+    <footer class="bg-[#3c3530] text-[#e5dfd8] py-20 px-6 font-sans site-footer relative z-20">
+        <div class="max-w-[1440px] mx-auto grid grid-cols-1 md:grid-cols-2 gap-12 items-end">
+            <div class="space-y-6">
+                <div class="font-serif text-3xl font-medium tracking-wide text-white">
+                    HOANIEN
+                    <span class="block text-xs font-sans tracking-[0.3em] uppercase mt-2 opacity-70">River
+                        Retreat</span>
+                </div>
+                <div class="text-sm opacity-80 leading-relaxed max-w-sm">
+                    232 Tran Nhan Tong Street,<br>
+                    Hoi An Dong Ward,<br>
+                    Danang City, Viet Nam
+                </div>
+                <div class="text-sm opacity-80">
+                    <a href="mailto:contact@hoanienretreat.com"
+                        class="hover:text-white transition-colors">contact@hoanienretreat.com</a><br>
+                    <a href="tel:+84123456789" class="hover:text-white transition-colors">+84 123 456 789</a>
+                </div>
+            </div>
+
+            <div
+                class="h-48 md:h-64 rounded-xl overflow-hidden grayscale opacity-70 hover:grayscale-0 hover:opacity-100 transition-all duration-500 relative group cursor-pointer border border-[#e5dfd8]/20">
+                <iframe
+                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3834.1105353597627!2d108.23847531536098!3d16.059758088886364!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3142177f2ced6d8b%3A0xeac35f2960fa74a4!2sDanang%2C%20Vietnam!5e0!3m2!1sen!2s!4v1655112345678!5m2!1sen!2s"
+                    width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy"
+                    referrerpolicy="no-referrer-when-downgrade"></iframe>
+            </div>
+        </div>
+
+        <div
+            class="max-w-[1440px] mx-auto mt-16 pt-8 border-t border-[#e5dfd8]/10 text-center text-[10px] uppercase tracking-[0.15em] opacity-50 flex flex-col md:flex-row justify-between gap-4">
+            <p>© 2026 Hoanien River Retreat. All rights reserved.</p>
+            <div class="flex gap-6 justify-center md:justify-end">
+                <a href="#" class="hover:text-white transition-colors">Privacy</a>
+                <a href="#" class="hover:text-white transition-colors">Terms</a>
+                <a href="#" class="hover:text-white transition-colors">Sitemap</a>
+            </div>
+        </div>
+    </footer>
+    <!-- END: Footer -->
+
+    <!-- Guide Settings Modal -->
+    <div id="guideSettingsModal"
+        class="fixed inset-0 z-[150] hidden flex items-center justify-center bg-black/60 backdrop-blur-sm">
+        <div class="bg-[#fdfbf7] w-full max-w-lg p-8 border border-[#3a3230]/20 shadow-2xl relative text-[#372618]">
+            <button onclick="closeGuideSettingsModal()"
+                class="absolute top-4 right-4 text-[#372618]/60 hover:text-[#372618] transition-colors focus:outline-none">
+                <span class="material-symbols-outlined text-2xl">close</span>
+            </button>
+            <h3 class="font-headline-md text-2xl text-black font-bold mb-2 border-b border-[#3a3230]/10 pb-3">Thông tin
+                hướng dẫn viên</h3>
+
+            <div th:if="${employee != null}" class="space-y-4 mt-4">
+                <div class="space-y-1">
+                    <label class="font-label-caps text-[10px] text-outline uppercase block text-left font-semibold">Họ
+                        và tên</label>
+                    <input readonly th:value="${employee.fullName}"
+                        class="w-full bg-transparent border-0 border-b border-[#3a3230]/20 py-1.5 font-body-md text-black transition-all text-left outline-none cursor-default" />
+                </div>
+                <div class="space-y-1">
+                    <label class="font-label-caps text-[10px] text-outline uppercase block text-left font-semibold">Giới
+                        tính</label>
+                    <input readonly
+                        th:value="${employee.gender == 'Male' ? 'Nam' : (employee.gender == 'Female' ? 'Nữ' : 'Khác')}"
+                        class="w-full bg-transparent border-0 border-b border-[#3a3230]/20 py-1.5 font-body-md text-black transition-all text-left outline-none cursor-default" />
+                </div>
+                <div class="space-y-1">
+                    <label class="font-label-caps text-[10px] text-outline uppercase block text-left font-semibold">Số
+                        CCCD</label>
+                    <input readonly th:value="${employee.cccd}"
+                        class="w-full bg-transparent border-0 border-b border-[#3a3230]/20 py-1.5 font-body-md text-black transition-all text-left outline-none cursor-default" />
+                </div>
+                <div class="space-y-1">
+                    <label class="font-label-caps text-[10px] text-outline uppercase block text-left font-semibold">Số
+                        điện thoại</label>
+                    <input readonly th:value="${employee.phone}"
+                        class="w-full bg-transparent border-0 border-b border-[#3a3230]/20 py-1.5 font-body-md text-black transition-all text-left outline-none cursor-default" />
+                </div>
+                <div class="space-y-1">
+                    <label
+                        class="font-label-caps text-[10px] text-outline uppercase block text-left font-semibold">Email</label>
+                    <input readonly th:value="${employee.email}"
+                        class="w-full bg-transparent border-0 border-b border-[#3a3230]/20 py-1.5 font-body-md text-black transition-all text-left outline-none cursor-default" />
+                </div>
+            </div>
+            <div th:if="${employee == null}">
+                <p class="text-sm text-[#3a3230]/80 mt-4 text-left">Không tìm thấy thông tin hồ sơ hướng dẫn viên. Vui
+                    lòng liên hệ Quản lý để được hỗ trợ.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Report Modal -->
+    <div id="reportModal"
+        class="fixed inset-0 z-[150] hidden flex items-center justify-center bg-black/60 backdrop-blur-sm">
+        <form th:action="@{/tourguide/feedback/report}" method="post"
+            class="bg-[#fdfbf7] w-full max-w-md p-8 border border-[#3a3230]/20 shadow-2xl relative text-[#372618] rounded-2xl">
+            <button type="button" onclick="closeReportModal()"
+                class="absolute top-4 right-4 text-[#372618]/60 hover:text-[#372618] transition-colors focus:outline-none">
+                <span class="material-symbols-outlined text-2xl">close</span>
+            </button>
+            <h3 class="font-headline-md text-2xl text-black font-bold mb-4 border-b border-[#3a3230]/10 pb-3">Báo cáo nhận xét vi phạm</h3>
+            
+            <input type="hidden" name="reviewId" id="reportReviewId" />
+            <div class="space-y-4">
+                <div class="space-y-2 text-left">
+                    <label class="font-label-caps text-[10px] text-outline uppercase block font-semibold text-left">Lý do báo cáo</label>
+                    <textarea name="reportReason" required rows="3"
+                        class="w-full bg-white border border-[#3a3230]/20 rounded-lg p-3 text-sm text-black placeholder-[#3a3230]/40 focus:ring-2 focus:ring-primary/20 transition-all outline-none font-medium italic-none"
+                        placeholder="Nêu rõ lý do báo cáo nhận xét này (ví dụ: dùng từ ngữ thô tục, spam, không đúng sự thật...)"></textarea>
+                </div>
+            </div>
+            
+            <div class="flex justify-end gap-3 mt-6 pt-4 border-t border-[#3a3230]/10">
+                <button type="button" onclick="closeReportModal()"
+                    class="px-5 py-2 rounded-full text-sm font-bold text-on-surface-variant/70 border border-outline-variant/30 hover:bg-on-surface-variant/5 transition-all">Hủy</button>
+                <button type="submit"
+                    class="px-6 py-2 rounded-full text-sm font-bold text-white bg-red-600 hover:bg-red-700 transition-all shadow-md">Gửi báo cáo</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="feedback-toast" class="fixed top-8 right-8 z-[200] transform translate-y-[-150%] transition-transform duration-500 ease-out hidden">
+        <div class="flex items-center gap-3 bg-[#2D2926] text-white px-6 py-4 rounded-xl shadow-2xl border border-white/10">
+            <span class="material-symbols-outlined text-emerald-400" id="toast-icon">check_circle</span>
+            <p class="text-sm font-bold tracking-wide" id="toast-message">Thao tác thành công!</p>
+        </div>
+    </div>
+
+    <script>
+        function openGuideSettingsModal(e) {
+            e.stopPropagation();
+            document.getElementById('guideSettingsModal').classList.remove('hidden');
+        }
+
+        function closeGuideSettingsModal() {
+            document.getElementById('guideSettingsModal').classList.add('hidden');
+        }
+
+        function toggleNotificationDropdown(e) {
+            e.stopPropagation();
+            const dropdown = document.getElementById('notificationDropdown');
+            dropdown.classList.toggle('hidden');
+        }
+
+        function markAllNotificationsAsRead(e) {
+            if (e) e.stopPropagation();
+            const badge = document.querySelector('.dropdown-notification button .bg-red-500');
+            if (badge) {
+                badge.remove();
+            }
+            const items = document.querySelectorAll('#notifications-list > div');
+            items.forEach(item => {
+                item.className = 'p-3 hover:bg-primary/5 rounded-xl transition-colors space-y-1';
+            });
+        }
+
+        document.addEventListener('click', function (e) {
+            const dropdown = document.getElementById('notificationDropdown');
+            if (dropdown && !dropdown.classList.contains('hidden')) {
+                const isClickInside = dropdown.contains(e.target) || e.target.closest('.dropdown-notification');
+                if (!isClickInside) {
+                    dropdown.classList.add('hidden');
+                }
+            }
+        });
+
+        // Toggle Reply Form visibility
+        function toggleReplyForm(reviewId) {
+            const form = document.getElementById('replyForm-' + reviewId);
+            if (form) {
+                form.classList.toggle('hidden');
+            }
+        }
+
+        // Open Report Modal
+        function openReportModal(reviewId) {
+            const modal = document.getElementById('reportModal');
+            const input = document.getElementById('reportReviewId');
+            if (modal && input) {
+                input.value = reviewId;
+                modal.classList.remove('hidden');
+            }
+        }
+
+        // Close Report Modal
+        function closeReportModal() {
+            const modal = document.getElementById('reportModal');
+            if (modal) {
+                modal.classList.add('hidden');
+            }
+        }
+
+        // Handle Toast Notifications
+        document.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.has('toast')) {
+                const toastType = urlParams.get('toast');
+                const toast = document.getElementById('feedback-toast');
+                const toastIcon = document.getElementById('toast-icon');
+                const toastMsg = document.getElementById('toast-message');
+                
+                if (toast && toastMsg && toastIcon) {
+                    if (toastType === 'reply_success') {
+                        toastMsg.textContent = "Đã gửi phản hồi nhận xét thành công!";
+                        toastIcon.textContent = "check_circle";
+                        toastIcon.className = "material-symbols-outlined text-emerald-400";
+                    } else if (toastType === 'report_success') {
+                        toastMsg.textContent = "Đã báo cáo nhận xét vi phạm thành công!";
+                        toastIcon.textContent = "info";
+                        toastIcon.className = "material-symbols-outlined text-red-400";
+                    }
+                    
+                    toast.classList.remove('hidden');
+                    // Trigger reflow
+                    toast.offsetHeight;
+                    toast.style.transform = 'translateY(0)';
+                    
+                    setTimeout(() => {
+                        toast.style.transform = 'translateY(-150%)';
+                        setTimeout(() => {
+                            toast.classList.add('hidden');
+                        }, 500);
+                    }, 5000);
+                }
+                
+                // Clean URL
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
+        });
+    </script>
+
+<!-- TOUR PROFILE MODAL -->
+<div id="tourProfileModal" class="modal-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999; justify-content: center; align-items: center;">
+    <div class="modal-content" style="background: white; padding: 24px; border-radius: 8px; width: 600px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); font-family: 'Inter', sans-serif;">
+        <h2 style="margin-top: 0; border-bottom: 1px solid #e5e7eb; padding-bottom: 12px; color: #111827; font-size: 1.25rem; font-weight: 600;">Hồ sơ Cá nhân</h2>
+        
+        <div style="display: flex; gap: 24px; margin-top: 16px;">
+            <!-- Left col: Info -->
+            <div style="flex: 1;">
+                <div style="display: flex; align-items: center; margin-bottom: 16px;">
+                    <div class="staff-avatar" style="width: 64px; height: 64px; border-radius: 50%; background: #10b981; color: white; display: flex; align-items: center; justify-content: center; font-size: 24px; margin-right: 16px; font-weight: bold;" th:text="${staffName != null && staffName.length() >= 2 ? staffName.substring(0, 2).toUpperCase() : 'NV'}">NV</div>
+                    <div>
+                        <h3 style="margin: 0; font-size: 18px; color: #111827;" th:text="${staffName != null ? staffName : 'Nhân viên'}">Nhân viên</h3>
+                        <p style="margin: 4px 0 0 0; color: #6b7280; font-size: 14px;" th:text="${staffRole != null ? staffRole : 'Tour Guide'}">Tour Guide</p>
+                    </div>
+                </div>
+                <div style="font-size: 14px; line-height: 1.6; color: #374151;">
+                    <p style="margin: 4px 0;"><strong>Email:</strong> <span th:text="${currentEmployee != null ? currentEmployee.email : 'Chưa cập nhật'}"></span></p>
+                    <p style="margin: 4px 0;"><strong>SĐT:</strong> <span th:text="${currentEmployee != null ? currentEmployee.phone : 'Chưa cập nhật'}"></span></p>
+                    <p style="margin: 4px 0;"><strong>Giới tính:</strong> <span th:text="${currentEmployee != null ? currentEmployee.gender : 'Chưa cập nhật'}"></span></p>
+                    <p style="margin: 4px 0;"><strong>CCCD:</strong> <span th:text="${currentEmployee != null ? currentEmployee.cccd : 'Chưa cập nhật'}"></span></p>
+                </div>
+            </div>
+
+            <!-- Right col: Password -->
+            <div style="flex: 1; border-left: 1px solid #e5e7eb; padding-left: 24px;">
+                <h3 style="margin-top: 0; font-size: 16px; color: #111827;">Đổi mật khẩu</h3>
+                <div style="margin-top: 12px;">
+                    <label style="display: block; font-size: 13px; color: #4b5563; margin-bottom: 4px;">Mật khẩu mới</label>
+                    <input type="password" id="tourNewPassword" placeholder="Nhập mật khẩu mới" style="width: 100%; padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 4px; box-sizing: border-box; font-size: 14px; margin-bottom: 8px;">
+                    <button id="tourSavePasswordBtn" style="padding: 8px 16px; background: #10b981; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 500; font-size: 14px; width: 100%;">Cập nhật ngay</button>
+                    <div id="tourPasswordMsg" style="margin-top: 8px; font-size: 13px; display: none;"></div>
+                </div>
+            </div>
+        </div>
+
+        <div style="margin-top: 24px; text-align: right; border-top: 1px solid #e5e7eb; padding-top: 16px;">
+            <button onclick="document.getElementById('tourProfileModal').style.display='none'" style="padding: 8px 16px; background: white; color: #374151; border: 1px solid #d1d5db; border-radius: 4px; cursor: pointer; font-weight: 500;">Đóng</button>
+        </div>
+    </div>
+</div>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const avatars = document.querySelectorAll('.staff-avatar, [title="Tài khoản"]');
+        avatars.forEach(avatar => {
+            avatar.style.cursor = 'pointer';
+            avatar.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                document.getElementById('tourProfileModal').style.display = 'flex';
+                document.getElementById('tourNewPassword').value = '';
+                document.getElementById('tourPasswordMsg').style.display = 'none';
+            });
+        });
+        
+        const modal = document.getElementById('tourProfileModal');
+        if(modal) {
+            modal.addEventListener('click', function(e) {
+                if (e.target === modal) {
+                    modal.style.display = 'none';
+                }
+            });
+        }
+
+        const saveBtn = document.getElementById('tourSavePasswordBtn');
+        if (saveBtn) {
+            saveBtn.addEventListener('click', function() {
+                const newPwd = document.getElementById('tourNewPassword').value;
+                const msg = document.getElementById('tourPasswordMsg');
+                
+                if (!newPwd || newPwd.trim() === '') {
+                    msg.style.display = 'block';
+                    msg.style.color = '#dc2626';
+                    msg.innerText = 'Vui lòng nhập mật khẩu mới';
+                    return;
+                }
+
+                saveBtn.disabled = true;
+                saveBtn.innerText = 'Đang lưu...';
+
+                fetch('/api/staff/change-password', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ newPassword: newPwd })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    saveBtn.disabled = false;
+                    saveBtn.innerText = 'Cập nhật ngay';
+                    msg.style.display = 'block';
+                    if (data.success) {
+                        msg.style.color = '#16a34a';
+                        msg.innerText = 'Đổi mật khẩu thành công!';
+                        document.getElementById('tourNewPassword').value = '';
+                    } else {
+                        msg.style.color = '#dc2626';
+                        msg.innerText = data.message || 'Có lỗi xảy ra';
+                    }
+                })
+                .catch(err => {
+                    saveBtn.disabled = false;
+                    saveBtn.innerText = 'Cập nhật ngay';
+                    msg.style.display = 'block';
+                    msg.style.color = '#dc2626';
+                    msg.innerText = 'Lỗi kết nối mạng';
+                });
+            });
+        }
+    });
+</script>
+</body>
+
+</html>

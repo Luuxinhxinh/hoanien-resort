@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Phản hồi nhận xét hành trình</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@1,600&family=Inter:ital,wght@1,600&display=swap');
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif; background-color: #ffffff; color: #2d2926; }
+    .email-outer { background-color: #ffffff; padding: 40px 16px; min-height: 100vh; }
+    .wrapper { max-width: 600px; margin: 0 auto; border-radius: 4px; overflow: hidden; box-shadow: 0 4px 24px rgba(0, 0, 0, 0.05); border: 1px solid #d4c5b9; background: #ffffff; }
+    
+    .header { background: #fdfbf7; padding: 36px 40px 28px; text-align: center; border-bottom: 1px solid #d4c5b9; }
+    .header .brand, .header h1 { font-family: 'EB Garamond', Georgia, serif; font-size: 42px; font-weight: 400; color: #c5a059; margin-bottom: 4px; }
+    .header .logo-text, .header .tagline, .header .address, .invoice-title { font-family: 'EB Garamond', Georgia, serif; font-size: 16px; font-weight: 400; color: #70635c; letter-spacing: 2px; }
+    
+    .hero, .banner { background: #fdfbf7; padding: 40px 40px 36px; text-align: center; border-bottom: 1px solid #d4c5b9; }
+    .hero .icon, .banner .icon { font-size: 44px; margin-bottom: 16px; display: block; color: #c5a059; }
+    .hero h1, .banner h1 { font-family: 'EB Garamond', Georgia, serif; font-size: 26px; font-weight: 400; color: #2d2926; margin-bottom: 10px; letter-spacing: 0.5px; }
+    .hero p, .banner p { font-size: 13px; font-weight: 300; color: #70635c; letter-spacing: 0.3px; line-height: 1.7; }
+    
+    .body, .invoice-container { background: transparent; padding: 40px; }
+    .greeting, p { font-size: 14px; font-weight: 400; color: #2d2926; margin-bottom: 20px; line-height: 1.9; }
+    .greeting strong, p strong { font-weight: 600; color: #c5a059; }
+    
+    .divider-line, .divider { height: 1px; background: #f2eee9; margin: 28px 0; border: none; }
+    
+    .section-label, .section-title { font-size: 10px; font-weight: 600; letter-spacing: 3px; text-transform: uppercase; color: #70635c; margin-bottom: 20px; display: block; }
+    
+    .booking-card, .info-box { background: #fdfbf7; border: 1px solid #d4c5b9; border-radius: 3px; overflow: hidden; margin-bottom: 28px; }
+    .booking-card-header .card-title, .info-box-title { font-size: 10px; font-weight: 600; letter-spacing: 2.5px; text-transform: uppercase; color: #2d2926; margin-bottom:0; display: block; padding: 14px 20px; border-bottom: 1px solid #d4c5b9; background: #f7f5f0; }
+    .booking-card-body, .info-table { padding: 6px 0; width: 100%; border-collapse: collapse; }
+    
+    .info-row, .info-table tr { padding: 11px 20px; border-bottom: 1px solid #f2eee9; font-size: 13px; }
+    .info-row:last-child, .info-table tr:last-child { border-bottom: none; }
+    .info-label { font-weight: 500; color: #70635c; display: inline-block; vertical-align: top; width: 180px; font-size: 13px; letter-spacing: 0.3px; }
+    .info-value { font-weight: 400; color: #2d2926; font-size: 13px; display: inline-block; vertical-align: top; width: 330px; }
+    .info-value.highlight { font-weight: 600; color: #c5a059; }
+    
+    .note-box, .warning-box { border-left: 3px solid #c5a059; padding: 16px 20px; margin-bottom: 28px; font-size: 13px; color: #2d2926; line-height: 1.85; background: #fdfbf7; text-align: left; }
+    .note-box .note-title, .warning-box .warning-title { display: block; margin-bottom: 10px; font-size: 10px; font-weight: 600; letter-spacing: 2.5px; text-transform: uppercase; color: #70635c; }
+    .note-box strong, .warning-box strong { color: #c5a059; font-weight: 600; }
+    
+    .closing-text, .closing, .intro, p.info-box-title { font-size: 13px; font-weight: 400; color: #2d2926; line-height: 1.9; margin-bottom: 20px; }
+    .closing-text strong, .closing strong, .signoff strong { font-weight: 600; color: #c5a059; }
+    .closing-text em, .intro em { font-family: 'EB Garamond', Georgia, serif; font-style: normal; color: #c5a059; }
+    .signoff { font-size: 13px; color: #2d2926; line-height: 1.9; }
+    
+    .footer { background: #fdfbf7; padding: 28px 40px; text-align: center; border-top: 1px solid #d4c5b9; }
+    .footer .resort-name, .footer p { font-family: 'EB Garamond', Georgia, serif; font-size: 18px; color: #c5a059; margin-bottom: 10px; font-style: normal; }
+    .footer p, .footer .contact-info, .footer .copyright, .footer .contact, .footer .copy, .footer .footer-contact { color: #70635c; font-size: 11px; line-height: 1.9; font-weight: 300; font-family: 'Inter'; }
+    .footer a { color: #c5a059; text-decoration: none; }
+    .footer .footer-divider { height: 1px; background: #e5dfd8; margin: 14px 0; }
+    
+    @media (max-width: 480px) { .body, .header, .hero, .footer, .invoice-container, .banner { padding: 28px 24px; } .info-label { width: auto; min-width: 100px; } .info-row { flex-direction: column; gap: 3px; } }
+  </style>
+</head>
+
+<body>
+  <div class="email-outer">
+    <div class="wrapper">
+
+      <!-- Header -->
+      <div class="header">
+        <div class="brand">Hòa Niên</div>
+        <div class="logo-text">Retreat Resort & Hub</div>
+      </div>
+
+      <!-- Hero -->
+      <div class="hero">
+        <span class="icon">💬</span>
+        <h1>Đánh giá của bạn đã có phản hồi</h1>
+        <p>Cảm ơn Quý khách đã chia sẻ trải nghiệm cùng Hòa Niên</p>
+      </div>
+
+      <!-- Body -->
+      <div class="body">
+
+        <p class="greeting">
+          Kính gửi <strong>Quý khách</strong>,<br /><br />
+          Chúng tôi đã nhận được nhận xét của Quý khách về hành trình **<span th:text="${tourName}">Hành trình trải nghiệm</span>**. 
+          Dưới đây là nội dung phản hồi chính thức từ Đội ngũ hướng dẫn viên/Quản lý của Hòa Niên.
+        </p>
+
+        <div class="divider-line"></div>
+
+        <!-- Review detail -->
+        <div class="section-label">Đánh giá của Quý khách</div>
+        <div class="booking-card">
+          <div class="booking-card-header">
+            <span class="card-title" style="padding: 14px 20px; font-size: 10px; font-weight: 600; text-transform: uppercase; color: #2d2926; background: #f7f5f0; border-bottom: 1px solid #d4c5b9; display: block; width: 100%;">Nội dung nhận xét</span>
+          </div>
+          <div class="booking-card-body">
+            <div class="info-row">
+              <span class="info-label">Điểm số:</span>
+              <span class="info-value highlight" th:text="${rating} + ' / 5 ★'">5 / 5 ★</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Nhận xét:</span>
+              <span class="info-value" style="font-style: italic;" th:text="'&quot;' + ${reviewText} + '&quot;'">"Hướng dẫn viên rất nhiệt tình..."</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tour Guide Reply -->
+        <div class="section-label">Phản hồi từ Hòa Niên</div>
+        <div class="note-box" style="border-left: 3px solid #c5a059; background: #fdfbf7; padding: 20px;">
+          <span class="note-title" style="font-weight: 600; color: #c5a059; text-transform: uppercase; letter-spacing: 2px; font-size: 10px; margin-bottom: 8px; display: block;" th:text="${replierName} + ' trả lời:'">Hướng dẫn viên trả lời:</span>
+          <p style="font-style: italic; color: #2d2926; font-size: 13.5px; line-height: 1.8;" th:text="${replyText}">
+            Cảm ơn quý khách đã dành thời gian gửi phản hồi. Chúng tôi rất hy vọng sẽ được phục vụ quý khách trong các hành trình tiếp theo!
+          </p>
+        </div>
+
+        <p class="closing-text">
+          Sự hài lòng của Quý khách là động lực to lớn giúp Hòa Niên không ngừng hoàn thiện dịch vụ.<br /><br />
+          Trân trọng,<br />
+          <strong>Ban Quản lý & Đội ngũ Hướng dẫn viên</strong><br />
+          <em>Hòa Niên Retreat Resort & Hub</em>
+        </p>
+
+      </div>
+
+      <!-- Footer -->
+      <div class="footer">
+        <div class="resort-name">Hòa Niên</div>
+        <p>
+          Hotline: <span th:text="${resortPhone}">1900 xxxx</span> &nbsp;|&nbsp;
+          Website: <a th:href="${resortWebsite}" th:text="${resortWebsite}">hoaniensorretreat.vn</a>
+        </p>
+        <div class="footer-divider"></div>
+        <p>
+          Email này được gửi tự động — vui lòng không phản hồi.<br />
+          © 2026 Hòa Niên Retreat Resort & Hub. Bảo lưu mọi quyền.
+        </p>
+      </div>
+
+    </div>
+  </div>
+</body>
+
+</html>

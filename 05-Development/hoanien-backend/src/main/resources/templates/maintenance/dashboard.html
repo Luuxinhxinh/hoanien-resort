@@ -1,0 +1,1181 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Maintenance Dashboard - Hoanien Retreat</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --primary: #8C6A41;
+            --primary-light: #C6B5A2;
+            --secondary: #0F172A;
+            --bg-color: #F8FAFC;
+            --surface: #FFFFFF;
+            --surface-hover: #F1F5F9;
+            --text-primary: #0F172A;
+            --text-secondary: #334155;
+            --text-tertiary: #64748B;
+            --border-color: #CBD5E1;
+
+            --success: #15803D;
+            --success-light: #DCFCE7;
+            --warning: #B45309;
+            --warning-light: #FEF3C7;
+            --danger: #991B1B;
+            --danger-light: #FEE2E2;
+            --info: #0369A1;
+            --info-light: #E0F2FE;
+
+            --font-serif: 'Playfair Display', serif;
+            --font-sans: 'Inter', sans-serif;
+            --radius-md: 10px;
+            --radius-lg: 16px;
+            --shadow-sm: 0 4px 12px rgba(15, 23, 42, 0.05), 0 1px 3px rgba(15, 23, 42, 0.04);
+            --shadow-md: 0 12px 24px -4px rgba(15, 23, 42, 0.09), 0 4px 8px -2px rgba(15, 23, 42, 0.04);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: var(--font-sans);
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Top Navigation */
+        .top-nav {
+            background: var(--surface);
+            color: var(--text-primary);
+            padding: 16px 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .brand-logo {
+            width: 32px;
+            height: 32px;
+            background: var(--primary-light);
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 14px;
+        }
+
+        .brand-title {
+            font-family: var(--font-serif);
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--secondary);
+        }
+
+        .brand-subtitle {
+            font-size: 11px;
+            color: var(--text-tertiary);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-top: 2px;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .module-switcher select {
+            padding: 8px 32px 8px 16px;
+            border-radius: 8px;
+            background: var(--surface-hover);
+            color: var(--text-secondary);
+            border: 1px solid var(--border-color);
+            font-size: 13px;
+            outline: none;
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%235E504F' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            background-size: 14px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding-left: 16px;
+            border-left: 1px solid var(--border-color);
+        }
+
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--primary-light);
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 13px;
+        }
+
+        .user-details h4 {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .user-details p {
+            font-size: 11px;
+            color: var(--text-tertiary);
+        }
+
+        .logout-btn {
+            color: var(--danger);
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 600;
+            margin-left: 16px;
+            padding: 6px 12px;
+            border-radius: 6px;
+            transition: background 0.2s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid var(--border-color);
+        }
+
+        .logout-btn:hover {
+            background: var(--surface-hover);
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 32px;
+        }
+
+        .page-header {
+            margin-bottom: 32px;
+        }
+
+        .page-title h1 {
+            font-family: var(--font-serif);
+            font-size: 32px;
+            margin-bottom: 8px;
+        }
+
+        .page-title p {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 32px;
+        }
+
+        .stat-card {
+            background: var(--surface);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-sm);
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+        }
+
+        .stat-new::before {
+            background: var(--danger);
+        }
+
+        .stat-progress::before {
+            background: var(--warning);
+        }
+
+        .stat-resolved::before {
+            background: var(--success);
+        }
+
+        .stat-total::before {
+            background: var(--info);
+        }
+
+        .stat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .stat-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+        }
+
+        .stat-value {
+            font-family: var(--font-serif);
+            font-size: 36px;
+            font-weight: 700;
+            color: #2C2A1E;
+        }
+
+        /* Kanban Layout */
+        .board-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+            align-items: start;
+        }
+
+        .column {
+            background: #F1F5F9;
+            border-radius: var(--radius-lg);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            border: 1px solid #E2E8F0;
+        }
+
+        .col-todo {
+            background: #FEF2F2;
+            border-color: #FCA5A5;
+        }
+
+        .col-progress {
+            background: #FFFBEB;
+            border-color: #FDE68A;
+        }
+
+        .col-done {
+            background: #F0FDF4;
+            border-color: #BBF7D0;
+        }
+
+        .column-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 4px;
+        }
+
+        .column-title {
+            font-size: 15px;
+            font-weight: 800;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            letter-spacing: -0.01em;
+        }
+
+        .column-badge {
+            background: #FFFFFF;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 700;
+            box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
+            border: 1px solid rgba(15, 23, 42, 0.08);
+        }
+
+        .col-todo .column-title {
+            color: #DC2626;
+        }
+
+        .col-progress .column-title {
+            color: #D97706;
+        }
+
+        .col-done .column-title {
+            color: #166534;
+        }
+
+        /* Task Cards */
+        .task-card {
+            background: var(--surface);
+            border-radius: var(--radius-md);
+            padding: 20px;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border-color);
+            position: relative;
+            transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+        }
+
+        .task-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+            border-color: #94A3B8;
+        }
+
+        .task-priority {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .priority-high {
+            background: #DC2626;
+            box-shadow: 0 0 0 4px #FEE2E2;
+        }
+
+        .priority-normal {
+            background: #F59E0B;
+            box-shadow: 0 0 0 4px #FEF3C7;
+        }
+
+        .priority-low {
+            background: #0284C7;
+            box-shadow: 0 0 0 4px #E0F2FE;
+        }
+
+        .task-location {
+            font-family: var(--font-sans);
+            font-size: 20px;
+            font-weight: 800;
+            color: #0F172A;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            letter-spacing: -0.02em;
+        }
+
+        .task-location i {
+            color: #64748B;
+            font-size: 15px;
+        }
+
+        .task-desc {
+            font-size: 13.5px;
+            color: #334155;
+            font-weight: 500;
+            margin-bottom: 16px;
+            line-height: 1.5;
+        }
+
+        .task-meta {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            font-size: 11.5px;
+            font-weight: 600;
+            color: #64748B;
+            margin-bottom: 14px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #F1F5F9;
+        }
+
+        .task-meta div {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .task-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn {
+            flex: 1;
+            height: 36px;
+            padding: 0 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            border: 1px solid transparent;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary {
+            background: #0F172A;
+            color: #FFFFFF;
+            border: 1px solid #0F172A;
+            box-shadow: 0 2px 4px rgba(15, 23, 42, 0.12);
+        }
+
+        .btn-primary:hover {
+            background: #1E293B;
+            border-color: #1E293B;
+        }
+
+        .btn-success {
+            background: #15803D;
+            color: #FFFFFF;
+            border: 1px solid #15803D;
+            box-shadow: 0 2px 4px rgba(21, 128, 61, 0.15);
+        }
+
+        .btn-success:hover {
+            background: #166534;
+            border-color: #166534;
+        }
+
+        .btn-warning {
+            background: #FEF3C7;
+            color: #92400E;
+            border: 1px solid #FDE68A;
+            font-weight: 700;
+        }
+
+        .btn-warning:hover {
+            background: #FDE68A;
+            border-color: #F59E0B;
+        }
+
+        /* Alerts */
+        .alert {
+            padding: 16px 20px;
+            border-radius: var(--radius-md);
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .alert-success {
+            background: var(--success-light);
+            color: var(--success);
+            border-left: 4px solid var(--success);
+        }
+
+        .alert-error {
+            background: var(--danger-light);
+            color: var(--danger);
+            border-left: 4px solid var(--danger);
+        }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(4px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+            opacity: 1;
+        }
+
+        .modal-content {
+            background: var(--surface);
+            width: 100%;
+            max-width: 420px;
+            border-radius: var(--radius-lg);
+            padding: 32px;
+            box-shadow: 0 24px 48px rgba(0, 0, 0, 0.1);
+            transform: translateY(20px);
+            transition: transform 0.3s;
+        }
+
+        .modal-overlay.active .modal-content {
+            transform: translateY(0);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 14px;
+            margin-top: 8px;
+            margin-bottom: 20px;
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-family: var(--font-serif);
+            margin-bottom: 20px;
+        }
+
+        @keyframes flash-red {
+            0%, 100% {
+                color: #DC2626;
+                opacity: 1;
+            }
+            50% {
+                color: #DC2626;
+                opacity: 0.4;
+            }
+        }
+
+        .sla-warning {
+            color: #DC2626 !important;
+            font-weight: 700 !important;
+            animation: flash-red 1.2s infinite;
+        }
+
+        .sla-near-warning {
+            color: #D97706 !important;
+            font-weight: 700 !important;
+        }
+
+        .task-timer {
+            margin-top: 8px;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        .category-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 10.5px;
+            font-weight: 700;
+            padding: 3px 9px;
+            border-radius: 6px;
+            margin-left: 8px;
+            vertical-align: middle;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+        }
+
+        /* Navigation Tabs */
+        .section-tabs {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 24px;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 12px;
+        }
+
+        .tab-btn {
+            text-decoration: none;
+            padding: 8px 20px;
+            background: #FFFFFF;
+            border: 1px solid #CBD5E1;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #475569;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .tab-btn.active {
+            background: #0F172A;
+            border-color: #0F172A;
+            color: #FFFFFF;
+            box-shadow: 0 2px 6px rgba(15, 23, 42, 0.15);
+        }
+
+        .tab-btn:hover:not(.active) {
+            background: var(--surface-hover);
+            color: var(--text-primary);
+        }
+    </style>
+</head>
+
+<body>
+
+    <header class="top-nav">
+        <div class="brand">
+            <div class="brand-logo"><i class="fa-solid fa-wrench"></i></div>
+            <div>
+                <div class="brand-title">Hoanien Retreat</div>
+                <div class="brand-subtitle">Maintenance</div>
+            </div>
+        </div>
+
+        <div class="user-profile">
+            <div class="module-switcher" sec:authorize="hasAnyAuthority('ROLE_ADMIN', 'ROLE_MANAGER')">
+                <select onchange="if(this.value) window.location.href=this.value">
+                    <option value="" disabled selected>-- Chuyển phân hệ --</option>
+                    <option value="/admin/dashboard">Core Operations (Admin)</option>
+                    <option value="/receptionist/dashboard">Receptionist (Lễ tân)</option>
+                    <option value="/housekeeping/dashboard">Housekeeping (Buồng phòng)</option>
+                    <option value="/maintenance/dashboard">Maintenance (Bảo trì)</option>
+                    <option value="/tourguide/tour">Tour Guide (Điểm danh Tour)</option>
+                </select>
+            </div>
+
+            <div class="user-info" style="cursor: pointer;" 
+                 th:data-name="${currentStaff != null ? currentStaff.fullName : (#authentication != null ? #authentication.name : 'Nhân viên')}"
+                 th:data-email="${currentStaff != null ? currentStaff.email : 'Chưa cập nhật'}"
+                 th:data-phone="${currentStaff != null ? currentStaff.phone : 'Chưa cập nhật'}"
+                 th:data-role="'Bảo trì'"
+                 onclick="showUserInfo(this.getAttribute('data-name'), this.getAttribute('data-email'), this.getAttribute('data-phone'), this.getAttribute('data-role'))">
+                <div class="user-avatar"
+                    th:text="${#authentication != null ? #strings.substring(#authentication.name, 0, 2).toUpperCase() : 'MT'}">
+                    MT</div>
+                <div class="user-details">
+                    <h4 th:text="${currentStaff != null ? currentStaff.fullName : (#authentication != null ? #authentication.name : 'Kỹ thuật viên')}">Kỹ thuật viên</h4>
+                    <p>Bộ phận Bảo trì</p>
+                </div>
+                <a href="/logout" class="logout-btn" onclick="event.stopPropagation();">Đăng xuất</a>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <div th:if="${successMessage}" class="alert alert-success">
+            <i class="fa-solid fa-circle-check"></i> <span th:text="${successMessage}"></span>
+        </div>
+        <div th:if="${errorMessage}" class="alert alert-error">
+            <i class="fa-solid fa-circle-exclamation"></i> <span th:text="${errorMessage}"></span>
+        </div>
+
+        <!-- Off-shift Block -->
+        <div th:if="${!isOnShift}"
+            style="text-align: center; padding: 48px 24px; background: #fff5f5; border: 1px solid #feb2b2; border-radius: 12px; margin-top: 24px;">
+            <i class="fa-solid fa-user-clock" style="font-size: 48px; color: #f56565; margin-bottom: 16px;"></i>
+            <h2 style="color: #c53030; margin-bottom: 8px;">Bạn không có ca trực ngày hôm nay</h2>
+            <p style="color: #e53e3e; font-size: 15px;">Hệ thống đã khóa các chức năng nghiệp vụ. Vui lòng liên hệ Quản
+                lý nếu có sai sót về lịch làm việc.</p>
+
+            <!-- My Weekly Schedule -->
+            <div th:if="${myWeeklySchedules != null}"
+                style="margin-top: 32px; max-width: 800px; margin-left: auto; margin-right: auto; background: var(--surface); border-radius: 12px; box-shadow: var(--shadow-sm); overflow: hidden; border: 1px solid var(--border-color);">
+                <div
+                    style="background: var(--info-light); padding: 16px 24px; border-bottom: 1px solid var(--border-color);">
+                    <h3 style="margin: 0; color: var(--info); font-family: var(--font-serif);"><i
+                            class="fa-regular fa-calendar-days"></i> Lịch trực tuần này của bạn</h3>
+                </div>
+                <table style="width: 100%; border-collapse: collapse;">
+                    <thead>
+                        <tr
+                            style="background: var(--bg-color); text-align: left; font-size: 13px; color: var(--text-secondary);">
+                            <th style="padding: 16px 24px; border-bottom: 1px solid var(--border-color);">Ngày</th>
+                            <th style="padding: 16px 24px; border-bottom: 1px solid var(--border-color);">Ca làm việc
+                            </th>
+                            <th style="padding: 16px 24px; border-bottom: 1px solid var(--border-color);">Khung giờ</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="s : ${myWeeklySchedules}" style="border-bottom: 1px solid var(--border-color);">
+                            <td style="padding: 16px 24px; font-weight: 500;"
+                                th:text="${#temporals.format(s.workDate, 'EEEE, dd/MM')}">Thứ Hai, 10/07</td>
+                            <td style="padding: 16px 24px;">
+                                <span
+                                    style="background: var(--success-light); color: var(--success); padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;"
+                                    th:text="${s.shift.shiftName}">Ca Sáng</span>
+                            </td>
+                            <td style="padding: 16px 24px; color: var(--text-secondary); font-size: 14px;"
+                                th:text="${s.shift.startTime} + ' - ' + ${s.shift.endTime}">06:00 - 14:00</td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(myWeeklySchedules)}">
+                            <td colspan="3" style="padding: 32px; text-align: center; color: var(--text-tertiary);">Tuần
+                                này bạn chưa có lịch làm việc nào.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div th:if="${isOnShift}">
+            <div class="page-header">
+                <div class="page-title">
+                    <h1>Tổng quan sự cố</h1>
+                    <p><i class="fa-regular fa-calendar"></i> <span th:text="${todayLabel}">Hôm nay</span></p>
+                </div>
+            </div>
+
+            <!-- Navigation Tabs -->
+            <div class="section-tabs">
+                <a href="/maintenance/dashboard" class="tab-btn active">Bảng công việc</a>
+                <a href="/maintenance/pricing" class="tab-btn">Định giá hỏng hóc</a>
+            </div>
+
+
+
+            <!-- Task Kanban Board -->
+            <div class="board-container">
+
+                <!-- Column: TODO -->
+                <div class="column col-todo">
+                    <div class="column-header">
+                        <div class="column-title"><i class="fa-solid fa-clipboard-list"></i> Chờ xử lý</div>
+                        <div class="column-badge" th:text="${pendingTasks.size()}">0</div>
+                    </div>
+
+                    <div th:each="t : ${pendingTasks}" class="task-card pending-task-card"
+                        th:data-created-at="${t.createdAt}" th:data-priority="${t.priority}">
+                        <div class="task-priority priority-high" th:if="${t.priority == 'High'}" title="Khẩn cấp"></div>
+                        <div class="task-priority priority-normal" th:if="${t.priority != 'High'}" title="Trung bình">
+                        </div>
+
+                        <div class="task-location">
+                            <i class="fa-solid fa-location-dot"></i> Phòng <span
+                                th:text="${t.room.roomNumber}">101</span>
+                        </div>
+                        <div class="task-desc" th:text="${t.notes}">Điều hòa chảy nước</div>
+
+                        <div class="task-meta">
+                            <div><i class="fa-solid fa-user-tag"></i> Housekeeping báo</div>
+                            <div><i class="fa-regular fa-clock"></i> <span
+                                    th:text="${#temporals.format(t.createdAt, 'HH:mm')}">08:00</span></div>
+                        </div>
+
+                        <div class="task-timer">
+                            <span class="timer-text">⏳ Đã chờ: <span class="time-elapsed">--</span></span>
+                        </div>
+
+                        <div class="task-actions">
+                            <form method="post" th:action="@{/maintenance/tasks/{id}/start(id=${t.id})}"
+                                style="width: 100%;">
+                                <button class="btn btn-primary" style="width: 100%;"><i class="fa-solid fa-wrench"></i>
+                                    Nhận việc</button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div th:if="${#lists.isEmpty(pendingTasks)}"
+                        style="text-align: center; color: var(--text-tertiary); font-size: 13px; padding: 20px 0;">Không
+                        có phiếu mới</div>
+                </div>
+
+                <!-- Column: IN PROGRESS -->
+                <div class="column col-progress">
+                    <div class="column-header">
+                        <div class="column-title"><i class="fa-solid fa-spinner fa-spin-pulse"></i> Đang sửa</div>
+                        <div class="column-badge" th:text="${inProgressTasks.size() + pausedTasks.size()}">0</div>
+                    </div>
+
+                    <!-- Active Tasks -->
+                    <div th:each="t : ${inProgressTasks}" class="task-card"
+                        style="border-left: 3px solid var(--warning);">
+                        <div class="task-location">
+                            <i class="fa-solid fa-location-dot"></i> Phòng <span
+                                th:text="${t.room.roomNumber}">102</span>
+                        </div>
+                        <div class="task-desc" th:text="${t.notes}">Sửa ống nước bồn tắm</div>
+
+                        <div class="task-actions">
+                            <button class="btn btn-warning" th:attr="onclick=|openPauseModal('${t.id}')|"><i
+                                    class="fa-solid fa-pause"></i> Tạm dừng</button>
+                            <button class="btn btn-success" th:attr="onclick=|openCompleteModal('${t.id}')|"><i
+                                    class="fa-solid fa-check"></i> Xong</button>
+                        </div>
+                    </div>
+
+                    <!-- Paused Tasks -->
+                    <div th:each="t : ${pausedTasks}" class="task-card"
+                        style="border-left: 3px solid var(--text-tertiary); opacity: 0.85;">
+                        <div class="task-location" style="color: var(--text-secondary);">
+                            <i class="fa-solid fa-location-dot"></i> Phòng <span
+                                th:text="${t.room.roomNumber}">103</span>
+                        </div>
+                        <div class="task-desc" th:text="${t.notes}">Sửa ống nước bồn tắm</div>
+                        <div style="font-size: 11px; font-weight: 600; color: var(--danger); margin-bottom: 12px;"><i
+                                class="fa-solid fa-circle-pause"></i> ĐANG TẠM DỪNG</div>
+
+                        <div class="task-actions">
+                            <form method="post" th:action="@{/maintenance/tasks/{id}/start(id=${t.id})}"
+                                style="width: 100%;">
+                                <button class="btn btn-primary" style="width: 100%;"><i class="fa-solid fa-play"></i>
+                                    Tiếp tục sửa</button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div th:if="${#lists.isEmpty(inProgressTasks) and #lists.isEmpty(pausedTasks)}"
+                        style="text-align: center; color: var(--text-tertiary); font-size: 13px; padding: 20px 0;">Không
+                        có ca đang sửa</div>
+                </div>
+
+                <!-- Column: RECENTLY DONE -->
+                <div class="column col-done">
+                    <div class="column-header">
+                        <div class="column-title"><i class="fa-solid fa-shield-check"></i> Đã hoàn thành (Gần đây)</div>
+                        <div class="column-badge" th:text="${completedCount}">0</div>
+                    </div>
+                    <div th:each="t : ${completedTasks}" class="task-card"
+                        style="border-left: 3px solid var(--success); opacity: 0.7;">
+                        <div class="task-location" style="color: var(--text-secondary);">
+                            <i class="fa-solid fa-location-dot"></i> Phòng <span
+                                th:text="${t.room.roomNumber}">101</span>
+                        </div>
+                        <div class="task-desc" th:text="${t.notes}">Đã sửa xong điều hòa</div>
+                        <div style="font-size: 11px; font-weight: 600; color: var(--success); margin-bottom: 4px;">
+                            <i class="fa-solid fa-check-double"></i> ĐÃ HOÀN THÀNH
+                        </div>
+                    </div>
+
+                    <div th:if="${#lists.isEmpty(completedTasks)}"
+                        style="text-align: center; color: var(--text-tertiary); font-size: 13px; padding: 40px 0;">
+                        <i class="fa-solid fa-check-double"
+                            style="font-size: 32px; color: var(--success-light); margin-bottom: 12px;"></i><br>
+                        Các phiếu hoàn thành sẽ lưu vào <br>Lịch sử hệ thống.
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Modals (outside the main block so JS still attaches to them) -->
+        <div class="modal-overlay" id="pauseModal">
+            <div class="modal-content">
+                <h3 class="modal-title" style="color: var(--warning);"><i class="fa-solid fa-pause"></i> Lý do tạm dừng
+                </h3>
+                <form id="pauseForm" method="post" action="">
+                    <label style="font-size: 13px; font-weight: 600; color: var(--text-secondary);">Ghi chú nguyên nhân
+                        (Vd: Chờ mua linh kiện)</label>
+                    <input type="text" name="reason" class="form-control" required placeholder="Nhập lý do...">
+                    <div style="display: flex; gap: 8px;">
+                        <button type="button" class="btn"
+                            style="background: var(--surface-hover); color: var(--text-secondary);"
+                            onclick="closeModals()">Hủy</button>
+                        <button type="submit" class="btn btn-warning"
+                            style="color: #fff; background: var(--warning);">Lưu trạng thái</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Complete Task Modal -->
+        <div class="modal-overlay" id="completeModal">
+            <div class="modal-content">
+                <h3 class="modal-title" style="color: var(--success);"><i class="fa-solid fa-check-circle"></i> Xác nhận
+                    hoàn tất</h3>
+                <form id="completeForm" method="post" action="">
+                    <label style="font-size: 13px; font-weight: 600; color: var(--text-secondary);">Ghi chú đã sửa chữa
+                        (Tùy chọn)</label>
+                    <input type="text" name="notes" class="form-control" placeholder="Đã thay van mới, bơm ga...">
+                    <div style="display: flex; gap: 8px;">
+                        <button type="button" class="btn"
+                            style="background: var(--surface-hover); color: var(--text-secondary);"
+                            onclick="closeModals()">Hủy</button>
+                        <button type="submit" class="btn btn-success">Hoàn thành phiếu</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <script>
+            function openPauseModal(taskId) {
+                document.getElementById('pauseForm').action = '/maintenance/tasks/' + taskId + '/pause';
+                document.getElementById('pauseModal').classList.add('active');
+            }
+
+            function openCompleteModal(taskId) {
+                document.getElementById('completeForm').action = '/maintenance/tasks/' + taskId + '/complete';
+                document.getElementById('completeModal').classList.add('active');
+            }
+
+            function closeModals() {
+                document.querySelectorAll('.modal-overlay').forEach(m => m.classList.remove('active'));
+            }
+
+            document.querySelectorAll('.modal-overlay').forEach(m => {
+                m.addEventListener('click', function (e) { if (e.target === this) closeModals(); });
+            });
+
+            function formatDuration(totalMins) {
+                if (totalMins < 60) {
+                    return totalMins + " phút";
+                }
+                const totalHours = Math.floor(totalMins / 60);
+                const mins = totalMins % 60;
+                if (totalHours < 24) {
+                    return totalHours + " giờ " + mins + " phút";
+                }
+                const days = Math.floor(totalHours / 24);
+                const hours = totalHours % 24;
+                if (hours === 0) {
+                    return days + " ngày";
+                }
+                return days + " ngày " + hours + " giờ";
+            }
+
+            function updatePendingTimers() {
+                const now = new Date();
+                document.querySelectorAll('.pending-task-card').forEach(card => {
+                    const createdAtStr = card.getAttribute('data-created-at');
+                    if (!createdAtStr) return;
+
+                    const createdAt = new Date(createdAtStr);
+                    const diffMs = now - createdAt;
+                    if (isNaN(diffMs) || diffMs < 0) return;
+
+                    const diffMins = Math.floor(diffMs / 60000);
+                    const elapsedSpan = card.querySelector('.time-elapsed');
+                    const timerText = card.querySelector('.timer-text');
+                    const priority = card.getAttribute('data-priority');
+
+                    // SLA rule: High priority SLA = 30 mins, Normal SLA = 60 mins
+                    const slaLimit = (priority === 'High') ? 30 : 60;
+
+                    if (elapsedSpan) {
+                        elapsedSpan.innerText = formatDuration(diffMins);
+                    }
+
+                    if (diffMins >= slaLimit) {
+                        timerText.classList.remove('sla-near-warning');
+                        timerText.classList.add('sla-warning');
+                    } else if (diffMins >= slaLimit * 0.5) {
+                        timerText.classList.remove('sla-warning');
+                        timerText.classList.add('sla-near-warning');
+                    } else {
+                        timerText.classList.remove('sla-warning');
+                        timerText.classList.remove('sla-near-warning');
+                    }
+                });
+            }
+
+            function categorizeTask(notes) {
+                if (!notes) return { emoji: "🛠️", label: "Khác", bg: "#F1F5F9", color: "#334155", border: "#CBD5E1" };
+                const text = notes.toLowerCase();
+
+                // AC/Cooling
+                if (text.includes("điều hòa") || text.includes("máy lạnh") || text.includes("cục nóng") || text.includes("gas") || text.includes("bơm ga") || text.includes("không mát")) {
+                    return { emoji: "❄️", label: "Điều hòa", bg: "#EFF6FF", color: "#1E40AF", border: "#BFDBFE" };
+                }
+
+                // Water/Plumbing
+                if (text.includes("nước") || text.includes("vòi") || text.includes("bồn") || text.includes("toilet") || text.includes("wc") || text.includes("tắc") || text.includes("nghẹt") || text.includes("rò rỉ") || text.includes("sen")) {
+                    return { emoji: "💧", label: "Nước", bg: "#E0F2FE", color: "#0369A1", border: "#BAE6FD" };
+                }
+
+                // Electricity
+                if (text.includes("điện") || text.includes("đèn") || text.includes("ổ cắm") || text.includes("công tắc") || text.includes("chập") || text.includes("cháy") || text.includes("sáng") || text.includes("tivi") || text.includes("tv") || text.includes("wifi")) {
+                    return { emoji: "⚡", label: "Điện", bg: "#FEF3C7", color: "#92400E", border: "#FDE68A" };
+                }
+
+                // Furniture/Interior
+                if (text.includes("cửa") || text.includes("giường") || text.includes("tủ") || text.includes("bàn") || text.includes("ghế") || text.includes("khóa") || text.includes("tường") || text.includes("trần") || text.includes("sơn") || text.includes("kính") || text.includes("rèm") || text.includes("nệm") || text.includes("tay nắm")) {
+                    return { emoji: "🛋️", label: "Nội thất", bg: "#F3E8FF", color: "#6B21A8", border: "#E9D5FF" };
+                }
+
+                // Default General
+                return { emoji: "🛠️", label: "Khác", bg: "#F1F5F9", color: "#334155", border: "#CBD5E1" };
+            }
+
+            function applyCategoryTags() {
+                document.querySelectorAll('.task-card').forEach(card => {
+                    const descEl = card.querySelector('.task-desc');
+                    const locEl = card.querySelector('.task-location');
+                    if (descEl && locEl && !locEl.querySelector('.category-tag')) {
+                        const notes = descEl.innerText;
+                        const cat = categorizeTask(notes);
+                        const tag = document.createElement('span');
+                        tag.className = 'category-tag';
+                        tag.style.backgroundColor = cat.bg;
+                        tag.style.color = cat.color;
+                        tag.style.border = `1px solid ${cat.border}`;
+                        tag.innerHTML = `${cat.emoji} ${cat.label}`;
+                        locEl.appendChild(tag);
+                    }
+                });
+            }
+
+            updatePendingTimers();
+            applyCategoryTags();
+            setInterval(updatePendingTimers, 30000);
+        </script>
+
+        <!-- WebSocket integration for real-time task notifications -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.5.1/sockjs.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                var socket = new SockJS('/ws-endpoint');
+                var stompClient = Stomp.over(socket);
+
+                // To get employee ID, we might need a meta tag or just subscribe to general operations channel for now
+                // Or if thymeleaf is rendering this, we can get it from session
+                stompClient.connect({}, function (frame) {
+                    console.log('Connected: ' + frame);
+
+                    // For demonstration, let's subscribe to the general operations channel
+                    // Ideally, we would subscribe to '/topic/operations/{staffId}' as well
+                    stompClient.subscribe('/topic/operations', function (message) {
+                        var payload = JSON.parse(message.body);
+                        alert("THÔNG BÁO HỆ THỐNG: " + payload.message);
+                        // Reload page to see new tasks
+                        setTimeout(() => window.location.reload(), 1500);
+                    });
+
+                    stompClient.subscribe('/topic/operations/maintenance', function (message) {
+                        var payload = JSON.parse(message.body);
+                        alert("THÔNG BÁO BẢO TRÌ: " + payload.message);
+                        setTimeout(() => window.location.reload(), 1500);
+                    });
+                });
+            });
+        </script>
+
+<!-- MAINTENANCE PROFILE MODAL -->
+<div id="maintenanceProfileModal" class="modal-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999; justify-content: center; align-items: center;">
+    <div class="modal-content" style="background: white; padding: 24px; border-radius: 8px; width: 600px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); font-family: 'Inter', sans-serif;">
+        <h2 style="margin-top: 0; border-bottom: 1px solid #e5e7eb; padding-bottom: 12px; color: #111827; font-size: 1.25rem; font-weight: 600;">Hồ sơ Cá nhân</h2>
+        
+        <div style="display: flex; gap: 24px; margin-top: 16px;">
+            <!-- Left col: Info -->
+            <div style="flex: 1;">
+                <div style="display: flex; align-items: center; margin-bottom: 16px;">
+                    <div class="user-avatar" style="width: 64px; height: 64px; border-radius: 50%; background: #f59e0b; color: white; display: flex; align-items: center; justify-content: center; font-size: 24px; margin-right: 16px; font-weight: bold;" th:text="${staffName != null && staffName.length() >= 2 ? staffName.substring(0, 2).toUpperCase() : 'NV'}">NV</div>
+                    <div>
+                        <h3 style="margin: 0; font-size: 18px; color: #111827;" th:text="${staffName != null ? staffName : 'Nhân viên'}">Nhân viên</h3>
+                        <p style="margin: 4px 0 0 0; color: #6b7280; font-size: 14px;" th:text="${staffRole != null ? staffRole : 'Maintenance'}">Maintenance</p>
+                    </div>
+                </div>
+                <div style="font-size: 14px; line-height: 1.6; color: #374151;">
+                    <p style="margin: 4px 0;"><strong>Họ và tên:</strong> <span th:text="${currentStaff != null ? currentStaff.fullName : (#authentication != null ? #authentication.name : 'Nhân viên')}">Nhân viên</span></p>
+                    <p style="margin: 4px 0;"><strong>Email:</strong> <span th:text="${currentStaff != null ? currentStaff.email : 'Chưa cập nhật'}">Chưa cập nhật</span></p>
+                    <p style="margin: 4px 0;"><strong>SĐT:</strong> <span th:text="${currentStaff != null ? currentStaff.phone : 'Chưa cập nhật'}">Chưa cập nhật</span></p>
+                    <p style="margin: 4px 0;"><strong>Giới tính:</strong> <span th:text="${currentStaff != null ? currentStaff.gender : 'Chưa cập nhật'}">Chưa cập nhật</span></p>
+                    <p style="margin: 4px 0;"><strong>CCCD:</strong> <span th:text="${currentStaff != null ? currentStaff.cccd : 'Chưa cập nhật'}">Chưa cập nhật</span></p>
+                </div>
+            </div>
+
+            <!-- Right col: Password -->
+            <div style="flex: 1; border-left: 1px solid #e5e7eb; padding-left: 24px;">
+                <h3 style="margin-top: 0; font-size: 16px; color: #111827;">Đổi mật khẩu</h3>
+                <div style="margin-top: 12px;">
+                    <label style="display: block; font-size: 13px; color: #4b5563; margin-bottom: 4px;">Mật khẩu mới</label>
+                    <input type="password" id="maintenanceNewPassword" placeholder="Nhập mật khẩu mới" style="width: 100%; padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 4px; box-sizing: border-box; font-size: 14px; margin-bottom: 8px;">
+                    <button id="maintenanceSavePasswordBtn" style="padding: 8px 16px; background: #f59e0b; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 500; font-size: 14px; width: 100%;">Cập nhật ngay</button>
+                    <div id="maintenancePasswordMsg" style="margin-top: 8px; font-size: 13px; display: none;"></div>
+                </div>
+            </div>
+        </div>
+
+        <div style="margin-top: 24px; text-align: right; border-top: 1px solid #e5e7eb; padding-top: 16px;">
+            <button onclick="document.getElementById('maintenanceProfileModal').style.display='none'" style="padding: 8px 16px; background: white; color: #374151; border: 1px solid #d1d5db; border-radius: 4px; cursor: pointer; font-weight: 500;">Đóng</button>
+        </div>
+    </div>
+</div>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const avatars = document.querySelectorAll('.sidebar-user, .user-profile-btn');
+        avatars.forEach(avatar => {
+            avatar.style.cursor = 'pointer';
+            avatar.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                document.getElementById('maintenanceProfileModal').style.display = 'flex';
+                document.getElementById('maintenanceNewPassword').value = '';
+                document.getElementById('maintenancePasswordMsg').style.display = 'none';
+            });
+        });
+        
+        const modal = document.getElementById('maintenanceProfileModal');
+        if(modal) {
+            modal.addEventListener('click', function(e) {
+                if (e.target === modal) {
+                    modal.style.display = 'none';
+                }
+            });
+        }
+
+        const saveBtn = document.getElementById('maintenanceSavePasswordBtn');
+        if (saveBtn) {
+            saveBtn.addEventListener('click', function() {
+                const newPwd = document.getElementById('maintenanceNewPassword').value;
+                const msg = document.getElementById('maintenancePasswordMsg');
+                
+                if (!newPwd || newPwd.trim() === '') {
+                    msg.style.display = 'block';
+                    msg.style.color = '#dc2626';
+                    msg.innerText = 'Vui lòng nhập mật khẩu mới';
+                    return;
+                }
+
+                saveBtn.disabled = true;
+                saveBtn.innerText = 'Đang lưu...';
+
+                fetch('/api/staff/change-password', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ newPassword: newPwd })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    saveBtn.disabled = false;
+                    saveBtn.innerText = 'Cập nhật ngay';
+                    msg.style.display = 'block';
+                    if (data.success) {
+                        msg.style.color = '#16a34a';
+                        msg.innerText = 'Đổi mật khẩu thành công!';
+                        document.getElementById('maintenanceNewPassword').value = '';
+                    } else {
+                        msg.style.color = '#dc2626';
+                        msg.innerText = data.message || 'Có lỗi xảy ra';
+                    }
+                })
+                .catch(err => {
+                    saveBtn.disabled = false;
+                    saveBtn.innerText = 'Cập nhật ngay';
+                    msg.style.display = 'block';
+                    msg.style.color = '#dc2626';
+                    msg.innerText = 'Lỗi kết nối mạng';
+                });
+            });
+        }
+    });
+</script>
+</body>
+
+
+</html>
