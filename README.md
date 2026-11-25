@@ -117,16 +117,3 @@ Dự án được tổ chức chặt chẽ theo chuẩn quy trình phát triển
    ./mvnw spring-boot:run
    ```
    *Ứng dụng mặc định chạy ở cổng `8080` (có thể đổi bằng `SERVER_PORT=8081`). Truy cập trình duyệt tại: `http://localhost:8080` (Cổng vận hành nội bộ: `http://localhost:8080/ops-login`).*
-
----
-
-## 👥 Nhóm phát triển (Group 2)
-*(Vui lòng cập nhật chi tiết các thành viên và role tại đây)*
-- Thành viên 1 - Backend / Tech Lead
-- Thành viên 2 - Frontend Developer
-- Thành viên 3 - Database & Business Analyst
-- Thành viên 4 - Tester & QA
-- Thành viên 5 - Documentation
-
----
-*Mọi thắc mắc liên quan đến dự án vui lòng liên hệ trực tiếp với Technical Lead của nhóm để được giải đáp.*
