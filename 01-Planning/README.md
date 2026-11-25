@@ -1,6 +1,6 @@
 # 01-Planning — Kế hoạch Dự án & Phân công Công việc
 
-Thư mục này quản lý toàn bộ tài nguyên liên quan đến việc lập kế hoạch, theo dõi tiến độ và quản lý tác vụ của nhóm **Group 2 — SWP391 (Kawai Retreat Resort & Hub)**.
+Thư mục này quản lý toàn bộ tài nguyên liên quan đến việc lập kế hoạch, theo dõi tiến độ và quản lý tác vụ của nhóm **Group 2 — SWP391 (Hòa Niên Retreat & Resort)**.
 
 ---
 
@@ -21,7 +21,7 @@ Dự án được chia làm 4 Sprint chính:
 
 ```mermaid
 gantt
-    title Kawai Retreat Project Timeline
+    title HoaNien Retreat Project Timeline
     dateFormat  YYYY-MM-DD
     section Requirement & Setup
     Phân tích yêu cầu & Thiết kế DB :active, 2026-06-01, 14d

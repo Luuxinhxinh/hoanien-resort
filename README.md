@@ -62,9 +62,9 @@ Dự án được tổ chức chặt chẽ theo chuẩn quy trình phát triển
 - `02-Requirement/`: Tài liệu Đặc tả Yêu cầu Phần mềm (SRS - Software Requirement Specification).
 - `03-Design/`: Tài liệu Đặc tả Thiết kế Hệ thống (Database Schema, UI/UX Mockups, UML Diagrams).
 - `04-Implement/`: Các quy chuẩn coding convention.
-- `05-Development/kawai-backend/`: **Chứa toàn bộ mã nguồn chính của ứng dụng Spring Boot.**
-  - `src/main/java/`: Source code Java phân chia theo chuẩn MVC (Controllers, Services, Models, Repositories).
-  - `src/main/resources/`: Cấu hình ứng dụng (`application.yml`), file giao diện Thymeleaf (`templates/`), static assets (`static/`), và dữ liệu mẫu (`data.sql`).
+- `05-Development/hoanien-backend/`: **Chứa toàn bộ mã nguồn chính của ứng dụng Spring Boot (`com.hoanien`).**
+  - `src/main/java/com/hoanien/`: Source code Java phân chia theo chuẩn MVC (Controllers, Services, Models, Repositories, Security, Config).
+  - `src/main/resources/`: Cấu hình ứng dụng (`application.yml`), file giao diện Thymeleaf (`templates/`), static assets (`static/`), và dữ liệu mẫu (`schema.sql`, `data.sql`).
 - `07-Reports/`: Báo cáo tiến độ và kết quả giai đoạn.
 - `08-Document-References/`: Tài liệu tham khảo thêm.
 
@@ -82,39 +82,41 @@ Dự án được tổ chức chặt chẽ theo chuẩn quy trình phát triển
 
 1. **Clone repository:**
    ```bash
-   git clone <repository-url>
-   cd su26-swp391-se2023-g2/05-Development/kawai-backend
+   git clone git@gitlab.com:manhnc2/su26-swp391-se2023-g2.git
+   cd su26-swp391-se2023-g2/05-Development/hoanien-backend
    ```
 
 2. **Cấu hình Cơ sở dữ liệu:**
-   - Tạo mới database trong MySQL có tên `kawai_db` (hoặc để Spring Boot tự động tạo thông qua cấu hình URL).
-   - Mở file `src/main/resources/application.yml` và điều chỉnh các biến môi trường hoặc thông tin kết nối trực tiếp:
+   - Tạo mới database trong MySQL có tên `hoanien_db` (hoặc để Spring Boot tự động tạo thông qua cấu hình URL).
+   - Mở file `src/main/resources/application.yml` hoặc thiết lập biến môi trường:
      ```yaml
      spring:
        datasource:
-         url: jdbc:mysql://localhost:3306/kawai_db?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=Asia/Ho_Chi_Minh
-         username: root
-         password: your_password
+         url: ${SPRING_DATASOURCE_URL:jdbc:mysql://localhost:3306/hoanien_db?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=Asia/Ho_Chi_Minh&allowPublicKeyRetrieval=true&useUnicode=true}
+         username: ${SPRING_DATASOURCE_USERNAME:root}
+         password: ${SPRING_DATASOURCE_PASSWORD:12345678}
      ```
 
 3. **Thiết lập biến môi trường (Environment Variables) (Tùy chọn nhưng khuyến nghị):**
    - `SENDGRID_API_KEY`: Key của SendGrid để gửi mail.
+   - `MAIL_USERNAME`, `MAIL_PASSWORD`: Cấu hình SMTP Gmail dự phòng.
    - `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET`, `CLOUDINARY_CLOUD_NAME`: Cấu hình Cloudinary.
 
 4. **Khởi tạo dữ liệu mẫu (Dummy Data):**
-   - Hệ thống tự động chạy script `src/main/resources/data.sql` khi khởi động (nếu `spring.sql.init.mode=always`). Điều này sẽ insert sẵn danh sách tài khoản nhân viên, phòng, danh mục, v.v. để test ngay lập tức.
-   - **Tài khoản test mặc định:**
-     - Admin: `nguyenquantri` / `admin123`
-     - Lễ tân: `lelinh` / `staff123`
-     - POS (Nhà hàng): `pos1` / `staff123`
+   - Hệ thống tự động chạy script `src/main/resources/schema.sql` và `src/main/resources/data.sql` khi khởi động (`spring.sql.init.mode=always`). Danh sách tài khoản nhân viên, phòng, tour, danh mục, v.v. được nạp sẵn để demo ngay lập tức (xem đầy đủ tại `DEMO_SHIFT_ACCOUNTS_GUIDE.md`).
+   - **Tài khoản demo mặc định:**
+     - **Admin**: `nguyenquantri` / `admin123` *(đăng nhập tại `/ops-login`)*
+     - **Manager**: `lequanly` / `admin123` *(đăng nhập tại `/ops-login`)*
+     - **Lễ tân**: `lelinh` / `staff123` *(đăng nhập tại `/ops-login`)*
+     - **POS (Nhà hàng)**: `pos1` / `staff123` *(đăng nhập tại `/ops-login`)*
+     - **Khách hàng**: `nguyenxuanluu` / `admin123` *(đăng nhập trên cổng khách `/living` hoặc `/booking`)*
 
 5. **Build và Chạy ứng dụng:**
-   Sử dụng Maven để build và chạy ứng dụng:
+   Sử dụng Maven Wrapper có sẵn trong project (hoặc `mvn`):
    ```bash
-   mvn clean install
-   mvn spring-boot:run
+   ./mvnw spring-boot:run
    ```
-   *Ứng dụng sẽ chạy ở cổng `8080`. Truy cập trình duyệt tại: `http://localhost:8080`*
+   *Ứng dụng mặc định chạy ở cổng `8080` (có thể đổi bằng `SERVER_PORT=8081`). Truy cập trình duyệt tại: `http://localhost:8080` (Cổng vận hành nội bộ: `http://localhost:8080/ops-login`).*
 
 ---
 
