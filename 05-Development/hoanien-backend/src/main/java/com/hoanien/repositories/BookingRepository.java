@@ -21,7 +21,7 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
     @Query("SELECT b FROM Booking b WHERE b.bookingStatus = 'Confirmed'")
     List<Booking> findConfirmed();
 
-    @Query("SELECT b FROM Booking b WHERE b.bookingStatus = 'Checked_In'")
+    @Query("SELECT b FROM Booking b WHERE UPPER(b.bookingStatus) = 'CHECKED_IN' OR UPPER(b.bookingStatus) = 'CHECKED-IN'")
     List<Booking> findCheckedIn();
 
     @Query("SELECT COUNT(b) FROM Booking b WHERE b.customer.id = :customerId AND UPPER(b.appliedPromotion.promoCode) = UPPER(:promoCode) AND LOWER(b.bookingStatus) NOT LIKE '%cancel%' AND LOWER(b.bookingStatus) != 'no-show'")

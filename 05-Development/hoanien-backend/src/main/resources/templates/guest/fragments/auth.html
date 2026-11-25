@@ -559,7 +559,14 @@
                                     if (response.url.includes('error_type=locked')) {
                                         showToast('Tài Khoản Bị Khóa', 'Tài khoản của bạn đã bị khóa do đăng nhập sai nhiều lần. Vui lòng thử lại sau 15 phút.', 'error');
                                     } else if (response.url.includes('error_type=disabled')) {
-                                        showToast('Tài Khoản Bị Khóa', 'Tài khoản của bạn đã bị vô hiệu hóa hoặc cấm truy cập. Vui lòng liên hệ quản trị viên.', 'error');
+                                        showToast('Chưa Kích Hoạt OTP', 'Tài khoản của bạn chưa xác nhận mã OTP. Vui lòng nhập mã OTP gửi tới email của bạn để kích hoạt.', 'warning');
+                                        const usernameInput = loginForm.querySelector('input[name="username"]');
+                                        if (usernameInput && usernameInput.value) {
+                                            document.querySelectorAll('#regOtpUsername').forEach(el => {
+                                                el.value = usernameInput.value;
+                                            });
+                                        }
+                                        toggleAuthView('otp');
                                     } else {
                                         showToast('Lỗi Đăng Nhập', 'Tên đăng nhập hoặc mật khẩu không chính xác.', 'error');
                                     }

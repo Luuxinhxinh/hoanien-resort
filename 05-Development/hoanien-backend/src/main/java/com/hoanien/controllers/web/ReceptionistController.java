@@ -704,9 +704,6 @@ public class ReceptionistController {
 
         if (allInHouseBookingsRaw != null) {
             for (Booking b : allInHouseBookingsRaw) {
-                if (b instanceof RoomBooking) {
-                    continue;
-                }
                 if (!matchesKeyword(b, keyword)) {
                     continue;
                 }

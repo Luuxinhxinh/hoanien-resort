@@ -222,7 +222,9 @@ public class AuthServiceImpl implements AuthService {
                 Map<String, Object> payload = new java.util.HashMap<>();
                 payload.put("email", customer.getEmail());
                 payload.put("fullName", customer.getFullName());
+                payload.put("customerName", customer.getFullName());
                 payload.put("otpCode", otp);
+                payload.put("otp", otp);
                 workflowEngineService.triggerEvent("USER_REGISTRATION_OTP", payload);
             } else {
                 Map<String, Object> ctx = new java.util.HashMap<>();
@@ -302,7 +304,10 @@ public class AuthServiceImpl implements AuthService {
             Map<String, Object> payload = new java.util.HashMap<>();
             payload.put("email", email);
             payload.put("fullName", username);
+            payload.put("customerName", username);
             payload.put("otpCode", resetLink);
+            payload.put("otp", resetLink);
+            payload.put("resetLink", resetLink);
             workflowEngineService.triggerEvent("USER_PASSWORD_RESET", payload);
         } else {
             Map<String, Object> ctx = new java.util.HashMap<>();

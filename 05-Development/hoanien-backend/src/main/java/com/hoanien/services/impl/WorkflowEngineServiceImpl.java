@@ -291,12 +291,39 @@ public class WorkflowEngineServiceImpl implements WorkflowEngineService {
                 else if ("SEND_EMAIL".equals(type)) {
                     String sender = (String) action.get("sender_email");
                     String target = (String) action.get("target_email");
+                    if (target == null || target.isBlank() || "{{email}}".equals(target) || "{{customer_email}}".equals(target)) {
+                        if (payload.containsKey("email") && payload.get("email") != null) {
+                            target = (String) payload.get("email");
+                        } else if (payload.containsKey("customer_email") && payload.get("customer_email") != null) {
+                            target = (String) payload.get("customer_email");
+                        }
+                    }
                     String subject = (String) action.get("email_subject");
+                    if (subject == null || subject.isBlank()) {
+                        subject = "USER_PASSWORD_RESET".equals(eventType) ? "Đặt lại mật khẩu - HOANIEN Resort" : "Xác nhận đăng ký - HOANIEN Resort";
+                    }
                     String bodyHtml = (String) action.get("email_body_html");
+                    if (bodyHtml == null) {
+                        bodyHtml = "";
+                    }
                     
-                    if (target != null && subject != null && bodyHtml != null) {
+                    if (target != null && !target.isBlank()) {
+                        Map<String, Object> enrichedPayload = new java.util.HashMap<>(payload);
+                        if (enrichedPayload.containsKey("otpCode") && !enrichedPayload.containsKey("otp")) {
+                            enrichedPayload.put("otp", enrichedPayload.get("otpCode"));
+                        }
+                        if (enrichedPayload.containsKey("otp") && !enrichedPayload.containsKey("otpCode")) {
+                            enrichedPayload.put("otpCode", enrichedPayload.get("otp"));
+                        }
+                        if (enrichedPayload.containsKey("fullName") && !enrichedPayload.containsKey("customerName")) {
+                            enrichedPayload.put("customerName", enrichedPayload.get("fullName"));
+                        }
+                        if (enrichedPayload.containsKey("customerName") && !enrichedPayload.containsKey("fullName")) {
+                            enrichedPayload.put("fullName", enrichedPayload.get("customerName"));
+                        }
+
                         // Basic payload replacement for placeholders like {{email}}
-                        for(Map.Entry<String, Object> entry : payload.entrySet()) {
+                        for(Map.Entry<String, Object> entry : enrichedPayload.entrySet()) {
                             if (entry.getValue() != null) {
                                 String placeholder = "{{" + entry.getKey() + "}}";
                                 String val = entry.getValue().toString();
@@ -307,13 +334,13 @@ public class WorkflowEngineServiceImpl implements WorkflowEngineService {
                         }
                         
                         String templateName = "custom-workflow";
-                        Map<String, Object> ctx = new java.util.HashMap<>(payload);
+                        Map<String, Object> ctx = new java.util.HashMap<>(enrichedPayload);
                         
-                        if ("otp-email".equals(bodyHtml)) {
+                        if ("USER_REGISTRATION_OTP".equals(eventType) || "otp-email".equals(bodyHtml) || "registration-otp".equals(bodyHtml)) {
                             templateName = "registration-otp";
-                        } else if ("reset-password".equals(bodyHtml)) {
+                        } else if ("USER_PASSWORD_RESET".equals(eventType) || "reset-password".equals(bodyHtml) || "password-reset".equals(bodyHtml)) {
                             templateName = "password-reset";
-                            ctx.put("resetLink", payload.get("otpCode")); // mapping for listener
+                            ctx.put("resetLink", enrichedPayload.get("otpCode")); // mapping for listener
                         } else if ("sla-warning".equals(bodyHtml)) {
                             templateName = "sla-warning";
                         } else {

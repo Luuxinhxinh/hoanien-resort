@@ -895,6 +895,7 @@ public class EmailServiceImpl implements EmailService {
         org.thymeleaf.context.Context ctx = new org.thymeleaf.context.Context(new java.util.Locale("vi", "VN"));
         ctx.setVariable("customerName", fullName);
         ctx.setVariable("otpCode", resetLink);
+        ctx.setVariable("resetLink", resetLink);
         ctx.setVariable("resortPhone", resortPhone);
         ctx.setVariable("resortWebsite", resortWebsite);
         String content = templateEngine.process("email/password-reset", ctx);
